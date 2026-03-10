@@ -1,0 +1,1 @@
+{"version":3,"file":"logging.d.ts","sourceRoot":"","sources":["../../src/middleware/logging.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,OAAO,EAAE,QAAQ,EAAE,YAAY,EAAE,MAAM,SAAS,CAAC;AAC/D,OAAO,KAAK,EAAE,MAAM,EAAE,MAAM,oBAAoB,CAAC;AAEjD;;GAEG;AACH,wBAAgB,iBAAiB,CAAC,MAAM,EAAE,MAAM,IACtC,KAAK,OAAO,EAAE,KAAK,QAAQ,EAAE,MAAM,YAAY,KAAG,IAAI,CAmB/D"}

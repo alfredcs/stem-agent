@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STEM Agent Dashboard</title>
+<style>
+  :root { --bg: #0f172a; --surface: #1e293b; --border: #334155; --text: #e2e8f0; --accent: #3b82f6; --muted: #94a3b8; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; }
+
+  /* Header */
+  header { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+  header h1 { font-size: 1.1rem; font-weight: 600; }
+  header input { flex: 1; max-width: 400px; padding: 0.4rem 0.6rem; border-radius: 6px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 0.85rem; }
+  header button { padding: 0.4rem 0.8rem; border-radius: 6px; border: none; background: var(--accent); color: #fff; cursor: pointer; font-size: 0.85rem; }
+
+  /* Tabs */
+  nav { display: flex; gap: 0; background: var(--surface); border-bottom: 1px solid var(--border); }
+  nav button { flex: 1; padding: 0.6rem; border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 0.85rem; border-bottom: 2px solid transparent; }
+  nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* Panels */
+  .panel { flex: 1; display: none; flex-direction: column; overflow: hidden; }
+  .panel.active { display: flex; }
+
+  /* Chat */
+  #chat-messages { flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .msg { max-width: 80%; padding: 0.6rem 0.8rem; border-radius: 8px; font-size: 0.9rem; line-height: 1.4; white-space: pre-wrap; word-break: break-word; }
+  .msg.user { align-self: flex-end; background: var(--accent); }
+  .msg.agent { align-self: flex-start; background: var(--surface); border: 1px solid var(--border); }
+  .msg.system { align-self: center; color: var(--muted); font-size: 0.8rem; }
+  #chat-input-bar { display: flex; gap: 0.5rem; padding: 0.75rem 1rem; border-top: 1px solid var(--border); }
+  #chat-input-bar input { flex: 1; padding: 0.5rem 0.8rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 0.9rem; }
+  #chat-input-bar button { padding: 0.5rem 1rem; border-radius: 8px; border: none; background: var(--accent); color: #fff; cursor: pointer; }
+
+  /* Generic content panels */
+  .content-area { flex: 1; overflow-y: auto; padding: 1rem; }
+  pre { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 0.8rem; font-size: 0.8rem; overflow-x: auto; white-space: pre-wrap; }
+  .refresh-btn { margin-bottom: 0.75rem; padding: 0.4rem 0.8rem; border-radius: 6px; border: none; background: var(--accent); color: #fff; cursor: pointer; font-size: 0.8rem; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <h1>STEM Agent</h1>
+  <input id="agent-url" type="text" value="http://localhost:8000" placeholder="Agent URL">
+  <button onclick="connectWS()">Connect</button>
+  <span id="status" style="font-size:0.8rem; color:var(--muted)">disconnected</span>
+</header>
+
+<!-- Tabs -->
+<nav>
+  <button class="active" onclick="showTab('chat')">Chat</button>
+  <button onclick="showTab('tasks')">Tasks</button>
+  <button onclick="showTab('memory')">Memory</button>
+  <button onclick="showTab('agent-card')">Agent Card</button>
+</nav>
+
+<!-- Chat Panel -->
+<div id="chat" class="panel active">
+  <div id="chat-messages"></div>
+  <div id="chat-input-bar">
+    <input id="chat-input" type="text" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMessage()">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+</div>
+
+<!-- Tasks Panel -->
+<div id="tasks" class="panel">
+  <div class="content-area">
+    <button class="refresh-btn" onclick="loadTools()">Refresh Tools</button>
+    <pre id="tools-content">Click "Refresh Tools" to load available MCP tools.</pre>
+  </div>
+</div>
+
+<!-- Memory Panel -->
+<div id="memory" class="panel">
+  <div class="content-area">
+    <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem">
+      <input id="memory-caller-id" type="text" placeholder="Caller ID" style="flex:1;padding:0.4rem 0.6rem;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:0.85rem;">
+      <button class="refresh-btn" style="margin:0" onclick="loadProfile()">Load Profile</button>
+    </div>
+    <pre id="profile-content">Enter a Caller ID and click "Load Profile".</pre>
+  </div>
+</div>
+
+<!-- Agent Card Panel -->
+<div id="agent-card" class="panel">
+  <div class="content-area">
+    <button class="refresh-btn" onclick="loadAgentCard()">Refresh</button>
+    <pre id="agent-card-content">Click "Refresh" to fetch the Agent Card.</pre>
+  </div>
+</div>
+
+<script>
+  // --- State ---------------------------------------------------------------
+  let ws = null;
+  const baseUrl = () => document.getElementById('agent-url').value.replace(/\/+$/, '');
+  const wsUrl = () => baseUrl().replace(/^http/, 'ws') + '/ws';
+
+  // --- Tabs ----------------------------------------------------------------
+  function showTab(id) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelector(`nav button[onclick="showTab('${id}')"]`).classList.add('active');
+  }
+
+  // --- Chat ----------------------------------------------------------------
+  function addMsg(role, text) {
+    const el = document.createElement('div');
+    el.className = 'msg ' + role;
+    el.textContent = text;
+    const container = document.getElementById('chat-messages');
+    container.appendChild(el);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+    addMsg('user', msg);
+
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ message: msg }));
+    } else {
+      // Fallback to REST
+      fetch(baseUrl() + '/api/v1/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg })
+      })
+      .then(r => r.json())
+      .then(data => addMsg('agent', typeof data.content === 'string' ? data.content : JSON.stringify(data.content, null, 2)))
+      .catch(err => addMsg('system', 'Error: ' + err.message));
+    }
+  }
+
+  function connectWS() {
+    if (ws) ws.close();
+    const statusEl = document.getElementById('status');
+    try {
+      ws = new WebSocket(wsUrl());
+      statusEl.textContent = 'connecting...';
+      ws.onopen = () => { statusEl.textContent = 'connected'; statusEl.style.color = '#22c55e'; };
+      ws.onclose = () => { statusEl.textContent = 'disconnected'; statusEl.style.color = 'var(--muted)'; };
+      ws.onerror = () => { statusEl.textContent = 'error'; statusEl.style.color = '#ef4444'; };
+      ws.onmessage = (evt) => {
+        try {
+          const data = JSON.parse(evt.data);
+          addMsg('agent', typeof data.content === 'string' ? data.content : JSON.stringify(data.content, null, 2));
+        } catch { addMsg('agent', evt.data); }
+      };
+    } catch (e) {
+      statusEl.textContent = 'failed';
+      statusEl.style.color = '#ef4444';
+    }
+  }
+
+  // --- Tools ---------------------------------------------------------------
+  function loadTools() {
+    fetch(baseUrl() + '/api/v1/mcp/tools')
+      .then(r => r.json())
+      .then(data => { document.getElementById('tools-content').textContent = JSON.stringify(data, null, 2); })
+      .catch(err => { document.getElementById('tools-content').textContent = 'Error: ' + err.message; });
+  }
+
+  // --- Memory --------------------------------------------------------------
+  function loadProfile() {
+    const cid = document.getElementById('memory-caller-id').value.trim();
+    if (!cid) return;
+    fetch(baseUrl() + '/api/v1/agent/profile/' + encodeURIComponent(cid))
+      .then(r => r.json())
+      .then(data => { document.getElementById('profile-content').textContent = JSON.stringify(data, null, 2); })
+      .catch(err => { document.getElementById('profile-content').textContent = 'Error: ' + err.message; });
+  }
+
+  // --- Agent Card ----------------------------------------------------------
+  function loadAgentCard() {
+    fetch(baseUrl() + '/.well-known/agent.json')
+      .then(r => r.json())
+      .then(data => { document.getElementById('agent-card-content').textContent = JSON.stringify(data, null, 2); })
+      .catch(err => { document.getElementById('agent-card-content').textContent = 'Error: ' + err.message; });
+  }
+</script>
+</body>
+</html>

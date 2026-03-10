@@ -1,0 +1,31 @@
+{
+  "name": "@stem-agent/memory-system",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Layer 4 — Memory & Learning System: episodic, semantic, procedural, user-context",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@stem-agent/shared": "*",
+    "pg": "^8.13.0",
+    "pgvector": "^0.2.0",
+    "pino": "^9.0.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.11.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

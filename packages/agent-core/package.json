@@ -1,0 +1,31 @@
+{
+  "name": "@stem-agent/agent-core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Layer 3 — STEM Agent Core: perception, reasoning, planning, execution engines",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@stem-agent/shared": "*",
+    "@stem-agent/mcp-integration": "*",
+    "@stem-agent/memory-system": "*",
+    "pino": "^9.0.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

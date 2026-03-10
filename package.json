@@ -1,0 +1,37 @@
+{
+  "name": "stem-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "STEM Agent — Self-adapting, Tool-enabled, Extensible, Multi-agent System",
+  "workspaces": [
+    "shared",
+    "packages/mcp-integration",
+    "packages/memory-system",
+    "packages/agent-core",
+    "packages/standard-interface",
+    "packages/caller-layer"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "eslint . --ext .ts",
+    "clean": "rm -rf packages/*/dist shared/dist",
+    "typecheck": "tsc --build",
+    "dev": "docker compose up --build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-import": "^2.31.0",
+    "pino": "^9.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0",
+    "zod": "^3.24.0"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "dependencies": {
+    "mime": "^2.6.0"
+  }
+}

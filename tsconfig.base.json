@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2022"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "composite": true,
+    "incremental": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "paths": {
+      "@stem-agent/shared": ["./shared/src"],
+      "@stem-agent/shared/*": ["./shared/src/*"],
+      "@stem-agent/mcp-integration": ["./packages/mcp-integration/src"],
+      "@stem-agent/memory-system": ["./packages/memory-system/src"],
+      "@stem-agent/agent-core": ["./packages/agent-core/src"],
+      "@stem-agent/standard-interface": ["./packages/standard-interface/src"],
+      "@stem-agent/caller-layer": ["./packages/caller-layer/src"]
+    }
+  },
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
+}

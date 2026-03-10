@@ -1,0 +1,43 @@
+{
+  "name": "@stem-agent/standard-interface",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Layer 2 — Standard Interface Layer: A2A, REST, WebSocket, framework adapters",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@stem-agent/shared": "*",
+    "@stem-agent/agent-core": "*",
+    "compression": "^1.7.5",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "pino": "^9.0.0",
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^11.0.0",
+    "ws": "^8.18.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.7.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/supertest": "^6.0.2",
+    "@types/swagger-ui-express": "^4.1.7",
+    "@types/uuid": "^10.0.0",
+    "@types/ws": "^8.5.13",
+    "supertest": "^7.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

@@ -1,0 +1,82 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: stem_agent
+      POSTGRES_USER: stem
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-stemdev}"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stem -d stem_agent"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  stem-agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: "postgresql://stem:${POSTGRES_PASSWORD:-stemdev}@postgres:5432/stem_agent"
+      REDIS_URL: "redis://redis:6379"
+      HOST: "0.0.0.0"
+      PORT: "8000"
+      # LLM — pass through from host .env
+      LLM_PROVIDER: "${LLM_PROVIDER:-amazon_bedrock}"
+      AWS_REGION: "${AWS_REGION:-us-east-1}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      # Optional model overrides (uncomment to customise)
+      # LLM_MODEL_DEFAULT: "${LLM_MODEL_DEFAULT:-}"
+      # LLM_MODEL_PERCEPTION: "${LLM_MODEL_PERCEPTION:-}"
+      # LLM_MODEL_REASONING: "${LLM_MODEL_REASONING:-}"
+      # LLM_MODEL_PLANNING: "${LLM_MODEL_PLANNING:-}"
+      LOG_LEVEL: "${LOG_LEVEL:-info}"
+      NODE_ENV: "${NODE_ENV:-production}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/.well-known/agent.json || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    profiles:
+      - prod
+      - dev
+
+  # Dev-only: expose postgres admin UI
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@stem.local
+      PGADMIN_DEFAULT_PASSWORD: admin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - dev
+
+volumes:
+  pgdata:

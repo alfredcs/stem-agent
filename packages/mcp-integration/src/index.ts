@@ -1,0 +1,58 @@
+// @stem-agent/mcp-integration — public API
+
+// Manager
+export { MCPManager } from "./manager.js";
+export type { MCPManagerOptions, ServerFactory } from "./manager.js";
+
+// Servers
+export { BaseMCPServer } from "./servers/base-server.js";
+export type { ToolHandler } from "./servers/base-server.js";
+export { DatabaseServer } from "./servers/database-server.js";
+export type {
+  IDatabaseAdapter,
+  ParameterizedQuery,
+  QueryRow,
+} from "./servers/database-server.js";
+export { APIServer } from "./servers/api-server.js";
+export type {
+  IHttpClient,
+  APIServerConfig,
+  APIEndpointDefinition,
+  HttpMethod,
+} from "./servers/api-server.js";
+export { FileServer } from "./servers/file-server.js";
+export type {
+  IFileSystemAdapter,
+  FileServerConfig,
+  FileEntry,
+  FileWatcher,
+} from "./servers/file-server.js";
+export { ToolServer } from "./servers/tool-server.js";
+export type {
+  IProcessExecutor,
+  IToolDefinition,
+  ToolServerConfig,
+  ToolExecResult,
+} from "./servers/tool-server.js";
+export {
+  CustomServer,
+  CustomServerLoader,
+  AbstractCustomServer,
+} from "./servers/custom-server.js";
+export type { ToolRegistration } from "./servers/custom-server.js";
+
+// Transport
+export type { IMCPTransport, NotificationHandler, MCPNotification } from "./transport/base-transport.js";
+export { StdioTransport } from "./transport/stdio-transport.js";
+export type { StdioTransportOptions } from "./transport/stdio-transport.js";
+export { SSETransport } from "./transport/sse-transport.js";
+export type { SSETransportOptions } from "./transport/sse-transport.js";
+
+// Errors
+export {
+  MCPConnectionError,
+  MCPToolNotFoundError,
+  MCPToolExecutionError,
+  MCPTransportError,
+  MCPServerNotFoundError,
+} from "./errors.js";
