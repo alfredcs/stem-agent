@@ -36,6 +36,7 @@
   "dependencies": {
     "@anthropic-ai/bedrock-sdk": "^0.26.4",
     "@modelcontextprotocol/sdk": "^1.27.1",
-    "mime": "^2.6.0"
+    "mime": "^2.6.0",
+    "ws": "^8.19.0"
   }
 }

@@ -215,15 +215,25 @@ export class StemAgentClient {
     const ws = new WebSocket(url);
     this.activeSockets.push(ws);
 
+    const ready = new Promise<void>((resolve, reject) => {
+      if (ws.readyState === WebSocket.OPEN) { resolve(); return; }
+      ws.addEventListener("open", () => resolve(), { once: true });
+      ws.addEventListener("error", (e) => reject(e), { once: true });
+    });
+
     return {
       send(msg: ChatRequest): void {
-        ws.send(
-          JSON.stringify({
-            message: msg.message,
-            caller_id: msg.callerId,
-            session_id: msg.sessionId,
-          }),
-        );
+        const payload = JSON.stringify({
+          type: "client.message",
+          message: msg.message,
+          callerId: msg.callerId,
+          sessionId: msg.sessionId,
+        });
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(payload);
+        } else {
+          void ready.then(() => ws.send(payload));
+        }
       },
 
       async *messages(): AsyncIterable<ChatResponse> {

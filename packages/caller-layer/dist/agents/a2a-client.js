@@ -174,9 +174,17 @@ export class A2AClient {
                         if (json === "[DONE]")
                             return;
                         try {
-                            yield JSON.parse(json);
+                            const parsed = JSON.parse(json);
+                            if (parsed.error) {
+                                throw new A2AError(parsed.error.code, parsed.error.message, parsed.error.data);
+                            }
+                            if (parsed.result) {
+                                yield parsed.result;
+                            }
                         }
-                        catch {
+                        catch (e) {
+                            if (e instanceof A2AError)
+                                throw e;
                             // skip unparseable
                         }
                     }

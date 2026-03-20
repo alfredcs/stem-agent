@@ -134,13 +134,28 @@ export class StemAgentClient {
         this.log.debug({ url }, "connectWebSocket");
         const ws = new WebSocket(url);
         this.activeSockets.push(ws);
+        const ready = new Promise((resolve, reject) => {
+            if (ws.readyState === WebSocket.OPEN) {
+                resolve();
+                return;
+            }
+            ws.addEventListener("open", () => resolve(), { once: true });
+            ws.addEventListener("error", (e) => reject(e), { once: true });
+        });
         return {
             send(msg) {
-                ws.send(JSON.stringify({
+                const payload = JSON.stringify({
+                    type: "client.message",
                     message: msg.message,
-                    caller_id: msg.callerId,
-                    session_id: msg.sessionId,
-                }));
+                    callerId: msg.callerId,
+                    sessionId: msg.sessionId,
+                });
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send(payload);
+                }
+                else {
+                    void ready.then(() => ws.send(payload));
+                }
             },
             async *messages() {
                 // Queue incoming messages so the async iterator can consume them

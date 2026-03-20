@@ -247,8 +247,15 @@ export class A2AClient {
             const json = trimmed.slice(6);
             if (json === "[DONE]") return;
             try {
-              yield JSON.parse(json) as AgentResponse;
-            } catch {
+              const parsed = JSON.parse(json) as JsonRpcResponse<AgentResponse>;
+              if (parsed.error) {
+                throw new A2AError(parsed.error.code, parsed.error.message, parsed.error.data);
+              }
+              if (parsed.result) {
+                yield parsed.result;
+              }
+            } catch (e) {
+              if (e instanceof A2AError) throw e;
               // skip unparseable
             }
           }
