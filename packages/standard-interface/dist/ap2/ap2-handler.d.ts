@@ -25,6 +25,7 @@ export declare class Ap2Handler {
     getReceipts(): Map<string, AP2PaymentReceipt>;
     private getActiveIntent;
     private validateMerchant;
+    private validateCurrency;
     private validateAmount;
 }
 //# sourceMappingURL=ap2-handler.d.ts.map

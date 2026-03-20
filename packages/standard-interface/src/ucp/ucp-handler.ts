@@ -149,6 +149,10 @@ export class UcpHandler {
         res.status(404).json({ error: `Checkout session not found: ${id}` });
         return;
       }
+      // Mark expired sessions
+      if (session.status === "open" && session.expiresAt && Date.now() > session.expiresAt) {
+        session.status = "expired";
+      }
       res.json(session);
     });
 
@@ -170,6 +174,11 @@ export class UcpHandler {
       if (session.status === "completed") {
         res.status(409).json({ error: "Checkout session is already completed" });
         return;
+      }
+
+      // Mark expired sessions
+      if (session.status === "open" && session.expiresAt && Date.now() > session.expiresAt) {
+        session.status = "expired";
       }
 
       if (session.status === "cancelled" || session.status === "expired") {

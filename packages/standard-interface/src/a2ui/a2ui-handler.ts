@@ -150,7 +150,7 @@ export class A2UIHandler {
 
     // Delete a surface
     router.delete("/a2ui/surfaces/:surfaceId", (req, res) => {
-      const { surfaceId } = req.params;
+      const surfaceId = req.params.surfaceId as string;
       if (this.surfaces.delete(surfaceId)) {
         res.json({ deleted: true, surfaceId });
       } else {

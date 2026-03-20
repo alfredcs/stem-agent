@@ -66,9 +66,11 @@ export class Ap2Handler {
                 const payment = parsed.data;
                 const intent = this.getActiveIntent(payment.intentMandateId);
                 this.validateMerchant(intent, payment.merchantId);
+                this.validateCurrency(intent, payment.totalAmount.currency);
                 this.validateAmount(intent, payment.totalAmount.amount);
-                // Auto-approve if below threshold
-                if (intent.autoApproveBelow) {
+                // Auto-approve if below threshold (same currency required)
+                if (intent.autoApproveBelow
+                    && payment.totalAmount.currency === intent.autoApproveBelow.currency) {
                     const threshold = parseFloat(intent.autoApproveBelow.amount);
                     const total = parseFloat(payment.totalAmount.amount);
                     if (total <= threshold) {
@@ -165,6 +167,8 @@ export class Ap2Handler {
         if (payment.status !== "approved") {
             throw new ValidationError("Payment mandate not approved");
         }
+        // Verify the backing intent is still valid
+        this.getActiveIntent(payment.intentMandateId);
         const parsed = AP2PaymentReceiptSchema.parse({ id: uuidv4(), ...receipt });
         this.receipts.set(parsed.id, parsed);
         payment.status = parsed.status === "success" ? "executed" : "failed";
@@ -197,6 +201,11 @@ export class Ap2Handler {
     validateMerchant(intent, merchantId) {
         if (intent.allowedMerchants.length > 0 && !intent.allowedMerchants.includes(merchantId)) {
             throw new AuthorizationError(`Merchant "${merchantId}" not in allowed list`);
+        }
+    }
+    validateCurrency(intent, currency) {
+        if (currency !== intent.maxAmount.currency) {
+            throw new ValidationError(`Currency "${currency}" does not match intent currency "${intent.maxAmount.currency}"`);
         }
     }
     validateAmount(intent, totalAmount) {
