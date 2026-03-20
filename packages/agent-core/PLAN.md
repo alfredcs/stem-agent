@@ -2,7 +2,7 @@
 
 ## Overview
 
-Build `packages/agent-core/` implementing the 4-engine pipeline (Perception, Reasoning, Planning, Execution) plus the orchestrator that wires them together. All external dependencies are coded against `IMCPManager` and `IMemoryManager` interfaces from `@stem-agent/shared`.
+Build `packages/agent-core/` implementing the 5-engine pipeline (Perception, Reasoning, Planning, Execution, Skills) plus the orchestrator that wires them together. All external dependencies are coded against `IMCPManager` and `IMemoryManager` interfaces from `@stem-agent/shared`.
 
 ## File Structure
 
@@ -24,12 +24,16 @@ packages/agent-core/src/
 ├── execution/
 │   ├── index.ts                # re-export
 │   └── execution-engine.ts     # ExecutionEngine class
+├── skills/
+│   ├── index.ts                # re-export
+│   └── skill-manager.ts        # SkillManager + InMemorySkillRegistry
 └── __tests__/
     ├── perception-engine.test.ts
     ├── reasoning-engine.test.ts
     ├── strategy-selector.test.ts
     ├── planning-engine.test.ts
     ├── execution-engine.test.ts
+    ├── skill-manager.test.ts
     └── orchestrator.test.ts
 ```
 
@@ -142,6 +146,23 @@ Implementation:
 
 Verify: unit tests for success path, retry, fallback, circuit breaker.
 
+### Step 6.5: `src/skills/skill-manager.ts` — SkillManager
+
+Implements the skills acquisition system (cell differentiation metaphor):
+- `InMemorySkillRegistry`: Map-based storage, score-based matching, maturity advancement, apoptosis
+- `SkillManager`: orchestrates the full skill lifecycle
+  - `registerPlugin()` / `removePluginByName()` — manual skill management (induced differentiation)
+  - `matchSkills(perception)` — find skills matching current request
+  - `skillToPlan(skill, goal)` — convert skill to ExecutionPlan
+  - `recordOutcome(skillId, success)` — track activation outcomes, advance maturity
+  - `tryCrystallize()` — detect patterns in episodes, create progenitor skills
+
+Maturity lifecycle: progenitor (new) → committed (3+ activations, ≥60% success) → mature (10+ activations).
+Apoptosis: crystallized skills with <30% success after 10+ activations are auto-removed.
+Plugin skills are exempt from apoptosis.
+
+Verify: unit tests for registry CRUD, matching, maturity advancement, apoptosis, crystallization.
+
 ### Step 7: `src/orchestrator.ts` — StemAgent
 
 Implements `IStemAgent` from shared.
@@ -153,14 +174,17 @@ Methods:
 - `shutdown()`: call `mcpManager.shutdown()`, `memoryManager.shutdown()`
 - `process(taskId, message, principal?)`: the main pipeline:
   1. Perception: `perceptionEngine.perceive(message, toolNames)`
-  2. Reasoning: `reasoningEngine.reason(perception, behaviorParams)`
-  3. Planning: `planningEngine.createPlan(reasoning, tools)`
-  4. Execution: `executionEngine.execute(plan)`
-  5. Format response as `AgentResponse`
-  6. Store episode in memory (non-blocking)
-  7. Return response
+  2. Adapt: load caller profile, tune behavior parameters
+  3. Skill Match: check acquired skills; if committed/mature match, short-circuit to pre-built plan
+  4. Reasoning: `reasoningEngine.reason(perception, behaviorParams)` (skipped if skill matched)
+  5. Planning: `planningEngine.createPlan(reasoning, tools)` (skipped if skill matched)
+  6. Execution: `executionEngine.execute(plan)`
+  7. Format response as `AgentResponse`
+  8. Learn (async): store episode, update caller profile, record skill outcome, attempt crystallization
+  9. Return response
 - `stream(taskId, message)`: async generator that yields partial responses after each phase
 - `getAgentCard()`: return an `AgentCard` built from config
+- `getSkillManager()`: expose SkillManager for plugin registration
 
 Error boundary: catch errors in process, return failed `AgentResponse`, store failure in memory.
 
@@ -168,7 +192,7 @@ Verify: integration test with mocked MCP and Memory.
 
 ### Step 8: `src/index.ts` — Public API
 
-Export: `StemAgent`, `AgentCoreConfig`, `AgentCoreConfigSchema`, `PerceptionEngine`, `ReasoningEngine`, `StrategySelector`, `PlanningEngine`, `ExecutionEngine`.
+Export: `StemAgent`, `AgentCoreConfig`, `AgentCoreConfigSchema`, `PerceptionEngine`, `ReasoningEngine`, `StrategySelector`, `PlanningEngine`, `ExecutionEngine`, `SkillManager`, `InMemorySkillRegistry`.
 
 ### Step 9: Tests
 
@@ -180,6 +204,7 @@ Test files:
 - `reasoning-engine.test.ts`: each strategy (CoT, ReAct, Reflexion, Debate), planned strategy errors
 - `planning-engine.test.ts`: plan from reasoning, parallel group detection, re-planning, procedure reuse
 - `execution-engine.test.ts`: success path, parallel execution, retry, fallback, circuit breaker, memory learn call
+- `skill-manager.test.ts`: registry CRUD, matching by intent/domain, maturity advancement, apoptosis, plugin exemption, crystallization, deduplication
 - `orchestrator.test.ts`: full pipeline, initialization, shutdown, error handling, stream
 
 ### Step 10: Build verification

@@ -9,4 +9,5 @@ export * from "./ap2.js";
 export * from "./ag-ui.js";
 export * from "./a2ui.js";
 export * from "./ucp.js";
+export * from "./skill.js";
 //# sourceMappingURL=index.d.ts.map

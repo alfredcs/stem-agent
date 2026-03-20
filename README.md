@@ -15,7 +15,7 @@
                            |
 +-------+--------+--------+------+-------+--------+---------------+
 |                      STEM AGENT CORE                             |
-|  Perception  |  Reasoning  |  Planning  |  Execution             |
+|  Perception  |  Skill Match  |  Reasoning  |  Planning  |  Execution  |
 |              |             |            |                         |
 |  +-----------------------------------------------------------+  |
 |  |              MEMORY & LEARNING SYSTEM                      |  |

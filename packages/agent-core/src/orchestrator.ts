@@ -25,6 +25,7 @@ import { ExecutionEngine } from "./execution/index.js";
 import type { Principal } from "@stem-agent/shared";
 import type { ILLMClient } from "./llm/index.js";
 import { AnthropicLLMClient, NoOpLLMClient, CostGuardrail } from "./llm/index.js";
+import { SkillManager, InMemorySkillRegistry } from "./skills/index.js";
 
 /**
  * StemAgent — the main agent orchestrator.
@@ -43,6 +44,7 @@ export class StemAgent implements IStemAgent {
   private readonly reasoning: ReasoningEngine;
   private readonly planning: PlanningEngine;
   private readonly execution: ExecutionEngine;
+  private readonly skillManager: SkillManager;
   private readonly log: Logger;
   private readonly behavior: BehaviorParameters;
   private readonly costGuardrail: CostGuardrail;
@@ -92,6 +94,7 @@ export class StemAgent implements IStemAgent {
     this.reasoning = new ReasoningEngine(mcpManager, memoryManager, config, activeLlm, this.costGuardrail);
     this.planning = new PlanningEngine(memoryManager, config, activeLlm);
     this.execution = new ExecutionEngine(mcpManager, memoryManager, config, activeLlm);
+    this.skillManager = new SkillManager(new InMemorySkillRegistry(), memoryManager);
   }
 
   /** Initialize the agent: connect MCP servers and discover tools. */
@@ -134,13 +137,36 @@ export class StemAgent implements IStemAgent {
       const callerProfile = await this.memoryManager.getCallerProfile(callerId);
       const adaptedBehavior = this.adapt(perception, callerProfile);
 
-      // Phase 3: Reasoning
-      const reasoningResult = await this.reasoning.reason(perception, adaptedBehavior);
+      // Phase 3: Skill check — try to short-circuit via acquired skills
+      const matchedSkills = await this.skillManager.matchSkills(perception);
+      let usedSkillId: string | undefined;
 
-      // Phase 4: Planning
-      const plan = await this.planning.createPlan(reasoningResult, this.tools, adaptedBehavior);
+      let reasoningResult;
+      let plan;
 
-      // Phase 5: Execution
+      if (matchedSkills.length > 0 && matchedSkills[0].maturity !== "progenitor") {
+        // Use the best matching committed/mature skill
+        const skill = matchedSkills[0];
+        usedSkillId = skill.id;
+        this.log.info({ skillName: skill.name, maturity: skill.maturity }, "Using acquired skill");
+
+        plan = this.skillManager.skillToPlan(skill, String(message.content ?? ""));
+        reasoningResult = {
+          conclusion: `Skill "${skill.name}" activated`,
+          confidence: skill.successRate,
+          strategyUsed: "react" as const,
+          steps: [],
+          evidence: [],
+          alternativeConclusions: [],
+          trace: [`Skill match: ${skill.name} (${skill.maturity}, ${(skill.successRate * 100).toFixed(0)}% success)`],
+        };
+      } else {
+        // Normal pipeline: Reason → Plan
+        reasoningResult = await this.reasoning.reason(perception, adaptedBehavior);
+        plan = await this.planning.createPlan(reasoningResult, this.tools, adaptedBehavior);
+      }
+
+      // Phase 4: Execution
       const executionResult = await this.execution.execute(plan, adaptedBehavior, String(message.content ?? ""));
 
       // Format response
@@ -155,20 +181,34 @@ export class StemAgent implements IStemAgent {
           strategy: reasoningResult.strategyUsed,
           confidence: reasoningResult.confidence,
           stepsExecuted: executionResult.stepResults.length,
+          skillUsed: usedSkillId,
         },
       });
 
-      // Non-blocking: store episode in memory
+      // LEARN phase (async, non-blocking)
+      // 1. Store episode
       this.storeEpisode(taskId, message, response).catch((err) => {
         this.log.warn({ err }, "Failed to store episode");
       });
 
-      // LEARN phase: update caller profile from interaction signals
+      // 2. Update caller profile
       if (message.callerId) {
         this.memoryManager.updateCallerProfile(message.callerId, perception.callerStyleSignals).catch((err) => {
           this.log.warn({ err }, "Failed to update caller profile");
         });
       }
+
+      // 3. Record skill outcome (maturation / apoptosis)
+      if (usedSkillId) {
+        this.skillManager.recordOutcome(usedSkillId, executionResult.success).catch((err) => {
+          this.log.warn({ err }, "Failed to record skill outcome");
+        });
+      }
+
+      // 4. Try crystallizing new skills from accumulated patterns
+      this.skillManager.tryCrystallize().catch((err) => {
+        this.log.warn({ err }, "Skill crystallization failed");
+      });
 
       return response;
     } catch (err) {
@@ -208,32 +248,57 @@ export class StemAgent implements IStemAgent {
       const callerProfile = await this.memoryManager.getCallerProfile(callerId);
       const adaptedBehavior = this.adapt(perception, callerProfile);
 
-      // Phase 3: Reasoning
-      const reasoningResult = await this.reasoning.reason(perception, adaptedBehavior);
-      yield AgentResponseSchema.parse({
-        id: randomUUID(),
-        status: "in_progress",
-        content: `Reasoned: strategy="${reasoningResult.strategyUsed}", confidence=${reasoningResult.confidence.toFixed(2)}`,
-        metadata: { taskId, phase: "reasoning" },
-      });
+      // Phase 3: Skill check
+      const matchedSkills = await this.skillManager.matchSkills(perception);
+      let usedSkillId: string | undefined;
+      let reasoningResult;
+      let plan;
 
-      // Phase 4: Planning
-      const plan = await this.planning.createPlan(reasoningResult, this.tools, adaptedBehavior);
-      yield AgentResponseSchema.parse({
-        id: randomUUID(),
-        status: "in_progress",
-        content: `Planned: ${plan.steps.length} steps in ${plan.parallelGroups.length} groups`,
-        metadata: { taskId, phase: "planning" },
-      });
+      if (matchedSkills.length > 0 && matchedSkills[0].maturity !== "progenitor") {
+        const skill = matchedSkills[0];
+        usedSkillId = skill.id;
+        plan = this.skillManager.skillToPlan(skill, String(message.content ?? ""));
+        reasoningResult = {
+          conclusion: `Skill "${skill.name}" activated`,
+          confidence: skill.successRate,
+          strategyUsed: "react" as const,
+          steps: [],
+          evidence: [],
+          alternativeConclusions: [],
+          trace: [`Skill match: ${skill.name} (${skill.maturity})`],
+        };
+        yield AgentResponseSchema.parse({
+          id: randomUUID(),
+          status: "in_progress",
+          content: `Skill activated: "${skill.name}" (${skill.maturity}, ${(skill.successRate * 100).toFixed(0)}% success)`,
+          metadata: { taskId, phase: "skill_match" },
+        });
+      } else {
+        reasoningResult = await this.reasoning.reason(perception, adaptedBehavior);
+        yield AgentResponseSchema.parse({
+          id: randomUUID(),
+          status: "in_progress",
+          content: `Reasoned: strategy="${reasoningResult.strategyUsed}", confidence=${reasoningResult.confidence.toFixed(2)}`,
+          metadata: { taskId, phase: "reasoning" },
+        });
 
-      // Phase 5: Execution
+        plan = await this.planning.createPlan(reasoningResult, this.tools, adaptedBehavior);
+        yield AgentResponseSchema.parse({
+          id: randomUUID(),
+          status: "in_progress",
+          content: `Planned: ${plan.steps.length} steps in ${plan.parallelGroups.length} groups`,
+          metadata: { taskId, phase: "planning" },
+        });
+      }
+
+      // Phase 4: Execution
       const executionResult = await this.execution.execute(plan, adaptedBehavior, String(message.content ?? ""));
       yield AgentResponseSchema.parse({
         id: randomUUID(),
         status: executionResult.success ? "completed" : "failed",
         content: executionResult.finalResult ?? reasoningResult.conclusion,
         reasoningTrace: reasoningResult.trace,
-        metadata: { taskId, phase: "execution" },
+        metadata: { taskId, phase: "execution", skillUsed: usedSkillId },
       });
 
       // LEARN phase
@@ -242,6 +307,14 @@ export class StemAgent implements IStemAgent {
           this.log.warn({ err }, "Failed to update caller profile");
         });
       }
+      if (usedSkillId) {
+        this.skillManager.recordOutcome(usedSkillId, executionResult.success).catch((err) => {
+          this.log.warn({ err }, "Failed to record skill outcome");
+        });
+      }
+      this.skillManager.tryCrystallize().catch((err) => {
+        this.log.warn({ err }, "Skill crystallization failed");
+      });
     } catch (err) {
       yield AgentResponseSchema.parse({
         id: randomUUID(),
@@ -250,6 +323,11 @@ export class StemAgent implements IStemAgent {
         metadata: { taskId, error: true },
       });
     }
+  }
+
+  /** Access the skill manager for plugin registration/removal. */
+  getSkillManager(): SkillManager {
+    return this.skillManager;
   }
 
   /** Return the agent card describing this agent's capabilities. */
