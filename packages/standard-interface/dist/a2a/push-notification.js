@@ -1,11 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.PushNotificationManager = void 0;
 /**
  * Manages webhook registrations for push notifications.
  * When task status changes, registered webhooks are notified via HTTP POST.
  */
-class PushNotificationManager {
+export class PushNotificationManager {
     logger;
     /** taskId -> Set of webhook URLs. */
     webhooks = new Map();
@@ -51,5 +48,4 @@ class PushNotificationManager {
         this.webhooks.delete(taskId);
     }
 }
-exports.PushNotificationManager = PushNotificationManager;
 //# sourceMappingURL=push-notification.js.map

@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.NoOpLLMClient = exports.AnthropicLLMClient = void 0;
 /** Static pricing table per 1M tokens. */
 const PRICING = {
     haiku: { input: 0.80, output: 3.20 },
@@ -15,7 +12,7 @@ function estimateCost(model, inputTokens, outputTokens) {
 /**
  * Anthropic LLM client supporting both direct API and Amazon Bedrock.
  */
-class AnthropicLLMClient {
+export class AnthropicLLMClient {
     config;
     sdkClient = null;
     constructor(config) {
@@ -25,18 +22,10 @@ class AnthropicLLMClient {
         if (this.sdkClient)
             return this.sdkClient;
         if (this.config.provider === "amazon_bedrock") {
-            // Bedrock client may be available as a subpath export in newer SDK versions
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const mod = await import("@anthropic-ai/sdk");
-            const BedrockCtor = mod.AnthropicBedrock ?? mod.default?.AnthropicBedrock;
-            if (BedrockCtor) {
-                this.sdkClient = new BedrockCtor();
-            }
-            else {
-                // Fallback: use standard client (works with Bedrock-compatible endpoints)
-                const Anthropic = mod.default ?? mod.Anthropic;
-                this.sdkClient = new Anthropic();
-            }
+            const mod = await import("@anthropic-ai/bedrock-sdk");
+            const BedrockCtor = mod.AnthropicBedrock ?? mod.default?.AnthropicBedrock ?? mod.default;
+            this.sdkClient = new BedrockCtor({ awsRegion: process.env.AWS_REGION ?? "us-west-2" });
         }
         else {
             const mod = await import("@anthropic-ai/sdk");
@@ -73,11 +62,10 @@ class AnthropicLLMClient {
         };
     }
 }
-exports.AnthropicLLMClient = AnthropicLLMClient;
 /**
  * No-op LLM client for tests or when no API key is available.
  */
-class NoOpLLMClient {
+export class NoOpLLMClient {
     async chat(_messages, _opts) {
         return {
             content: "No LLM configured",
@@ -88,5 +76,4 @@ class NoOpLLMClient {
         };
     }
 }
-exports.NoOpLLMClient = NoOpLLMClient;
 //# sourceMappingURL=client.js.map

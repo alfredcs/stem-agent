@@ -69,7 +69,7 @@ export class DelegationPattern implements CollaborationPattern {
     const settled = await Promise.allSettled(
       assignments.map(async ({ subtask, agent }) => {
         const card = agent.getCard();
-        const agentId = card?.agentId ?? "unknown";
+        const agentId = card?.name ?? "unknown";
         try {
           const response = await agent.sendTask(subtask.content, subtask.metadata);
           return { agentId, response, error: undefined };
@@ -124,7 +124,7 @@ export class ConsensusPattern implements CollaborationPattern {
     const settled = await Promise.allSettled(
       agents.map(async (agent) => {
         const card = agent.getCard();
-        const agentId = card?.agentId ?? "unknown";
+        const agentId = card?.name ?? "unknown";
         try {
           const response = await agent.sendTask(task);
           return { agentId, response, error: undefined };
@@ -207,7 +207,7 @@ export class PipelinePattern implements CollaborationPattern {
     for (let i = 0; i < this.stages.length; i++) {
       const stage = this.stages[i];
       const card = stage.agentProxy.getCard();
-      const agentId = card?.agentId ?? `stage-${i}`;
+      const agentId = card?.name ?? `stage-${i}`;
 
       const input = stage.transform ? stage.transform(currentInput) : currentInput;
 

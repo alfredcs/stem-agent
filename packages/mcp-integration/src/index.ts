@@ -27,6 +27,7 @@ export type {
   FileEntry,
   FileWatcher,
 } from "./servers/file-server.js";
+export { RemoteMCPServer } from "./servers/remote-mcp-server.js";
 export { ToolServer } from "./servers/tool-server.js";
 export type {
   IProcessExecutor,

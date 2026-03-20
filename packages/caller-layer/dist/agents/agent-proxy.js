@@ -21,7 +21,7 @@ export class AgentProxy {
     async discover() {
         this.card = await this.client.discoverAgent();
         this.capabilities = this.card.skills.map((s) => s.name);
-        this.log.info({ agentId: this.card.agentId, capabilities: this.capabilities }, "agent discovered");
+        this.log.info({ agent: this.card.name, capabilities: this.capabilities }, "agent discovered");
         return this.card;
     }
     // ---- Task execution -----------------------------------------------------

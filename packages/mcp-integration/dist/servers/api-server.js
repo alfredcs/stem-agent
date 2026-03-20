@@ -1,14 +1,11 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.APIServer = void 0;
-const base_server_js_1 = require("./base-server.js");
+import { BaseMCPServer } from "./base-server.js";
 /**
  * MCP server wrapping external REST/GraphQL APIs.
  *
  * Dynamically registers tools from endpoint definitions. Provides rate
  * limiting, retry with exponential backoff, and response caching.
  */
-class APIServer extends base_server_js_1.BaseMCPServer {
+export class APIServer extends BaseMCPServer {
     httpClient;
     apiConfig;
     cache = new Map();
@@ -121,5 +118,4 @@ class APIServer extends base_server_js_1.BaseMCPServer {
         return new Promise((resolve) => setTimeout(resolve, ms));
     }
 }
-exports.APIServer = APIServer;
 //# sourceMappingURL=api-server.js.map

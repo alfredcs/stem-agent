@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "include": ["src/**/*.ts"],
+  "references": [
+    { "path": "./shared" },
+    { "path": "./packages/mcp-integration" },
+    { "path": "./packages/memory-system" },
+    { "path": "./packages/agent-core" },
+    { "path": "./packages/standard-interface" }
+  ]
+}

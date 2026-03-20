@@ -1,11 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.cosineSimilarity = cosineSimilarity;
 /**
  * Compute cosine similarity between two vectors.
  * Returns a value in [-1, 1]. Returns 0 if either vector has zero magnitude.
  */
-function cosineSimilarity(a, b) {
+export function cosineSimilarity(a, b) {
     if (a.length !== b.length || a.length === 0)
         return 0;
     let dot = 0;

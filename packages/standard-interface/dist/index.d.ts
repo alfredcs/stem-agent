@@ -5,6 +5,10 @@ export { restRouter, buildOpenApiSpec, CreateTaskSchema, ListTasksQuerySchema } 
 export type { CreateTaskBody, ListTasksQuery } from "./rest/index.js";
 export { WsHandler, RoomManager, WsEventType } from "./websocket/index.js";
 export type { WsEvent } from "./websocket/index.js";
+export { UcpHandler } from "./ucp/index.js";
+export { A2UIHandler } from "./a2ui/index.js";
+export { AGUIHandler } from "./ag-ui/index.js";
+export { Ap2Handler } from "./ap2/index.js";
 export { AbstractFrameworkAdapter, AutoGenAdapter, CrewAIAdapter, LangGraphAdapter, OpenAIAgentsAdapter, } from "./adapters/index.js";
 export { AuthMiddleware, ApiKeyProvider, JwtProvider, OAuth2Provider, } from "./auth/index.js";
 export type { AuthenticatedRequest, IAuthProvider, AuthConfig, ApiKeyConfig, JwtConfig, OAuth2Config, } from "./auth/index.js";

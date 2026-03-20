@@ -24,6 +24,7 @@ export declare class WsHandler {
     broadcastEvent(event: WsEvent): void;
     private handleMessage;
     private handleClientTask;
+    private handleA2UIAction;
     private sendEvent;
     private addToReplayBuffer;
     private startHeartbeat;

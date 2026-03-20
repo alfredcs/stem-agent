@@ -1,11 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createMockMCP = createMockMCP;
-exports.createMockMemory = createMockMemory;
-exports.createMessage = createMessage;
-const node_crypto_1 = require("node:crypto");
+import { randomUUID } from "node:crypto";
 /** Creates a mock IMCPManager with sensible defaults. */
-function createMockMCP(overrides = {}) {
+export function createMockMCP(overrides = {}) {
     return {
         connectAll: async () => { },
         discoverCapabilities: async () => [
@@ -27,7 +22,7 @@ function createMockMCP(overrides = {}) {
     };
 }
 /** Creates a mock IMemoryManager with sensible defaults. */
-function createMockMemory(overrides = {}) {
+export function createMockMemory(overrides = {}) {
     return {
         remember: async (_episode) => { },
         recall: async (_query, _limit) => [],
@@ -87,9 +82,9 @@ function createMockMemory(overrides = {}) {
     };
 }
 /** Creates a simple AgentMessage for testing. */
-function createMessage(content, overrides = {}) {
+export function createMessage(content, overrides = {}) {
     return {
-        id: (0, node_crypto_1.randomUUID)(),
+        id: randomUUID(),
         role: "user",
         content,
         contentType: "text/plain",

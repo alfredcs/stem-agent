@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserContextManager = void 0;
-const shared_1 = require("@stem-agent/shared");
-const shared_2 = require("@stem-agent/shared");
+import { CallerProfileSchema, CallerContextSchema } from "@stem-agent/shared";
+import { createLogger } from "@stem-agent/shared";
 /**
  * User context manager — per-user profiles, session context, and privacy controls.
  *
@@ -10,7 +7,7 @@ const shared_2 = require("@stem-agent/shared");
  * per-session caller context, context building with token budgets,
  * and privacy controls (retention policies, forget-me).
  */
-class UserContextManager {
+export class UserContextManager {
     store;
     log;
     learningRate;
@@ -18,7 +15,7 @@ class UserContextManager {
     constructor(store, config, logger) {
         this.store = store;
         this.learningRate = config?.profileLearningRate ?? 0.1;
-        this.log = logger ?? (0, shared_2.createLogger)("user-context");
+        this.log = logger ?? createLogger("user-context");
     }
     async withCallerLock(callerId, fn) {
         const existing = this.locks.get(callerId) ?? Promise.resolve();
@@ -38,7 +35,7 @@ class UserContextManager {
         const existing = await this.store.getProfile(callerId);
         if (existing)
             return existing;
-        const profile = shared_1.CallerProfileSchema.parse({
+        const profile = CallerProfileSchema.parse({
             callerId,
             philosophy: {},
             style: {},
@@ -118,7 +115,7 @@ class UserContextManager {
         if (existing)
             return existing;
         const profile = await this.getProfile(callerId);
-        const context = shared_1.CallerContextSchema.parse({
+        const context = CallerContextSchema.parse({
             callerId,
             sessionId,
             profile,
@@ -139,5 +136,4 @@ class UserContextManager {
         this.log.info({ callerId }, "caller data deleted (forget-me)");
     }
 }
-exports.UserContextManager = UserContextManager;
 //# sourceMappingURL=user-context-manager.js.map

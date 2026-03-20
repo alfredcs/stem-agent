@@ -1,10 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.RateLimiter = void 0;
 /**
  * Token-bucket rate limiter keyed by authenticated principal ID or client IP.
  */
-class RateLimiter {
+export class RateLimiter {
     rate;
     burst;
     buckets = new Map();
@@ -46,5 +43,4 @@ class RateLimiter {
         return false;
     }
 }
-exports.RateLimiter = RateLimiter;
 //# sourceMappingURL=rate-limit.js.map

@@ -1,11 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.RoomManager = void 0;
 /**
  * Manages room-based multiplexing for WebSocket connections.
  * Clients can join/leave rooms and receive broadcasts scoped to a room.
  */
-class RoomManager {
+export class RoomManager {
     /** room name -> set of connected sockets */
     rooms = new Map();
     /** Add a client to a room. */
@@ -50,5 +47,4 @@ class RoomManager {
         return this.rooms.get(room)?.size ?? 0;
     }
 }
-exports.RoomManager = RoomManager;
 //# sourceMappingURL=ws-room.js.map

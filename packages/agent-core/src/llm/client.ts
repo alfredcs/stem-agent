@@ -55,17 +55,10 @@ export class AnthropicLLMClient implements ILLMClient {
     if (this.sdkClient) return this.sdkClient;
 
     if (this.config.provider === "amazon_bedrock") {
-      // Bedrock client may be available as a subpath export in newer SDK versions
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const mod = await import("@anthropic-ai/sdk" as any);
-      const BedrockCtor = mod.AnthropicBedrock ?? mod.default?.AnthropicBedrock;
-      if (BedrockCtor) {
-        this.sdkClient = new BedrockCtor();
-      } else {
-        // Fallback: use standard client (works with Bedrock-compatible endpoints)
-        const Anthropic = mod.default ?? mod.Anthropic;
-        this.sdkClient = new Anthropic();
-      }
+      const mod = await import("@anthropic-ai/bedrock-sdk" as any);
+      const BedrockCtor = mod.AnthropicBedrock ?? mod.default?.AnthropicBedrock ?? mod.default;
+      this.sdkClient = new BedrockCtor({ awsRegion: process.env.AWS_REGION ?? "us-west-2" });
     } else {
       const mod = await import("@anthropic-ai/sdk");
       const Anthropic = mod.default ?? mod.Anthropic;

@@ -25,6 +25,7 @@ export declare const PerceptionResultSchema: z.ZodObject<{
     requiresClarification: z.ZodDefault<z.ZodBoolean>;
     detectedLanguage: z.ZodDefault<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
+    metadata: Record<string, unknown>;
     context: Record<string, unknown>;
     intent: string;
     complexity: "simple" | "medium" | "complex";
@@ -35,7 +36,6 @@ export declare const PerceptionResultSchema: z.ZodObject<{
         value?: unknown;
     }[];
     callerStyleSignals: Record<string, number>;
-    metadata: Record<string, unknown>;
     sentiment: "positive" | "neutral" | "negative";
     ambiguityScore: number;
     requiresClarification: boolean;
@@ -44,6 +44,7 @@ export declare const PerceptionResultSchema: z.ZodObject<{
 }, {
     intent: string;
     complexity: "simple" | "medium" | "complex";
+    metadata?: Record<string, unknown> | undefined;
     context?: Record<string, unknown> | undefined;
     urgency?: "medium" | "low" | "high" | undefined;
     domain?: string | undefined;
@@ -53,7 +54,6 @@ export declare const PerceptionResultSchema: z.ZodObject<{
         value?: unknown;
     }[] | undefined;
     callerStyleSignals?: Record<string, number> | undefined;
-    metadata?: Record<string, unknown> | undefined;
     sentiment?: "positive" | "neutral" | "negative" | undefined;
     ambiguityScore?: number | undefined;
     requiresClarification?: boolean | undefined;

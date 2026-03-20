@@ -94,15 +94,25 @@ export class A2AHandler {
     return router;
   }
 
+  /** Extract text content from A2A params.message (object with content field) or flat params. */
+  private extractContent(params: Record<string, unknown>): unknown {
+    const msg = params.message;
+    if (msg && typeof msg === "object" && "content" in msg) {
+      return (msg as Record<string, unknown>).content;
+    }
+    return msg ?? params.content ?? "";
+  }
+
   private async handleSend(
     params: Record<string, unknown>,
     principal: import("@stem-agent/shared").Principal | null,
   ): Promise<Record<string, unknown>> {
     const taskId = (params.taskId as string) ?? uuidv4();
+    const msg = params.message as Record<string, unknown> | undefined;
     const message: AgentMessage = {
       id: uuidv4(),
-      role: "user",
-      content: params.message ?? params.content ?? "",
+      role: (msg?.role as AgentMessage["role"]) ?? "user",
+      content: this.extractContent(params),
       contentType: (params.contentType as string) ?? "text/plain",
       metadata: (params.metadata as Record<string, unknown>) ?? {},
       timestamp: Date.now(),
@@ -136,10 +146,11 @@ export class A2AHandler {
     jsonrpcId: unknown,
   ): Promise<void> {
     const taskId = (params.taskId as string) ?? uuidv4();
+    const msg = params.message as Record<string, unknown> | undefined;
     const message: AgentMessage = {
       id: uuidv4(),
-      role: "user",
-      content: params.message ?? params.content ?? "",
+      role: (msg?.role as AgentMessage["role"]) ?? "user",
+      content: this.extractContent(params),
       contentType: (params.contentType as string) ?? "text/plain",
       metadata: (params.metadata as Record<string, unknown>) ?? {},
       timestamp: Date.now(),

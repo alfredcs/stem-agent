@@ -1,14 +1,11 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.errorHandler = errorHandler;
-const shared_1 = require("@stem-agent/shared");
+import { BaseError } from "@stem-agent/shared";
 /**
  * Global error handler middleware.
  * Converts BaseError subclasses to structured JSON responses.
  * Unknown errors return 500.
  */
-function errorHandler(err, _req, res, _next) {
-    if (err instanceof shared_1.BaseError) {
+export function errorHandler(err, _req, res, _next) {
+    if (err instanceof BaseError) {
         res.status(err.statusCode).json(err.toJSON());
         return;
     }

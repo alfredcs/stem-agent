@@ -1,14 +1,11 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProceduralMemory = void 0;
-const shared_1 = require("@stem-agent/shared");
+import { createLogger } from "@stem-agent/shared";
 /**
  * Procedural memory — learned procedures, workflows, and skills.
  *
  * Supports a learning loop: extract procedures from successful executions,
  * track success/failure rates, and auto-deprecate unreliable procedures.
  */
-class ProceduralMemory {
+export class ProceduralMemory {
     store;
     embeddings;
     log;
@@ -19,7 +16,7 @@ class ProceduralMemory {
         this.embeddings = embeddings;
         this.deprecationThreshold = config?.procedureDeprecationThreshold ?? 0.2;
         this.minExecutions = config?.procedureMinExecutions ?? 5;
-        this.log = logger ?? (0, shared_1.createLogger)("procedural-memory");
+        this.log = logger ?? createLogger("procedural-memory");
     }
     /** Learn a new procedure, computing its embedding. */
     async learn(procedure) {
@@ -95,5 +92,4 @@ class ProceduralMemory {
         return this.store.count();
     }
 }
-exports.ProceduralMemory = ProceduralMemory;
 //# sourceMappingURL=procedural-memory.js.map

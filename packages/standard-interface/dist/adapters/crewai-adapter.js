@@ -1,13 +1,10 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.CrewAIAdapter = void 0;
-const uuid_1 = require("uuid");
-const abstract_adapter_js_1 = require("./abstract-adapter.js");
+import { v4 as uuidv4 } from "uuid";
+import { AbstractFrameworkAdapter } from "./abstract-adapter.js";
 /**
  * Adapter for CrewAI framework (>=1.9).
  * Translates CrewAI task format to/from STEM Agent format.
  */
-class CrewAIAdapter extends abstract_adapter_js_1.AbstractFrameworkAdapter {
+export class CrewAIAdapter extends AbstractFrameworkAdapter {
     name = "CrewAI";
     version = "1.9";
     tasks = new Map();
@@ -16,9 +13,9 @@ class CrewAIAdapter extends abstract_adapter_js_1.AbstractFrameworkAdapter {
     }
     async receiveTask(input) {
         const task = input;
-        const taskId = (0, uuid_1.v4)();
+        const taskId = uuidv4();
         const message = {
-            id: (0, uuid_1.v4)(),
+            id: uuidv4(),
             role: "user",
             content: task.description,
             contentType: "text/plain",
@@ -38,7 +35,7 @@ class CrewAIAdapter extends abstract_adapter_js_1.AbstractFrameworkAdapter {
     async getTaskStatus(taskId) {
         const record = this.tasks.get(taskId);
         if (!record?.response) {
-            return { id: (0, uuid_1.v4)(), status: "pending", contentType: "text/plain", artifacts: [], metadata: {} };
+            return { id: uuidv4(), status: "pending", contentType: "text/plain", artifacts: [], metadata: {} };
         }
         return record.response;
     }
@@ -54,5 +51,4 @@ class CrewAIAdapter extends abstract_adapter_js_1.AbstractFrameworkAdapter {
         return this.tasks.delete(taskId);
     }
 }
-exports.CrewAIAdapter = CrewAIAdapter;
 //# sourceMappingURL=crewai-adapter.js.map

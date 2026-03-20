@@ -10,7 +10,7 @@
                   |               |                |
 +-------+--------+--------+------+-------+--------+---------------+
 |                  STANDARD INTERFACE LAYER                         |
-|  A2A Protocol  |  REST API  |  WebSocket  |  Framework Adapters  |
+|  A2A | REST | WebSocket | AG-UI | A2UI | UCP | AP2 | Adapters   |
 +-------+--------+--------+------+-------+--------+---------------+
                            |
 +-------+--------+--------+------+-------+--------+---------------+
@@ -64,7 +64,7 @@ node packages/caller-layer/dist/human/cli.js
 | `packages/mcp-integration` | 5 | MCP server management, tool discovery |
 | `packages/memory-system` | 4 | Episodic, semantic, procedural memory |
 | `packages/agent-core` | 3 | Perception, reasoning, planning, execution |
-| `packages/standard-interface` | 2 | REST, WebSocket, A2A protocol gateway |
+| `packages/standard-interface` | 2 | REST, WebSocket, A2A, AG-UI, A2UI, UCP, AP2 gateway |
 | `packages/caller-layer` | 1 | CLI, web dashboard, SDKs |
 
 ## API Endpoints
@@ -79,6 +79,19 @@ node packages/caller-layer/dist/human/cli.js
 | GET | `/api/v1/agent/profile/:id` | Caller profile |
 | GET | `/api/v1/agent/behavior` | Current behavior parameters |
 | GET | `/api/v1/mcp/tools` | List available MCP tools |
+| POST | `/ag-ui` | AG-UI SSE streaming (typed events) |
+| POST | `/a2ui/render` | A2UI dynamic surface rendering (SSE) |
+| POST | `/a2ui/action` | A2UI client action handler |
+| GET | `/.well-known/ucp` | UCP discovery profile |
+| POST | `/ucp/checkout-sessions` | UCP create checkout session |
+| GET | `/ucp/checkout-sessions/:id` | UCP get checkout session |
+| POST | `/ucp/checkout-sessions/:id/complete` | UCP complete checkout |
+| POST | `/ap2/mandates/intent` | AP2 create intent mandate |
+| POST | `/ap2/mandates/payment` | AP2 create payment mandate |
+| POST | `/ap2/mandates/payment/:id/approve` | AP2 approve payment |
+| POST | `/ap2/mandates/payment/:id/reject` | AP2 reject payment |
+| GET | `/ap2/receipts/:id` | AP2 get payment receipt |
+| GET | `/ap2/audit/:intentId` | AP2 audit trail |
 
 ## Configuration
 

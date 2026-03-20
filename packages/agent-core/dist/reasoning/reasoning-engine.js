@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ReasoningEngine = void 0;
-const shared_1 = require("@stem-agent/shared");
-const shared_2 = require("@stem-agent/shared");
-const strategy_selector_js_1 = require("./strategy-selector.js");
+import { ReasoningResultSchema } from "@stem-agent/shared";
+import { createLogger, BaseError } from "@stem-agent/shared";
+import { StrategySelector } from "./strategy-selector.js";
 /**
  * Reasoning Engine — applies multi-strategy reasoning to a perception.
  *
@@ -11,7 +8,7 @@ const strategy_selector_js_1 = require("./strategy-selector.js");
  * produces structured reasoning steps from perception data. LLM
  * integration plugs into the same interface in a future version.
  */
-class ReasoningEngine {
+export class ReasoningEngine {
     mcp;
     memory;
     selector;
@@ -22,11 +19,11 @@ class ReasoningEngine {
     constructor(mcp, memory, config, llmClient, costGuardrail) {
         this.mcp = mcp;
         this.memory = memory;
-        this.selector = new strategy_selector_js_1.StrategySelector();
+        this.selector = new StrategySelector();
         this.maxSteps = config.maxReasoningSteps;
         this.llmClient = llmClient;
         this.costGuardrail = costGuardrail;
-        this.log = (0, shared_2.createLogger)("reasoning-engine");
+        this.log = createLogger("reasoning-engine");
     }
     /**
      * Reason about a perceived message and produce a structured result.
@@ -56,13 +53,13 @@ class ReasoningEngine {
                 break;
             case "tree_of_thought":
             case "analogical":
-                throw new shared_2.BaseError(`Strategy "${strategy}" is PLANNED but not yet implemented`, {
+                throw new BaseError(`Strategy "${strategy}" is PLANNED but not yet implemented`, {
                     code: "NOT_IMPLEMENTED",
                     statusCode: 501,
                 });
             default: {
                 const _exhaustive = strategy;
-                throw new shared_2.BaseError(`Unknown strategy: ${_exhaustive}`);
+                throw new BaseError(`Unknown strategy: ${_exhaustive}`);
             }
         }
         this.log.debug({ strategy: result.strategyUsed, confidence: result.confidence, steps: result.steps.length }, "Reasoning complete");
@@ -120,7 +117,7 @@ class ReasoningEngine {
             trace.push(`Step ${i}: Analysis of request aspect`);
         }
         const avgConfidence = steps.reduce((s, st) => s + st.confidence, 0) / steps.length;
-        return shared_1.ReasoningResultSchema.parse({
+        return ReasoningResultSchema.parse({
             conclusion: `Completed chain-of-thought analysis for "${perception.intent}" request.`,
             confidence: avgConfidence,
             strategyUsed: "chain_of_thought",
@@ -196,7 +193,7 @@ class ReasoningEngine {
         });
         trace.push(`Step ${stepId}: Synthesis`);
         const avgConfidence = steps.reduce((s, st) => s + st.confidence, 0) / steps.length;
-        return shared_1.ReasoningResultSchema.parse({
+        return ReasoningResultSchema.parse({
             conclusion: `ReAct analysis complete for "${perception.intent}" with ${tools.length} tools available.`,
             confidence: avgConfidence,
             strategyUsed: "react",
@@ -230,7 +227,7 @@ class ReasoningEngine {
                         thought: `LLM Reflection: ${review.review}`,
                         confidence: review.revisedConfidence ?? initial.confidence,
                     };
-                    return shared_1.ReasoningResultSchema.parse({
+                    return ReasoningResultSchema.parse({
                         conclusion: initial.conclusion,
                         confidence: reflectionStep.confidence,
                         strategyUsed: "reflexion",
@@ -265,7 +262,7 @@ class ReasoningEngine {
             ...initial.trace,
             `Step ${reflectionStep.stepId}: Self-reflection (contradictions: ${hasContradictions})`,
         ];
-        return shared_1.ReasoningResultSchema.parse({
+        return ReasoningResultSchema.parse({
             conclusion: initial.conclusion,
             confidence: reflectionStep.confidence,
             strategyUsed: "reflexion",
@@ -308,7 +305,7 @@ class ReasoningEngine {
         steps.push(synthesisStep);
         trace.push(`Step ${synthesisStep.stepId}: Synthesis of perspectives`);
         const avgConfidence = steps.reduce((s, st) => s + st.confidence, 0) / steps.length;
-        return shared_1.ReasoningResultSchema.parse({
+        return ReasoningResultSchema.parse({
             conclusion: `Debate synthesis for "${perception.intent}": balanced conclusion incorporating pragmatic, thorough, and creative viewpoints.`,
             confidence: avgConfidence,
             strategyUsed: "internal_debate",
@@ -348,7 +345,7 @@ class ReasoningEngine {
             if (!Array.isArray(parsed.steps) || !parsed.conclusion)
                 return null;
             const avgConfidence = parsed.steps.reduce((s, st) => s + st.confidence, 0) / parsed.steps.length;
-            return shared_1.ReasoningResultSchema.parse({
+            return ReasoningResultSchema.parse({
                 conclusion: parsed.conclusion,
                 confidence: avgConfidence,
                 strategyUsed: "chain_of_thought",
@@ -409,7 +406,7 @@ class ReasoningEngine {
         });
         trace.push("Step 2: Tool observation");
         const avgConfidence = steps.reduce((s, st) => s + st.confidence, 0) / steps.length;
-        return shared_1.ReasoningResultSchema.parse({
+        return ReasoningResultSchema.parse({
             conclusion: `ReAct analysis: ${steps[0].thought}`,
             confidence: avgConfidence,
             strategyUsed: "react",
@@ -470,7 +467,7 @@ class ReasoningEngine {
             });
             trace.push("Step 4: LLM synthesis");
             const avgConfidence = steps.reduce((s, st) => s + st.confidence, 0) / steps.length;
-            return shared_1.ReasoningResultSchema.parse({
+            return ReasoningResultSchema.parse({
                 conclusion: parsed.conclusion,
                 confidence: avgConfidence,
                 strategyUsed: "internal_debate",
@@ -495,5 +492,4 @@ class ReasoningEngine {
         return false;
     }
 }
-exports.ReasoningEngine = ReasoningEngine;
 //# sourceMappingURL=reasoning-engine.js.map

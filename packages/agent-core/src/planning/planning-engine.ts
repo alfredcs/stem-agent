@@ -174,7 +174,8 @@ export class PlanningEngine {
         },
       ], { temperature: 0.2 });
 
-      const parsed = JSON.parse(result.content);
+      const raw = result.content.replace(/^```(?:json)?\s*\n?/m, "").replace(/\n?```\s*$/m, "");
+      const parsed = JSON.parse(raw);
       const validated = z.array(PlanStepSchema).safeParse(parsed);
       if (validated.success) {
         return validated.data.slice(0, this.maxPlanSteps);
@@ -202,9 +203,9 @@ export class PlanningEngine {
     procedure: { name: string; steps: string[]; successRate: number },
     reasoning: ReasoningResult,
   ): ExecutionPlan {
-    const steps: PlanStep[] = procedure.steps.map((desc, i) => ({
+    const steps: PlanStep[] = procedure.steps.map((desc, i, arr) => ({
       stepId: i + 1,
-      actionType: "reasoning" as const,
+      actionType: i === arr.length - 1 ? "response" as const : "reasoning" as const,
       description: desc,
       dependsOn: i > 0 ? [i] : [],
       estimatedConfidence: procedure.successRate,

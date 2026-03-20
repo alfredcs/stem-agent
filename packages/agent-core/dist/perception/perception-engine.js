@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.PerceptionEngine = void 0;
-const shared_1 = require("@stem-agent/shared");
-const shared_2 = require("@stem-agent/shared");
+import { PerceptionResultSchema } from "@stem-agent/shared";
+import { createLogger } from "@stem-agent/shared";
 /** Intent categories aligned with design doc Sec 5.2. */
 const INTENT_KEYWORDS = {
     question: ["what", "how", "why", "when", "where", "who", "which", "?", "explain", "describe"],
@@ -27,7 +24,7 @@ const NUMBER_PATTERN = /\b\d+(?:\.\d+)?\b/g;
  * Uses deterministic heuristics (no LLM). LLM-based perception
  * can be plugged in as a future enhancement.
  */
-class PerceptionEngine {
+export class PerceptionEngine {
     memory;
     log;
     llmClient;
@@ -36,7 +33,7 @@ class PerceptionEngine {
         this.memory = memory;
         this.llmClient = llmClient;
         this.llmModel = llmModel;
-        this.log = (0, shared_2.createLogger)("perception-engine");
+        this.log = createLogger("perception-engine");
     }
     /**
      * Perceive an incoming message and produce a structured PerceptionResult.
@@ -67,7 +64,7 @@ class PerceptionEngine {
                     catch (err) {
                         this.log.warn({ err }, "Memory recall failed during perception");
                     }
-                    const result = shared_1.PerceptionResultSchema.parse({
+                    const result = PerceptionResultSchema.parse({
                         intent: llmResult.intent,
                         complexity: llmResult.complexity,
                         urgency: llmResult.urgency,
@@ -106,7 +103,7 @@ class PerceptionEngine {
         catch (err) {
             this.log.warn({ err }, "Memory recall failed during perception");
         }
-        const result = shared_1.PerceptionResultSchema.parse({
+        const result = PerceptionResultSchema.parse({
             intent,
             complexity,
             urgency,
@@ -246,5 +243,4 @@ class PerceptionEngine {
         return signals;
     }
 }
-exports.PerceptionEngine = PerceptionEngine;
 //# sourceMappingURL=perception-engine.js.map

@@ -1,10 +1,39 @@
 import {
-  AgentCardSchema,
-  type AgentCard,
   type AgentMessage,
   type AgentResponse,
 } from "@stem-agent/shared";
 import { createLogger, type Logger } from "@stem-agent/shared";
+import { z } from "zod";
+
+/**
+ * A2A v0.3.0 wire-format agent card (as returned by `/.well-known/agent.json`).
+ * This differs from the internal AgentCard schema — fields like `agentId` and
+ * `endpoint` are replaced by `url`, and `securitySchemes` is an object map.
+ */
+const A2AAgentCardSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+  url: z.string().optional(),
+  version: z.string(),
+  protocolVersion: z.string().default("0.3.0"),
+  capabilities: z.object({
+    streaming: z.boolean().default(false),
+    pushNotifications: z.boolean().default(false),
+  }).default({}),
+  defaultInputModes: z.array(z.string()).default(["text/plain"]),
+  defaultOutputModes: z.array(z.string()).default(["text/plain"]),
+  skills: z.array(z.object({
+    id: z.string(),
+    name: z.string(),
+    description: z.string(),
+    tags: z.array(z.string()).default([]),
+    examples: z.array(z.string()).default([]),
+  })).default([]),
+  securitySchemes: z.record(z.unknown()).default({}),
+  security: z.array(z.record(z.array(z.string()))).default([]),
+});
+
+export type A2AAgentCard = z.infer<typeof A2AAgentCardSchema>;
 import { randomUUID } from "node:crypto";
 
 // ---------------------------------------------------------------------------
@@ -128,7 +157,7 @@ export class A2AClient {
    * Discover the remote agent by fetching its Agent Card.
    * Maps to `GET /.well-known/agent.json`.
    */
-  async discoverAgent(): Promise<AgentCard> {
+  async discoverAgent(): Promise<A2AAgentCard> {
     const res = await fetch(`${this.endpoint}/.well-known/agent.json`, {
       headers: this.headers,
     });
@@ -140,7 +169,7 @@ export class A2AClient {
     }
 
     const raw = await res.json();
-    return AgentCardSchema.parse(raw);
+    return A2AAgentCardSchema.parse(raw);
   }
 
   /**

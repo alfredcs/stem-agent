@@ -1,15 +1,12 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.SSETransport = void 0;
-const shared_1 = require("@stem-agent/shared");
-const errors_js_1 = require("../errors.js");
+import { createLogger } from "@stem-agent/shared";
+import { MCPTransportError } from "../errors.js";
 /**
  * MCP transport over HTTP Server-Sent Events.
  *
  * Sends JSON-RPC requests via POST and receives responses / notifications
  * via an SSE stream opened on connect.
  */
-class SSETransport {
+export class SSETransport {
     connected = false;
     nextId = 1;
     abortController = null;
@@ -21,7 +18,7 @@ class SSETransport {
     constructor(opts) {
         this.url = opts.url;
         this.headers = opts.headers ?? {};
-        this.logger = opts.logger ?? (0, shared_1.createLogger)("sse-transport");
+        this.logger = opts.logger ?? createLogger("sse-transport");
     }
     /** @inheritdoc */
     async connect() {
@@ -35,7 +32,7 @@ class SSETransport {
                 signal: this.abortController.signal,
             });
             if (!res.ok || !res.body) {
-                throw new errors_js_1.MCPTransportError("sse", `SSE connect failed: HTTP ${res.status}`);
+                throw new MCPTransportError("sse", `SSE connect failed: HTTP ${res.status}`);
             }
             // Read the SSE stream in the background.
             this.readStream(res.body).catch((err) => {
@@ -50,10 +47,10 @@ class SSETransport {
             this.logger.info({ url: this.url }, "SSE transport connected");
         }
         catch (err) {
-            if (err instanceof errors_js_1.MCPTransportError)
+            if (err instanceof MCPTransportError)
                 throw err;
             const message = err instanceof Error ? err.message : String(err);
-            throw new errors_js_1.MCPTransportError("sse", message);
+            throw new MCPTransportError("sse", message);
         }
     }
     /** @inheritdoc */
@@ -69,7 +66,7 @@ class SSETransport {
     /** @inheritdoc */
     async send(method, params) {
         if (!this.connected) {
-            throw new errors_js_1.MCPTransportError("sse", "Transport not connected");
+            throw new MCPTransportError("sse", "Transport not connected");
         }
         const id = this.nextId++;
         const request = { jsonrpc: "2.0", id, method, params };
@@ -85,14 +82,14 @@ class SSETransport {
             if (!res.ok) {
                 const pending = this.pending.get(id);
                 this.pending.delete(id);
-                pending?.reject(new errors_js_1.MCPTransportError("sse", `POST failed: HTTP ${res.status}`));
+                pending?.reject(new MCPTransportError("sse", `POST failed: HTTP ${res.status}`));
             }
         }
         catch (err) {
             const pending = this.pending.get(id);
             this.pending.delete(id);
             const message = err instanceof Error ? err.message : String(err);
-            pending?.reject(new errors_js_1.MCPTransportError("sse", message));
+            pending?.reject(new MCPTransportError("sse", message));
         }
         return promise;
     }
@@ -153,7 +150,7 @@ class SSETransport {
             this.pending.delete(msg["id"]);
             if ("error" in msg) {
                 const err = msg["error"];
-                pending.reject(new errors_js_1.MCPTransportError("sse", err.message ?? "Unknown RPC error"));
+                pending.reject(new MCPTransportError("sse", err.message ?? "Unknown RPC error"));
             }
             else {
                 pending.resolve(msg["result"]);
@@ -168,10 +165,9 @@ class SSETransport {
     }
     rejectAllPending(reason) {
         for (const [, { reject }] of this.pending) {
-            reject(new errors_js_1.MCPTransportError("sse", reason));
+            reject(new MCPTransportError("sse", reason));
         }
         this.pending.clear();
     }
 }
-exports.SSETransport = SSETransport;
 //# sourceMappingURL=sse-transport.js.map

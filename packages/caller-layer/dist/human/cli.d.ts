@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { type Logger } from "@stem-agent/shared";
 import { type StemAgentClientOptions } from "../frameworks/sdk.js";
 /** Options for launching the CLI. */

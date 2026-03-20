@@ -1,1 +1,1 @@
-{"version":3,"file":"abstract-adapter.js","sourceRoot":"","sources":["../../src/adapters/abstract-adapter.ts"],"names":[],"mappings":";;;AAEA;;;;GAIG;AACH,MAAsB,wBAAwB;IAMb;IAA/B,YAA+B,KAAiB;QAAjB,UAAK,GAAL,KAAK,CAAY;IAAG,CAAC;CAsBrD;AA5BD,4DA4BC"}
+{"version":3,"file":"abstract-adapter.js","sourceRoot":"","sources":["../../src/adapters/abstract-adapter.ts"],"names":[],"mappings":"AAEA;;;;GAIG;AACH,MAAM,OAAgB,wBAAwB;IAMb;IAA/B,YAA+B,KAAiB;QAAjB,UAAK,GAAL,KAAK,CAAY;IAAG,CAAC;CAsBrD"}

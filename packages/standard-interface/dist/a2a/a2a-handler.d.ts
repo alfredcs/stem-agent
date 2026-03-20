@@ -10,6 +10,8 @@ export declare class A2AHandler {
     constructor(agent: IStemAgent);
     /** Creates an Express router for the A2A endpoint at POST /a2a. */
     createRouter(): Router;
+    /** Extract text content from A2A params.message (object with content field) or flat params. */
+    private extractContent;
     private handleSend;
     private handleSendSubscribe;
     private handleGet;

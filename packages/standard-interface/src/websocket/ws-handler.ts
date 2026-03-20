@@ -2,6 +2,7 @@ import { WebSocketServer, type WebSocket, type RawData } from "ws";
 import type { Server as HttpServer } from "node:http";
 import { v4 as uuidv4 } from "uuid";
 import type { IStemAgent, AgentMessage, Logger, Credential } from "@stem-agent/shared";
+import { A2UIUserActionSchema, A2UIServerMessageSchema, A2UI_CONTENT_TYPE } from "@stem-agent/shared";
 import type { IAuthProvider } from "../auth/types.js";
 import { WsEventType, type WsEvent } from "./ws-events.js";
 import { RoomManager } from "./ws-room.js";
@@ -157,6 +158,10 @@ export class WsHandler {
         await this.handleClientTask(ws, msg);
         break;
 
+      case WsEventType.A2UI_USER_ACTION:
+        await this.handleA2UIAction(ws, msg);
+        break;
+
       case "replay": {
         // Client reconnected and wants missed events from a timestamp
         const since = (msg.since as number) ?? 0;
@@ -209,6 +214,90 @@ export class WsHandler {
           status: response.status,
           artifacts: response.artifacts,
         },
+        timestamp: Date.now(),
+      });
+    } catch (err) {
+      this.sendEvent(ws, {
+        type: WsEventType.TASK_FAILED,
+        taskId,
+        data: { error: (err as Error).message },
+        timestamp: Date.now(),
+      });
+    }
+  }
+
+  private async handleA2UIAction(
+    ws: WebSocket,
+    msg: Record<string, unknown>,
+  ): Promise<void> {
+    const parsed = A2UIUserActionSchema.safeParse(msg.data ?? msg);
+    if (!parsed.success) {
+      this.sendEvent(ws, {
+        type: WsEventType.ERROR,
+        data: { message: "Invalid A2UI userAction", details: parsed.error.issues },
+        timestamp: Date.now(),
+      });
+      return;
+    }
+
+    const action = parsed.data;
+    const taskId = (msg.taskId as string) ?? uuidv4();
+
+    const message: AgentMessage = {
+      id: uuidv4(),
+      role: "user",
+      content: action,
+      contentType: A2UI_CONTENT_TYPE,
+      metadata: {
+        a2uiAction: true,
+        surfaceId: action.surfaceId,
+        componentId: action.componentId,
+      },
+      timestamp: Date.now(),
+    };
+
+    this.sendEvent(ws, {
+      type: WsEventType.TASK_STARTED,
+      taskId,
+      timestamp: Date.now(),
+    });
+
+    try {
+      for await (const chunk of this.agent.stream(taskId, message)) {
+        if (chunk.contentType === A2UI_CONTENT_TYPE && chunk.content) {
+          const messages = Array.isArray(chunk.content)
+            ? (chunk.content as unknown[])
+            : [chunk.content];
+          for (const a2uiMsg of messages) {
+            const msgObj = a2uiMsg as Record<string, unknown>;
+            const WS_EVENT_MAP: Record<string, string> = {
+              beginRendering: WsEventType.A2UI_BEGIN_RENDERING,
+              surfaceUpdate: WsEventType.A2UI_SURFACE_UPDATE,
+              dataModelUpdate: WsEventType.A2UI_DATA_UPDATE,
+              deleteSurface: WsEventType.A2UI_DELETE_SURFACE,
+            };
+            const eventType = WS_EVENT_MAP[msgObj.type as string] ?? WsEventType.TASK_PROGRESS;
+
+            this.sendEvent(ws, {
+              type: eventType,
+              taskId,
+              data: a2uiMsg,
+              timestamp: Date.now(),
+            });
+          }
+        } else {
+          this.sendEvent(ws, {
+            type: WsEventType.TASK_PROGRESS,
+            taskId,
+            data: { content: chunk.content, status: chunk.status },
+            timestamp: Date.now(),
+          });
+        }
+      }
+
+      this.sendEvent(ws, {
+        type: WsEventType.TASK_COMPLETED,
+        taskId,
         timestamp: Date.now(),
       });
     } catch (err) {

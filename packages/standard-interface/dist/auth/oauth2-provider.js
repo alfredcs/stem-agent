@@ -1,10 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.OAuth2Provider = void 0;
 /**
  * Authenticates requests by introspecting OAuth2 tokens against a token endpoint.
  */
-class OAuth2Provider {
+export class OAuth2Provider {
     type = "oauth2";
     introspectionEndpoint;
     clientId;
@@ -49,5 +46,4 @@ class OAuth2Provider {
         }
     }
 }
-exports.OAuth2Provider = OAuth2Provider;
 //# sourceMappingURL=oauth2-provider.js.map

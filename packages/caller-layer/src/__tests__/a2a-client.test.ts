@@ -39,17 +39,16 @@ describe("A2AClient", () => {
 
   it("discoverAgent() fetches and parses the agent card", async () => {
     const card = {
-      agentId: "a1",
       name: "Test",
       description: "desc",
       version: "1.0",
-      endpoint: "http://agent:8000",
+      url: "http://agent:8000",
     };
     mockFetch.mockResolvedValueOnce(jsonResponse(card));
 
     const result = await client.discoverAgent();
-    expect(result.agentId).toBe("a1");
     expect(result.name).toBe("Test");
+    expect(result.url).toBe("http://agent:8000");
 
     const [url] = mockFetch.mock.calls[0];
     expect(url).toBe("http://agent:8000/.well-known/agent.json");

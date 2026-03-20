@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.MCPManager = void 0;
-const shared_1 = require("@stem-agent/shared");
-const errors_js_1 = require("./errors.js");
+import { createLogger, } from "@stem-agent/shared";
+import { MCPServerNotFoundError, MCPToolNotFoundError, MCPConnectionError, } from "./errors.js";
 /**
  * Central registry for MCP servers.
  *
@@ -10,7 +7,7 @@ const errors_js_1 = require("./errors.js");
  * health-checks servers. Routes tool calls to the correct server
  * via an O(1) tool-name index.
  */
-class MCPManager {
+export class MCPManager {
     servers = new Map();
     toolIndex = new Map(); // toolName -> serverName
     configs;
@@ -19,7 +16,7 @@ class MCPManager {
     constructor(opts) {
         this.configs = opts.configs ?? [];
         this.serverFactory = opts.serverFactory;
-        this.logger = opts.logger ?? (0, shared_1.createLogger)("mcp-manager");
+        this.logger = opts.logger ?? createLogger("mcp-manager");
     }
     /** @inheritdoc */
     async connectAll() {
@@ -42,11 +39,11 @@ class MCPManager {
     async callTool(toolName, args, serverName) {
         const targetServerName = serverName ?? this.toolIndex.get(toolName);
         if (!targetServerName) {
-            throw new errors_js_1.MCPToolNotFoundError(toolName);
+            throw new MCPToolNotFoundError(toolName);
         }
         const server = this.servers.get(targetServerName);
         if (!server) {
-            throw new errors_js_1.MCPServerNotFoundError(targetServerName);
+            throw new MCPServerNotFoundError(targetServerName);
         }
         this.logger.debug({ tool: toolName, server: targetServerName }, "routing tool call");
         return server.executeTool(toolName, args);
@@ -86,7 +83,7 @@ class MCPManager {
         if (serverName) {
             const server = this.servers.get(serverName);
             if (!server)
-                throw new errors_js_1.MCPServerNotFoundError(serverName);
+                throw new MCPServerNotFoundError(serverName);
             resources.push(...server.listResources());
         }
         else {
@@ -101,7 +98,7 @@ class MCPManager {
         if (serverName) {
             const server = this.servers.get(serverName);
             if (!server)
-                throw new errors_js_1.MCPServerNotFoundError(serverName);
+                throw new MCPServerNotFoundError(serverName);
             return server.readResource(uri);
         }
         // Try each server until one handles the URI
@@ -113,7 +110,7 @@ class MCPManager {
                 // Server doesn't handle this URI, try next
             }
         }
-        throw new errors_js_1.MCPServerNotFoundError(`No server found for resource URI: ${uri}`);
+        throw new MCPServerNotFoundError(`No server found for resource URI: ${uri}`);
     }
     /** @inheritdoc */
     setLogLevel(level) {
@@ -139,7 +136,7 @@ class MCPManager {
         }
         catch (err) {
             const message = err instanceof Error ? err.message : String(err);
-            throw new errors_js_1.MCPConnectionError(config.name, message, err instanceof Error ? err : undefined);
+            throw new MCPConnectionError(config.name, message, err instanceof Error ? err : undefined);
         }
     }
     indexServerTools(server) {
@@ -155,5 +152,4 @@ class MCPManager {
         }
     }
 }
-exports.MCPManager = MCPManager;
 //# sourceMappingURL=manager.js.map

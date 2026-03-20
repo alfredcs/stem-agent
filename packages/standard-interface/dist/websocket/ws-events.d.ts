@@ -13,6 +13,11 @@ export declare const WsEventType: {
     readonly CLIENT_MESSAGE: "client.message";
     readonly CLIENT_JOIN_ROOM: "client.join_room";
     readonly CLIENT_LEAVE_ROOM: "client.leave_room";
+    readonly A2UI_BEGIN_RENDERING: "a2ui.begin_rendering";
+    readonly A2UI_SURFACE_UPDATE: "a2ui.surface_update";
+    readonly A2UI_DATA_UPDATE: "a2ui.data_update";
+    readonly A2UI_DELETE_SURFACE: "a2ui.delete_surface";
+    readonly A2UI_USER_ACTION: "a2ui.user_action";
     readonly PING: "ping";
     readonly PONG: "pong";
     readonly ERROR: "error";

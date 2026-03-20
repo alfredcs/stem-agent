@@ -1,11 +1,4 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createPgPool = createPgPool;
-exports.runMigrations = runMigrations;
-const pg_1 = __importDefault(require("pg"));
+import pg from "pg";
 const SCHEMA_SQL = `
 CREATE EXTENSION IF NOT EXISTS vector;
 
@@ -73,15 +66,15 @@ CREATE TABLE IF NOT EXISTS caller_sessions (
   PRIMARY KEY (caller_id, session_id)
 );
 `;
-function createPgPool(databaseUrl) {
-    return new pg_1.default.Pool({
+export function createPgPool(databaseUrl) {
+    return new pg.Pool({
         connectionString: databaseUrl,
         max: 10,
         idleTimeoutMillis: 30_000,
         connectionTimeoutMillis: 5_000,
     });
 }
-async function runMigrations(pool) {
+export async function runMigrations(pool) {
     await pool.query(SCHEMA_SQL);
 }
 //# sourceMappingURL=pg-pool.js.map

@@ -1,12 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuthMiddleware = void 0;
 /**
  * Express middleware that extracts credentials from requests,
  * authenticates via registered providers, and attaches the
  * Principal to `req.principal`.
  */
-class AuthMiddleware {
+export class AuthMiddleware {
     providers = [];
     publicPaths;
     enabled;
@@ -61,5 +58,4 @@ class AuthMiddleware {
         return null;
     }
 }
-exports.AuthMiddleware = AuthMiddleware;
 //# sourceMappingURL=auth-middleware.js.map

@@ -1,14 +1,11 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.DatabaseServer = void 0;
-const base_server_js_1 = require("./base-server.js");
+import { BaseMCPServer } from "./base-server.js";
 /**
  * MCP server exposing database operations as tools.
  *
  * Supports PostgreSQL and SQLite via the injected {@link IDatabaseAdapter}.
  * All queries are parameterized — no string interpolation of user input.
  */
-class DatabaseServer extends base_server_js_1.BaseMCPServer {
+export class DatabaseServer extends BaseMCPServer {
     db;
     constructor(config, db, logger) {
         super(config, logger);
@@ -91,5 +88,4 @@ class DatabaseServer extends base_server_js_1.BaseMCPServer {
         return `"${id}"`;
     }
 }
-exports.DatabaseServer = DatabaseServer;
 //# sourceMappingURL=database-server.js.map

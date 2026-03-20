@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.StrategySelector = void 0;
 /**
  * Selects the optimal reasoning strategy based on task characteristics.
  *
@@ -11,7 +8,7 @@ exports.StrategySelector = void 0;
  * - Creative requests → Internal Debate
  * - Default → Chain of Thought
  */
-class StrategySelector {
+export class StrategySelector {
     /**
      * Select a reasoning strategy for the given perception.
      *
@@ -35,5 +32,4 @@ class StrategySelector {
         return "chain_of_thought";
     }
 }
-exports.StrategySelector = StrategySelector;
 //# sourceMappingURL=strategy-selector.js.map

@@ -1,21 +1,18 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.EpisodicMemory = void 0;
-const shared_1 = require("@stem-agent/shared");
+import { createLogger } from "@stem-agent/shared";
 /**
  * Episodic memory — sequential records of past interactions/events.
  *
  * Supports retrieval by time range, vector similarity, keyword, and actor.
  * Automatically scores importance on storage.
  */
-class EpisodicMemory {
+export class EpisodicMemory {
     _store;
     embeddings;
     log;
     constructor(store, embeddings, logger) {
         this._store = store;
         this.embeddings = embeddings;
-        this.log = logger ?? (0, shared_1.createLogger)("episodic-memory");
+        this.log = logger ?? createLogger("episodic-memory");
     }
     /** Store a new episode, computing its embedding and importance score. */
     async store(episode) {
@@ -82,5 +79,4 @@ class EpisodicMemory {
         ].join(" ");
     }
 }
-exports.EpisodicMemory = EpisodicMemory;
 //# sourceMappingURL=episodic-memory.js.map

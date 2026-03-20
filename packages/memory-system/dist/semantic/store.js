@@ -1,12 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.InMemorySemanticStore = void 0;
-const cosine_js_1 = require("../embeddings/cosine.js");
+import { cosineSimilarity } from "../embeddings/cosine.js";
 /**
  * In-memory semantic store for knowledge triples.
  * Supports CRUD, vector similarity search, and subject lookup.
  */
-class InMemorySemanticStore {
+export class InMemorySemanticStore {
     triples = new Map();
     async upsert(triple) {
         const existing = this.triples.get(triple.id);
@@ -29,7 +26,7 @@ class InMemorySemanticStore {
             .filter((t) => t.embedding && t.embedding.length > 0)
             .map((t) => ({
             triple: t,
-            score: (0, cosine_js_1.cosineSimilarity)(embedding, t.embedding),
+            score: cosineSimilarity(embedding, t.embedding),
         }))
             .sort((a, b) => b.score - a.score)
             .slice(0, limit)
@@ -49,5 +46,4 @@ class InMemorySemanticStore {
         return this.triples.size;
     }
 }
-exports.InMemorySemanticStore = InMemorySemanticStore;
 //# sourceMappingURL=store.js.map

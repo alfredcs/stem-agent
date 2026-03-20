@@ -1,21 +1,18 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.SemanticMemory = void 0;
-const shared_1 = require("@stem-agent/shared");
+import { createLogger } from "@stem-agent/shared";
 /**
  * Semantic memory — long-term knowledge store with knowledge graph structure.
  *
  * Supports CRUD on knowledge triples, embedding-based similarity search,
  * conflict resolution with versioning, and import/export in JSON format.
  */
-class SemanticMemory {
+export class SemanticMemory {
     _store;
     embeddings;
     log;
     constructor(store, embeddings, logger) {
         this._store = store;
         this.embeddings = embeddings;
-        this.log = logger ?? (0, shared_1.createLogger)("semantic-memory");
+        this.log = logger ?? createLogger("semantic-memory");
     }
     /** Store or update a knowledge triple, computing its embedding. */
     async store(triple) {
@@ -64,5 +61,4 @@ class SemanticMemory {
         return this._store.count();
     }
 }
-exports.SemanticMemory = SemanticMemory;
 //# sourceMappingURL=semantic-memory.js.map

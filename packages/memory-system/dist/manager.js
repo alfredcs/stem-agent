@@ -1,12 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.MemoryManager = void 0;
-const shared_1 = require("@stem-agent/shared");
+import { createLogger } from "@stem-agent/shared";
 /**
  * Unified facade implementing IMemoryManager from shared types.
  * Delegates to specialized memory modules for each operation.
  */
-class MemoryManager {
+export class MemoryManager {
     episodic;
     semantic;
     procedural;
@@ -19,7 +16,7 @@ class MemoryManager {
         this.procedural = deps.procedural;
         this.userContext = deps.userContext;
         this.indexer = deps.indexer ?? null;
-        this.log = deps.logger ?? (0, shared_1.createLogger)("memory-manager");
+        this.log = deps.logger ?? createLogger("memory-manager");
     }
     /** Store an episode in episodic memory. */
     async remember(episode) {
@@ -71,5 +68,4 @@ class MemoryManager {
         this.log.info("memory manager shut down");
     }
 }
-exports.MemoryManager = MemoryManager;
 //# sourceMappingURL=manager.js.map

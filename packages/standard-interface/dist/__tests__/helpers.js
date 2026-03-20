@@ -1,9 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.MOCK_RESPONSE = exports.MOCK_AGENT_CARD = void 0;
-exports.createMockAgent = createMockAgent;
 /** Default mock agent card. */
-exports.MOCK_AGENT_CARD = {
+export const MOCK_AGENT_CARD = {
     agentId: "test-agent",
     name: "Test Agent",
     description: "A test agent",
@@ -29,7 +25,7 @@ exports.MOCK_AGENT_CARD = {
     securityRequirements: [],
 };
 /** Default mock response. */
-exports.MOCK_RESPONSE = {
+export const MOCK_RESPONSE = {
     id: "resp-1",
     status: "completed",
     content: "Hello from the agent",
@@ -40,10 +36,10 @@ exports.MOCK_RESPONSE = {
 /**
  * Create a mock IStemAgent for testing.
  */
-function createMockAgent(overrides) {
-    const processResult = overrides?.processResult ?? exports.MOCK_RESPONSE;
-    const streamChunks = overrides?.streamChunks ?? [exports.MOCK_RESPONSE];
-    const card = overrides?.card ?? exports.MOCK_AGENT_CARD;
+export function createMockAgent(overrides) {
+    const processResult = overrides?.processResult ?? MOCK_RESPONSE;
+    const streamChunks = overrides?.streamChunks ?? [MOCK_RESPONSE];
+    const card = overrides?.card ?? MOCK_AGENT_CARD;
     return {
         process: async (_taskId, _message, _principal) => {
             return processResult;

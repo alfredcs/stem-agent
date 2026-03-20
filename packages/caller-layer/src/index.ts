@@ -12,7 +12,7 @@ export {
 } from "./frameworks/sdk.js";
 
 // A2A Client
-export { A2AClient, A2AError, type A2AClientOptions } from "./agents/a2a-client.js";
+export { A2AClient, A2AError, type A2AClientOptions, type A2AAgentCard } from "./agents/a2a-client.js";
 
 // Agent Mesh
 export {

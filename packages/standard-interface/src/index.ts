@@ -15,6 +15,18 @@ export type { CreateTaskBody, ListTasksQuery } from "./rest/index.js";
 export { WsHandler, RoomManager, WsEventType } from "./websocket/index.js";
 export type { WsEvent } from "./websocket/index.js";
 
+// UCP protocol
+export { UcpHandler } from "./ucp/index.js";
+
+// A2UI dynamic UI composition
+export { A2UIHandler } from "./a2ui/index.js";
+
+// AG-UI protocol
+export { AGUIHandler } from "./ag-ui/index.js";
+
+// AP2 protocol (Agent Payments)
+export { Ap2Handler } from "./ap2/index.js";
+
 // Framework adapters
 export {
   AbstractFrameworkAdapter,

@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import * as readline from "node:readline";
 import { randomUUID } from "node:crypto";
 import { createLogger, type Logger } from "@stem-agent/shared";

@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.CustomServer = exports.CustomServerLoader = exports.AbstractCustomServer = void 0;
-const shared_1 = require("@stem-agent/shared");
-const base_server_js_1 = require("./base-server.js");
+import { createLogger } from "@stem-agent/shared";
+import { BaseMCPServer } from "./base-server.js";
 /**
  * Abstract base class for user-defined MCP server plugins.
  *
@@ -10,7 +7,7 @@ const base_server_js_1 = require("./base-server.js");
  * The plugin is loaded by {@link CustomServerLoader} and wrapped
  * in a {@link CustomServer}.
  */
-class AbstractCustomServer {
+export class AbstractCustomServer {
     /** Called when the server starts. Optional setup. */
     async onStart() {
         /* no-op by default */
@@ -24,17 +21,16 @@ class AbstractCustomServer {
         return true;
     }
 }
-exports.AbstractCustomServer = AbstractCustomServer;
 /**
  * Discovers and loads custom server plugins from a directory.
  *
  * Each plugin module must default-export a class extending
  * {@link AbstractCustomServer}.
  */
-class CustomServerLoader {
+export class CustomServerLoader {
     logger;
     constructor(logger) {
-        this.logger = logger ?? (0, shared_1.createLogger)("custom-server-loader");
+        this.logger = logger ?? createLogger("custom-server-loader");
     }
     /**
      * Load a single plugin from a module path.
@@ -75,13 +71,12 @@ class CustomServerLoader {
         return plugins;
     }
 }
-exports.CustomServerLoader = CustomServerLoader;
 /**
  * MCP server that wraps a user-defined {@link AbstractCustomServer} plugin.
  *
  * Delegates lifecycle and tool registration to the plugin instance.
  */
-class CustomServer extends base_server_js_1.BaseMCPServer {
+export class CustomServer extends BaseMCPServer {
     plugin;
     constructor(config, plugin, logger) {
         super(config, logger);
@@ -106,5 +101,4 @@ class CustomServer extends base_server_js_1.BaseMCPServer {
         return this.plugin.onHealthCheck();
     }
 }
-exports.CustomServer = CustomServer;
 //# sourceMappingURL=custom-server.js.map

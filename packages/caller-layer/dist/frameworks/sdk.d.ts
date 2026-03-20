@@ -80,12 +80,12 @@ export declare class StemAgentClient {
     getAgentCard(): Promise<AgentCard>;
     /**
      * Fetch the learned caller profile.
-     * Maps to `GET /api/v1/agent/profile/:callerId`.
+     * Maps to `GET /api/v1/profile/:id`.
      */
     getCallerProfile(callerId: string): Promise<CallerProfile>;
     /**
      * Fetch current self-adapted behavior parameters.
-     * Maps to `GET /api/v1/agent/behavior`.
+     * Maps to `GET /api/v1/behavior`.
      */
     getBehaviorParams(): Promise<BehaviorParameters>;
     /**

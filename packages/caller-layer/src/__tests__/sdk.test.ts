@@ -134,12 +134,12 @@ describe("StemAgentClient", () => {
     expect(res).toEqual(profile);
 
     const [url] = mockFetch.mock.calls[0];
-    expect(url).toBe("http://localhost:8000/api/v1/agent/profile/u1");
+    expect(url).toBe("http://localhost:8000/api/v1/profile/u1");
   });
 
   // ---- getBehaviorParams --------------------------------------------------
 
-  it("getBehaviorParams() fetches /api/v1/agent/behavior", async () => {
+  it("getBehaviorParams() fetches /api/v1/behavior", async () => {
     const params = { reasoningDepth: 3 };
     mockFetch.mockResolvedValueOnce(jsonResponse(params));
 

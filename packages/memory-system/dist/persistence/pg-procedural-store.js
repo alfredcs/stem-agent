@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.PgProceduralStore = void 0;
 function formatVector(embedding) {
     return `[${embedding.join(",")}]`;
 }
@@ -30,7 +27,7 @@ function mapRow(row) {
         tags: row.tags,
     };
 }
-class PgProceduralStore {
+export class PgProceduralStore {
     pool;
     constructor(pool) {
         this.pool = pool;
@@ -91,5 +88,4 @@ class PgProceduralStore {
         return rows[0].cnt;
     }
 }
-exports.PgProceduralStore = PgProceduralStore;
 //# sourceMappingURL=pg-procedural-store.js.map

@@ -1,12 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.InMemoryEpisodicStore = void 0;
-const cosine_js_1 = require("../embeddings/cosine.js");
+import { cosineSimilarity } from "../embeddings/cosine.js";
 /**
  * In-memory append-only episodic store.
  * Production deployments should substitute a SQLite/pgvector-backed store.
  */
-class InMemoryEpisodicStore {
+export class InMemoryEpisodicStore {
     episodes = [];
     async append(episode) {
         this.episodes.push(episode);
@@ -20,7 +17,7 @@ class InMemoryEpisodicStore {
     async searchByEmbedding(embedding, limit) {
         return this.episodes
             .filter((e) => e.embedding && e.embedding.length > 0)
-            .map((e) => ({ episode: e, score: (0, cosine_js_1.cosineSimilarity)(embedding, e.embedding) }))
+            .map((e) => ({ episode: e, score: cosineSimilarity(embedding, e.embedding) }))
             .sort((a, b) => b.score - a.score)
             .slice(0, limit)
             .map((r) => r.episode);
@@ -60,5 +57,4 @@ class InMemoryEpisodicStore {
         return [...this.episodes];
     }
 }
-exports.InMemoryEpisodicStore = InMemoryEpisodicStore;
 //# sourceMappingURL=store.js.map

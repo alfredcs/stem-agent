@@ -1,32 +1,29 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.restRouter = restRouter;
-const express_1 = require("express");
-const uuid_1 = require("uuid");
-const shared_1 = require("@stem-agent/shared");
-const validation_js_1 = require("./validation.js");
+import { Router } from "express";
+import { v4 as uuidv4 } from "uuid";
+import { ValidationError, BehaviorParametersSchema } from "@stem-agent/shared";
+import { CreateTaskSchema, ListTasksQuerySchema } from "./validation.js";
 /**
  * Creates the Express router for all REST API v1 endpoints.
  */
-function restRouter(deps) {
+export function restRouter(deps) {
     const { agent, memoryManager, mcpManager } = deps;
-    const router = (0, express_1.Router)();
+    const router = Router();
     const tasks = new Map();
     /**
      * POST /api/v1/tasks — Create and process a new task.
      */
     router.post("/api/v1/tasks", async (req, res, next) => {
         try {
-            const parsed = validation_js_1.CreateTaskSchema.safeParse(req.body);
+            const parsed = CreateTaskSchema.safeParse(req.body);
             if (!parsed.success) {
-                throw new shared_1.ValidationError("Invalid request body", {
+                throw new ValidationError("Invalid request body", {
                     issues: parsed.error.issues,
                 });
             }
             const body = parsed.data;
-            const taskId = (0, uuid_1.v4)();
+            const taskId = uuidv4();
             const message = {
-                id: (0, uuid_1.v4)(),
+                id: uuidv4(),
                 role: "user",
                 content: body.message,
                 contentType: body.contentType,
@@ -92,9 +89,9 @@ function restRouter(deps) {
      */
     router.get("/api/v1/tasks", (req, res, next) => {
         try {
-            const parsed = validation_js_1.ListTasksQuerySchema.safeParse(req.query);
+            const parsed = ListTasksQuerySchema.safeParse(req.query);
             if (!parsed.success) {
-                throw new shared_1.ValidationError("Invalid query parameters", {
+                throw new ValidationError("Invalid query parameters", {
                     issues: parsed.error.issues,
                 });
             }
@@ -125,16 +122,16 @@ function restRouter(deps) {
      */
     router.post("/api/v1/chat", async (req, res, next) => {
         try {
-            const parsed = validation_js_1.CreateTaskSchema.safeParse(req.body);
+            const parsed = CreateTaskSchema.safeParse(req.body);
             if (!parsed.success) {
-                throw new shared_1.ValidationError("Invalid request body", {
+                throw new ValidationError("Invalid request body", {
                     issues: parsed.error.issues,
                 });
             }
             const body = parsed.data;
-            const taskId = (0, uuid_1.v4)();
+            const taskId = uuidv4();
             const message = {
-                id: (0, uuid_1.v4)(),
+                id: uuidv4(),
                 role: "user",
                 content: body.message,
                 contentType: body.contentType,
@@ -174,11 +171,11 @@ function restRouter(deps) {
         try {
             const message = req.query.message;
             if (!message || typeof message !== "string") {
-                throw new shared_1.ValidationError("Missing 'message' query parameter");
+                throw new ValidationError("Missing 'message' query parameter");
             }
-            const taskId = (0, uuid_1.v4)();
+            const taskId = uuidv4();
             const agentMessage = {
-                id: (0, uuid_1.v4)(),
+                id: uuidv4(),
                 role: "user",
                 content: message,
                 contentType: req.query.contentType ?? "text/plain",
@@ -222,7 +219,7 @@ function restRouter(deps) {
      * GET /api/v1/behavior — Default behavior parameters.
      */
     router.get("/api/v1/behavior", (_req, res) => {
-        res.json(shared_1.BehaviorParametersSchema.parse({}));
+        res.json(BehaviorParametersSchema.parse({}));
     });
     /**
      * GET /api/v1/mcp/tools — MCP tools.

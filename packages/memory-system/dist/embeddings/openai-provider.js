@@ -1,10 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.OpenAIEmbeddingProvider = void 0;
 /**
  * OpenAI embedding provider using the REST API directly (no SDK).
  */
-class OpenAIEmbeddingProvider {
+export class OpenAIEmbeddingProvider {
     apiKey;
     model;
     dimensions;
@@ -43,5 +40,4 @@ class OpenAIEmbeddingProvider {
         return response.json();
     }
 }
-exports.OpenAIEmbeddingProvider = OpenAIEmbeddingProvider;
 //# sourceMappingURL=openai-provider.js.map

@@ -1,6 +1,6 @@
-import type { AgentCard, AgentResponse } from "@stem-agent/shared";
+import type { AgentResponse } from "@stem-agent/shared";
 import { createLogger, type Logger } from "@stem-agent/shared";
-import { A2AClient, type A2AClientOptions } from "./a2a-client.js";
+import { A2AClient, type A2AClientOptions, type A2AAgentCard } from "./a2a-client.js";
 
 // ---------------------------------------------------------------------------
 // AgentProxy
@@ -13,7 +13,7 @@ import { A2AClient, type A2AClientOptions } from "./a2a-client.js";
 export class AgentProxy {
   private readonly client: A2AClient;
   private readonly log: Logger;
-  private card: AgentCard | null = null;
+  private card: A2AAgentCard | null = null;
   private capabilities: string[] = [];
 
   constructor(opts: A2AClientOptions) {
@@ -24,11 +24,11 @@ export class AgentProxy {
   // ---- Discovery ----------------------------------------------------------
 
   /** Fetch and cache the remote agent's card. */
-  async discover(): Promise<AgentCard> {
+  async discover(): Promise<A2AAgentCard> {
     this.card = await this.client.discoverAgent();
     this.capabilities = this.card.skills.map((s) => s.name);
     this.log.info(
-      { agentId: this.card.agentId, capabilities: this.capabilities },
+      { agent: this.card.name, capabilities: this.capabilities },
       "agent discovered",
     );
     return this.card;
@@ -66,7 +66,7 @@ export class AgentProxy {
   }
 
   /** Return cached agent card, or `null` if not yet discovered. */
-  getCard(): AgentCard | null {
+  getCard(): A2AAgentCard | null {
     return this.card;
   }
 }

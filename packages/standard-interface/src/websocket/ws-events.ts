@@ -21,6 +21,13 @@ export const WsEventType = {
   CLIENT_JOIN_ROOM: "client.join_room",
   CLIENT_LEAVE_ROOM: "client.leave_room",
 
+  // A2UI events
+  A2UI_BEGIN_RENDERING: "a2ui.begin_rendering",
+  A2UI_SURFACE_UPDATE: "a2ui.surface_update",
+  A2UI_DATA_UPDATE: "a2ui.data_update",
+  A2UI_DELETE_SURFACE: "a2ui.delete_surface",
+  A2UI_USER_ACTION: "a2ui.user_action",
+
   // System
   PING: "ping",
   PONG: "pong",

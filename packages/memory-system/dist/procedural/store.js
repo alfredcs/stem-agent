@@ -1,11 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.InMemoryProceduralStore = void 0;
-const cosine_js_1 = require("../embeddings/cosine.js");
+import { cosineSimilarity } from "../embeddings/cosine.js";
 /**
  * In-memory procedural store for learned procedures/skills.
  */
-class InMemoryProceduralStore {
+export class InMemoryProceduralStore {
     procedures = new Map();
     async upsert(procedure) {
         this.procedures.set(procedure.id, procedure);
@@ -25,7 +22,7 @@ class InMemoryProceduralStore {
             .filter((p) => p.embedding && p.embedding.length > 0)
             .map((p) => ({
             procedure: p,
-            score: (0, cosine_js_1.cosineSimilarity)(embedding, p.embedding),
+            score: cosineSimilarity(embedding, p.embedding),
         }))
             .sort((a, b) => b.score - a.score)
             .slice(0, limit)
@@ -44,5 +41,4 @@ class InMemoryProceduralStore {
         return this.procedures.size;
     }
 }
-exports.InMemoryProceduralStore = InMemoryProceduralStore;
 //# sourceMappingURL=store.js.map

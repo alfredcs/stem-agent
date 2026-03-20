@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ExecutionEngine = void 0;
-const shared_1 = require("@stem-agent/shared");
-const shared_2 = require("@stem-agent/shared");
-const node_crypto_1 = require("node:crypto");
+import { ExecutionResultSchema } from "@stem-agent/shared";
+import { createLogger, BaseError } from "@stem-agent/shared";
+import { randomUUID } from "node:crypto";
 /**
  * Execution Engine — executes plans step-by-step via MCP tools.
  *
@@ -11,24 +8,28 @@ const node_crypto_1 = require("node:crypto");
  * fallback actions, a circuit breaker pattern, and procedural memory
  * learning on success.
  */
-class ExecutionEngine {
+export class ExecutionEngine {
     mcp;
     memory;
     maxRetries;
     parallelExecution;
     circuitBreakerThreshold;
     stepTimeoutMs;
+    llmClient;
     log;
     /** Tracks consecutive failures for circuit breaker. */
     consecutiveFailures = 0;
-    constructor(mcp, memory, config) {
+    /** The current plan goal — set at the start of each execute() call. */
+    currentGoal = "";
+    constructor(mcp, memory, config, llmClient) {
         this.mcp = mcp;
         this.memory = memory;
         this.maxRetries = config.maxExecutionRetries;
         this.parallelExecution = config.parallelExecution;
         this.circuitBreakerThreshold = config.circuitBreakerThreshold;
         this.stepTimeoutMs = config.stepTimeoutMs;
-        this.log = (0, shared_2.createLogger)("execution-engine");
+        this.llmClient = llmClient;
+        this.log = createLogger("execution-engine");
     }
     /**
      * Execute a plan and return the aggregated result.
@@ -36,8 +37,9 @@ class ExecutionEngine {
      * @param plan - The execution plan to run.
      * @returns Validated ExecutionResult.
      */
-    async execute(plan, behavior) {
+    async execute(plan, behavior, userQuery) {
         this.consecutiveFailures = 0;
+        this.currentGoal = userQuery ?? plan.goal;
         const stepResults = [];
         const stepMap = new Map(plan.steps.map((s) => [s.stepId, s]));
         const completedResults = new Map();
@@ -128,7 +130,7 @@ class ExecutionEngine {
                 this.log.warn({ err }, "Failed to store learned procedure");
             });
         }
-        return shared_1.ExecutionResultSchema.parse({
+        return ExecutionResultSchema.parse({
             success: allSuccess,
             stepResults,
             finalResult: lastResult?.data,
@@ -204,10 +206,17 @@ class ExecutionEngine {
                     break;
                 }
                 case "reasoning":
-                case "response":
-                    // These are resolved directly — the description is the output
                     data = step.description;
                     break;
+                case "response": {
+                    if (this.llmClient) {
+                        data = await this.generateResponse(step.description);
+                    }
+                    else {
+                        data = step.description;
+                    }
+                    break;
+                }
                 default:
                     return {
                         stepId: step.stepId,
@@ -234,6 +243,26 @@ class ExecutionEngine {
             };
         }
     }
+    /** Generate an actual LLM response for a "response" step. */
+    async generateResponse(stepDescription) {
+        try {
+            const result = await this.llmClient.chat([
+                {
+                    role: "system",
+                    content: "You are a helpful assistant. Provide a clear, accurate, and well-structured answer to the user's question.",
+                },
+                {
+                    role: "user",
+                    content: this.currentGoal,
+                },
+            ]);
+            return result.content;
+        }
+        catch (err) {
+            this.log.warn({ err }, "LLM response generation failed, falling back to step description");
+            return stepDescription;
+        }
+    }
     /** Execute the fallback action for a step. */
     async executeFallback(step) {
         const start = Date.now();
@@ -247,7 +276,7 @@ class ExecutionEngine {
     /** Wrap a promise with a timeout. */
     withTimeout(promise, ms) {
         return new Promise((resolve, reject) => {
-            const timer = setTimeout(() => reject(new shared_2.BaseError(`Step timed out after ${ms}ms`, { code: "TIMEOUT" })), ms);
+            const timer = setTimeout(() => reject(new BaseError(`Step timed out after ${ms}ms`, { code: "TIMEOUT" })), ms);
             promise.then((v) => { clearTimeout(timer); resolve(v); }, (e) => { clearTimeout(timer); reject(e); });
         });
     }
@@ -263,7 +292,7 @@ class ExecutionEngine {
     /** Store a learned procedure from a successful plan execution. */
     async learnFromSuccess(plan) {
         await this.memory.learn({
-            id: (0, node_crypto_1.randomUUID)(),
+            id: randomUUID(),
             name: `procedure_${Date.now()}`,
             description: plan.goal,
             steps: plan.steps.map((s) => s.description),
@@ -276,5 +305,4 @@ class ExecutionEngine {
         });
     }
 }
-exports.ExecutionEngine = ExecutionEngine;
 //# sourceMappingURL=execution-engine.js.map

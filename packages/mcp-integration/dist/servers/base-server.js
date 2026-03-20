@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.BaseMCPServer = void 0;
-const shared_1 = require("@stem-agent/shared");
-const errors_js_1 = require("../errors.js");
+import { createLogger, BaseError, } from "@stem-agent/shared";
+import { MCPToolExecutionError, MCPToolNotFoundError } from "../errors.js";
 /**
  * Abstract base class for all MCP servers in this layer.
  *
@@ -10,14 +7,14 @@ const errors_js_1 = require("../errors.js");
  * {@link registerTool}. The manager calls {@link start}, {@link stop},
  * {@link listTools}, and {@link executeTool}.
  */
-class BaseMCPServer {
+export class BaseMCPServer {
     config;
     logger;
     tools = new Map();
     running = false;
     constructor(config, logger) {
         this.config = config;
-        this.logger = logger ?? (0, shared_1.createLogger)(`mcp-server:${config.name}`);
+        this.logger = logger ?? createLogger(`mcp-server:${config.name}`);
     }
     /** The unique name of this server (from config). */
     get name() {
@@ -56,7 +53,7 @@ class BaseMCPServer {
     }
     /** Read a resource by URI. Override in subclasses that support resources. */
     async readResource(_uri) {
-        throw new shared_1.BaseError("Resources not supported by this server", {
+        throw new BaseError("Resources not supported by this server", {
             code: "NOT_SUPPORTED",
             statusCode: 501,
         });
@@ -77,7 +74,7 @@ class BaseMCPServer {
     async executeTool(toolName, args) {
         const entry = this.tools.get(toolName);
         if (!entry) {
-            throw new errors_js_1.MCPToolNotFoundError(toolName, this.name);
+            throw new MCPToolNotFoundError(toolName, this.name);
         }
         const start = performance.now();
         try {
@@ -109,7 +106,7 @@ class BaseMCPServer {
      */
     registerTool(name, description, parameters, handler) {
         if (this.tools.has(name)) {
-            throw new errors_js_1.MCPToolExecutionError(name, `Tool "${name}" already registered on "${this.name}"`);
+            throw new MCPToolExecutionError(name, `Tool "${name}" already registered on "${this.name}"`);
         }
         this.tools.set(name, { name, description, parameters, handler });
         this.logger.debug({ tool: name }, "registered tool");
@@ -119,5 +116,4 @@ class BaseMCPServer {
         /* no-op by default */
     }
 }
-exports.BaseMCPServer = BaseMCPServer;
 //# sourceMappingURL=base-server.js.map

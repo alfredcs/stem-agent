@@ -1,10 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.buildOpenApiSpec = buildOpenApiSpec;
 /**
  * OpenAPI 3.1 specification for the STEM Agent REST API.
  */
-function buildOpenApiSpec(agentName, version) {
+export function buildOpenApiSpec(agentName, version) {
     return {
         openapi: "3.1.0",
         info: {

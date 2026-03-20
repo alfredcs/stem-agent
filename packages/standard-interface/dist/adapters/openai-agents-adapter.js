@@ -1,14 +1,11 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.OpenAIAgentsAdapter = void 0;
-const uuid_1 = require("uuid");
-const abstract_adapter_js_1 = require("./abstract-adapter.js");
+import { v4 as uuidv4 } from "uuid";
+import { AbstractFrameworkAdapter } from "./abstract-adapter.js";
 /**
  * Adapter for OpenAI Agents SDK.
  * Exposes the STEM Agent as an OpenAI-compatible tool, translating
  * tool calls to STEM Agent messages and responses back to tool results.
  */
-class OpenAIAgentsAdapter extends abstract_adapter_js_1.AbstractFrameworkAdapter {
+export class OpenAIAgentsAdapter extends AbstractFrameworkAdapter {
     name = "OpenAIAgents";
     version = "1.0";
     tasks = new Map();
@@ -24,9 +21,9 @@ class OpenAIAgentsAdapter extends abstract_adapter_js_1.AbstractFrameworkAdapter
         catch {
             content = toolCall.arguments;
         }
-        const taskId = (0, uuid_1.v4)();
+        const taskId = uuidv4();
         const message = {
-            id: (0, uuid_1.v4)(),
+            id: uuidv4(),
             role: "tool",
             content,
             contentType: "application/json",
@@ -41,7 +38,7 @@ class OpenAIAgentsAdapter extends abstract_adapter_js_1.AbstractFrameworkAdapter
     async getTaskStatus(taskId) {
         const record = this.tasks.get(taskId);
         if (!record?.response) {
-            return { id: (0, uuid_1.v4)(), status: "pending", contentType: "text/plain", artifacts: [], metadata: {} };
+            return { id: uuidv4(), status: "pending", contentType: "text/plain", artifacts: [], metadata: {} };
         }
         return record.response;
     }
@@ -57,5 +54,4 @@ class OpenAIAgentsAdapter extends abstract_adapter_js_1.AbstractFrameworkAdapter
         return this.tasks.delete(taskId);
     }
 }
-exports.OpenAIAgentsAdapter = OpenAIAgentsAdapter;
 //# sourceMappingURL=openai-agents-adapter.js.map

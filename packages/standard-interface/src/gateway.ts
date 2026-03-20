@@ -12,6 +12,10 @@ import {
   type RateLimitConfig,
 } from "./middleware/index.js";
 import { A2AHandler, agentCardRouter } from "./a2a/index.js";
+import { A2UIHandler } from "./a2ui/index.js";
+import { AGUIHandler } from "./ag-ui/index.js";
+import { Ap2Handler } from "./ap2/index.js";
+import { UcpHandler } from "./ucp/index.js";
 import { restRouter } from "./rest/index.js";
 import { buildOpenApiSpec } from "./rest/openapi-spec.js";
 import { WsHandler } from "./websocket/index.js";
@@ -134,6 +138,7 @@ export class Gateway {
         ...this.config.auth,
         publicPaths: [
           "/.well-known/agent.json",
+          "/.well-known/ucp",
           "/api/v1/health",
           "/docs",
           "/api-docs",
@@ -165,6 +170,22 @@ export class Gateway {
     // A2A JSON-RPC endpoint
     const a2aHandler = new A2AHandler(this.agent);
     this.app.use(a2aHandler.createRouter());
+
+    // A2UI dynamic UI composition
+    const a2uiHandler = new A2UIHandler(this.agent);
+    this.app.use(a2uiHandler.createRouter());
+
+    // AG-UI SSE endpoint
+    const aguiHandler = new AGUIHandler(this.agent);
+    this.app.use(aguiHandler.createRouter());
+
+    // AP2 payment authorization
+    const ap2Handler = new Ap2Handler();
+    this.app.use(ap2Handler.createRouter());
+
+    // UCP checkout + discovery endpoints
+    const ucpHandler = new UcpHandler(this.agent);
+    this.app.use(ucpHandler.createRouter());
 
     // REST API
     this.app.use(restRouter({

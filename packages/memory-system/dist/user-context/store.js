@@ -1,11 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.InMemoryUserContextStore = void 0;
 /**
  * In-memory store for user profiles and session contexts.
  * Provides multi-tenant isolation by keying on callerId.
  */
-class InMemoryUserContextStore {
+export class InMemoryUserContextStore {
     profiles = new Map();
     sessions = new Map();
     sessionKey(callerId, sessionId) {
@@ -35,5 +32,4 @@ class InMemoryUserContextStore {
         }
     }
 }
-exports.InMemoryUserContextStore = InMemoryUserContextStore;
 //# sourceMappingURL=store.js.map

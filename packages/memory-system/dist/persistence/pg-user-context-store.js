@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.PgUserContextStore = void 0;
-class PgUserContextStore {
+export class PgUserContextStore {
     pool;
     constructor(pool) {
         this.pool = pool;
@@ -52,5 +49,4 @@ class PgUserContextStore {
         }
     }
 }
-exports.PgUserContextStore = PgUserContextStore;
 //# sourceMappingURL=pg-user-context-store.js.map

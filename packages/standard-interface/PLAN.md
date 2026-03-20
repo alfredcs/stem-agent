@@ -1,7 +1,7 @@
 # Standard Interface Layer (Layer 2) — Implementation Plan
 
 ## Goal
-Build `packages/standard-interface/` with 4 protocol handlers (A2A, REST, WebSocket, Framework Adapters), auth module, middleware stack, gateway router, tests, and a clean public API. All coded against `IStemAgent` interface from `@stem-agent/shared`.
+Build `packages/standard-interface/` with 8 protocol handlers (A2A, REST, WebSocket, AG-UI, A2UI, UCP, AP2, Framework Adapters), auth module, middleware stack, gateway router, tests, and a clean public API. All coded against `IStemAgent` interface from `@stem-agent/shared`.
 
 ## Dependencies
 - `@stem-agent/shared` — types, errors, logger (available now)
@@ -44,6 +44,18 @@ src/
     ws-handler.ts             — WebSocket connection/message handler
     ws-events.ts              — Event type constants
     ws-room.ts                — Room-based multiplexing
+  ag-ui/
+    index.ts                  — AG-UI module exports
+    ag-ui-handler.ts          — POST /ag-ui SSE streaming handler
+  a2ui/
+    index.ts                  — A2UI module exports
+    a2ui-handler.ts           — POST /a2ui/render (SSE), POST /a2ui/action
+  ucp/
+    index.ts                  — UCP module exports
+    ucp-handler.ts            — GET /.well-known/ucp, checkout lifecycle
+  ap2/
+    index.ts                  — AP2 module exports
+    ap2-handler.ts            — Mandate lifecycle, receipts, audit trail
   adapters/
     index.ts                  — Adapter exports
     abstract-adapter.ts       — AbstractFrameworkAdapter base class
@@ -141,10 +153,34 @@ Verify: unit tests for message conversion.
 
 Verify: integration test starting gateway, hitting health endpoint.
 
-### Step 9: Public API (`src/index.ts`)
-Export: Gateway, all protocol handlers, AbstractFrameworkAdapter, auth module, middleware.
+### Step 9: AG-UI protocol handler (`src/ag-ui/`)
+- `ag-ui-handler.ts` — `AGUIHandler` with `POST /ag-ui` endpoint. Maps agent pipeline phases to AG-UI typed SSE events (RUN_STARTED, TEXT_MESSAGE_*, TOOL_CALL_*, REASONING_*, STATE_SNAPSHOT, STEP_*, RUN_FINISHED). Supports both full `RunAgentInput` and simple `{ message, threadId?, runId? }` payloads.
+- Types defined in `shared/src/types/ag-ui.ts` (20 Zod schemas).
 
-### Step 10: Tests
+Verify: 13 tests for event mapping, SSE format, error handling.
+
+### Step 10: A2UI protocol handler (`src/a2ui/`)
+- `a2ui-handler.ts` — `A2UIHandler` with `POST /a2ui/render` (SSE), `POST /a2ui/action`, `GET /a2ui/surfaces`, `DELETE /a2ui/surfaces/:id`. Composes UIs from 18 component primitives using flat adjacency list model.
+- Types defined in `shared/src/types/a2ui.ts` (16 primitives + server/client messages).
+
+Verify: 14 tests for rendering, actions, surface lifecycle.
+
+### Step 11: UCP protocol handler (`src/ucp/`)
+- `ucp-handler.ts` — `UcpHandler` with `GET /.well-known/ucp` (discovery), `POST /ucp/checkout-sessions` (create), `GET /ucp/checkout-sessions/:id` (get), `POST /ucp/checkout-sessions/:id/complete` (complete). Required headers: UCP-Agent, Idempotency-Key, Request-Id. Idempotency cache. Totals computation.
+- Types defined in `shared/src/types/ucp.ts` (15 schemas).
+
+Verify: 8 tests for discovery, CRUD, idempotency, header validation.
+
+### Step 12: AP2 protocol handler (`src/ap2/`)
+- `ap2-handler.ts` — `Ap2Handler` with 7 endpoints for intent/payment mandate lifecycle, receipts, and audit trails. Auto-approve below threshold, merchant allowlist, expiry checks. `executePayment()` for programmatic receipt creation.
+- Types defined in `shared/src/types/ap2.ts` (15 schemas).
+
+Verify: 12 tests for mandate creation, approval/rejection, auto-approve, merchant validation, audit trail.
+
+### Step 13: Public API (`src/index.ts`)
+Export: Gateway, all protocol handlers (A2A, AG-UI, A2UI, UCP, AP2), AbstractFrameworkAdapter, auth module, middleware.
+
+### Step 14: Tests
 Write test suite targeting >80% coverage:
 - `gateway.test.ts` — full integration
 - `a2a-handler.test.ts` — JSON-RPC methods

@@ -1,12 +1,9 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.JwtProvider = void 0;
-const node_crypto_1 = require("node:crypto");
+import { createHmac, timingSafeEqual } from "node:crypto";
 /**
  * Authenticates requests using JWT tokens.
  * Supports HS256 signature verification with configurable issuer/audience checks.
  */
-class JwtProvider {
+export class JwtProvider {
     type = "jwt";
     secret;
     issuer;
@@ -40,10 +37,10 @@ class JwtProvider {
         const [headerB64, payloadB64, signatureB64] = parts;
         // Verify signature (HS256)
         const data = `${headerB64}.${payloadB64}`;
-        const expectedSig = (0, node_crypto_1.createHmac)("sha256", this.secret)
+        const expectedSig = createHmac("sha256", this.secret)
             .update(data)
             .digest("base64url");
-        if (!(0, node_crypto_1.timingSafeEqual)(Buffer.from(signatureB64), Buffer.from(expectedSig))) {
+        if (!timingSafeEqual(Buffer.from(signatureB64), Buffer.from(expectedSig))) {
             return null;
         }
         // Decode payload
@@ -69,5 +66,4 @@ class JwtProvider {
         return payload;
     }
 }
-exports.JwtProvider = JwtProvider;
 //# sourceMappingURL=jwt-provider.js.map

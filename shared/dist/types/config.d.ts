@@ -8,14 +8,14 @@ export declare const LLMConfigSchema: z.ZodObject<{
         formatting: z.ZodDefault<z.ZodString>;
         evaluation: z.ZodDefault<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        perception: string;
         reasoning: string;
+        perception: string;
         planning: string;
         formatting: string;
         evaluation: string;
     }, {
-        perception?: string | undefined;
         reasoning?: string | undefined;
+        perception?: string | undefined;
         planning?: string | undefined;
         formatting?: string | undefined;
         evaluation?: string | undefined;
@@ -26,8 +26,8 @@ export declare const LLMConfigSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     provider: "amazon_bedrock" | "anthropic" | "openai";
     models: {
-        perception: string;
         reasoning: string;
+        perception: string;
         planning: string;
         formatting: string;
         evaluation: string;
@@ -38,8 +38,8 @@ export declare const LLMConfigSchema: z.ZodObject<{
 }, {
     provider?: "amazon_bedrock" | "anthropic" | "openai" | undefined;
     models?: {
-        perception?: string | undefined;
         reasoning?: string | undefined;
+        perception?: string | undefined;
         planning?: string | undefined;
         formatting?: string | undefined;
         evaluation?: string | undefined;
@@ -58,9 +58,9 @@ export declare const EmbeddingConfigSchema: z.ZodObject<{
     model: string;
     apiKey?: string | undefined;
 }, {
+    apiKey?: string | undefined;
     provider?: "openai" | "bedrock" | "local" | undefined;
     model?: string | undefined;
-    apiKey?: string | undefined;
 }>;
 export type EmbeddingConfig = z.infer<typeof EmbeddingConfigSchema>;
 export declare const CostConfigSchema: z.ZodObject<{
@@ -106,13 +106,13 @@ export declare const ServerConfigSchema: z.ZodObject<{
     port: z.ZodDefault<z.ZodNumber>;
     maxConcurrentTasks: z.ZodDefault<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
+    maxConcurrentTasks: number;
     host: string;
     port: number;
-    maxConcurrentTasks: number;
 }, {
+    maxConcurrentTasks?: number | undefined;
     host?: string | undefined;
     port?: number | undefined;
-    maxConcurrentTasks?: number | undefined;
 }>;
 export type ServerConfig = z.infer<typeof ServerConfigSchema>;
 export declare const AgentConfigSchema: z.ZodObject<{
@@ -122,15 +122,15 @@ export declare const AgentConfigSchema: z.ZodObject<{
         version: z.ZodDefault<z.ZodString>;
         description: z.ZodDefault<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
-        agentId: string;
         name: string;
-        version: string;
         description: string;
+        agentId: string;
+        version: string;
     }, {
-        agentId?: string | undefined;
         name?: string | undefined;
-        version?: string | undefined;
         description?: string | undefined;
+        agentId?: string | undefined;
+        version?: string | undefined;
     }>>;
     llm: z.ZodDefault<z.ZodObject<{
         provider: z.ZodDefault<z.ZodEnum<["amazon_bedrock", "anthropic", "openai"]>>;
@@ -141,14 +141,14 @@ export declare const AgentConfigSchema: z.ZodObject<{
             formatting: z.ZodDefault<z.ZodString>;
             evaluation: z.ZodDefault<z.ZodString>;
         }, "strip", z.ZodTypeAny, {
-            perception: string;
             reasoning: string;
+            perception: string;
             planning: string;
             formatting: string;
             evaluation: string;
         }, {
-            perception?: string | undefined;
             reasoning?: string | undefined;
+            perception?: string | undefined;
             planning?: string | undefined;
             formatting?: string | undefined;
             evaluation?: string | undefined;
@@ -159,8 +159,8 @@ export declare const AgentConfigSchema: z.ZodObject<{
     }, "strip", z.ZodTypeAny, {
         provider: "amazon_bedrock" | "anthropic" | "openai";
         models: {
-            perception: string;
             reasoning: string;
+            perception: string;
             planning: string;
             formatting: string;
             evaluation: string;
@@ -171,8 +171,8 @@ export declare const AgentConfigSchema: z.ZodObject<{
     }, {
         provider?: "amazon_bedrock" | "anthropic" | "openai" | undefined;
         models?: {
-            perception?: string | undefined;
             reasoning?: string | undefined;
+            perception?: string | undefined;
             planning?: string | undefined;
             formatting?: string | undefined;
             evaluation?: string | undefined;
@@ -190,9 +190,9 @@ export declare const AgentConfigSchema: z.ZodObject<{
         model: string;
         apiKey?: string | undefined;
     }, {
+        apiKey?: string | undefined;
         provider?: "openai" | "bedrock" | "local" | undefined;
         model?: string | undefined;
-        apiKey?: string | undefined;
     }>>;
     cost: z.ZodDefault<z.ZodObject<{
         maxLlmCallsPerInteraction: z.ZodDefault<z.ZodNumber>;
@@ -236,26 +236,31 @@ export declare const AgentConfigSchema: z.ZodObject<{
         port: z.ZodDefault<z.ZodNumber>;
         maxConcurrentTasks: z.ZodDefault<z.ZodNumber>;
     }, "strip", z.ZodTypeAny, {
+        maxConcurrentTasks: number;
         host: string;
         port: number;
-        maxConcurrentTasks: number;
     }, {
+        maxConcurrentTasks?: number | undefined;
         host?: string | undefined;
         port?: number | undefined;
-        maxConcurrentTasks?: number | undefined;
     }>>;
 }, "strip", z.ZodTypeAny, {
     agent: {
-        agentId: string;
         name: string;
-        version: string;
         description: string;
+        agentId: string;
+        version: string;
+    };
+    embedding: {
+        provider: "openai" | "bedrock" | "local";
+        model: string;
+        apiKey?: string | undefined;
     };
     llm: {
         provider: "amazon_bedrock" | "anthropic" | "openai";
         models: {
-            perception: string;
             reasoning: string;
+            perception: string;
             planning: string;
             formatting: string;
             evaluation: string;
@@ -263,11 +268,6 @@ export declare const AgentConfigSchema: z.ZodObject<{
         default: string;
         temperature: number;
         maxTokens: number;
-    };
-    embedding: {
-        provider: "openai" | "bedrock" | "local";
-        model: string;
-        apiKey?: string | undefined;
     };
     cost: {
         maxLlmCallsPerInteraction: number;
@@ -281,22 +281,27 @@ export declare const AgentConfigSchema: z.ZodObject<{
         };
     };
     server: {
+        maxConcurrentTasks: number;
         host: string;
         port: number;
-        maxConcurrentTasks: number;
     };
 }, {
     agent?: {
-        agentId?: string | undefined;
         name?: string | undefined;
-        version?: string | undefined;
         description?: string | undefined;
+        agentId?: string | undefined;
+        version?: string | undefined;
+    } | undefined;
+    embedding?: {
+        apiKey?: string | undefined;
+        provider?: "openai" | "bedrock" | "local" | undefined;
+        model?: string | undefined;
     } | undefined;
     llm?: {
         provider?: "amazon_bedrock" | "anthropic" | "openai" | undefined;
         models?: {
-            perception?: string | undefined;
             reasoning?: string | undefined;
+            perception?: string | undefined;
             planning?: string | undefined;
             formatting?: string | undefined;
             evaluation?: string | undefined;
@@ -304,11 +309,6 @@ export declare const AgentConfigSchema: z.ZodObject<{
         default?: string | undefined;
         temperature?: number | undefined;
         maxTokens?: number | undefined;
-    } | undefined;
-    embedding?: {
-        provider?: "openai" | "bedrock" | "local" | undefined;
-        model?: string | undefined;
-        apiKey?: string | undefined;
     } | undefined;
     cost?: {
         maxLlmCallsPerInteraction?: number | undefined;
@@ -322,9 +322,9 @@ export declare const AgentConfigSchema: z.ZodObject<{
         } | undefined;
     } | undefined;
     server?: {
+        maxConcurrentTasks?: number | undefined;
         host?: string | undefined;
         port?: number | undefined;
-        maxConcurrentTasks?: number | undefined;
     } | undefined;
 }>;
 export type AgentConfig = z.infer<typeof AgentConfigSchema>;

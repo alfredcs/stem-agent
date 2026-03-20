@@ -91,7 +91,7 @@ export class StemAgent implements IStemAgent {
     this.perception = new PerceptionEngine(memoryManager, activeLlm, llmConfig.models.perception);
     this.reasoning = new ReasoningEngine(mcpManager, memoryManager, config, activeLlm, this.costGuardrail);
     this.planning = new PlanningEngine(memoryManager, config, activeLlm);
-    this.execution = new ExecutionEngine(mcpManager, memoryManager, config);
+    this.execution = new ExecutionEngine(mcpManager, memoryManager, config, activeLlm);
   }
 
   /** Initialize the agent: connect MCP servers and discover tools. */
@@ -141,7 +141,7 @@ export class StemAgent implements IStemAgent {
       const plan = await this.planning.createPlan(reasoningResult, this.tools, adaptedBehavior);
 
       // Phase 5: Execution
-      const executionResult = await this.execution.execute(plan, adaptedBehavior);
+      const executionResult = await this.execution.execute(plan, adaptedBehavior, String(message.content ?? ""));
 
       // Format response
       const response = AgentResponseSchema.parse({
@@ -227,7 +227,7 @@ export class StemAgent implements IStemAgent {
       });
 
       // Phase 5: Execution
-      const executionResult = await this.execution.execute(plan, adaptedBehavior);
+      const executionResult = await this.execution.execute(plan, adaptedBehavior, String(message.content ?? ""));
       yield AgentResponseSchema.parse({
         id: randomUUID(),
         status: executionResult.success ? "completed" : "failed",

@@ -8,6 +8,7 @@ export { APIServer } from "./servers/api-server.js";
 export type { IHttpClient, APIServerConfig, APIEndpointDefinition, HttpMethod, } from "./servers/api-server.js";
 export { FileServer } from "./servers/file-server.js";
 export type { IFileSystemAdapter, FileServerConfig, FileEntry, FileWatcher, } from "./servers/file-server.js";
+export { RemoteMCPServer } from "./servers/remote-mcp-server.js";
 export { ToolServer } from "./servers/tool-server.js";
 export type { IProcessExecutor, IToolDefinition, ToolServerConfig, ToolExecResult, } from "./servers/tool-server.js";
 export { CustomServer, CustomServerLoader, AbstractCustomServer, } from "./servers/custom-server.js";

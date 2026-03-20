@@ -1,8 +1,5 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.A2AHandler = void 0;
-const express_1 = require("express");
-const uuid_1 = require("uuid");
+import { Router } from "express";
+import { v4 as uuidv4 } from "uuid";
 /**
  * JSON-RPC 2.0 error codes per spec.
  */
@@ -16,7 +13,7 @@ const JSONRPC_ERRORS = {
  * A2A protocol handler implementing JSON-RPC 2.0 task lifecycle.
  * Methods: tasks/send, tasks/sendSubscribe, tasks/get, tasks/cancel.
  */
-class A2AHandler {
+export class A2AHandler {
     agent;
     tasks = new Map();
     constructor(agent) {
@@ -24,7 +21,7 @@ class A2AHandler {
     }
     /** Creates an Express router for the A2A endpoint at POST /a2a. */
     createRouter() {
-        const router = (0, express_1.Router)();
+        const router = Router();
         router.post("/a2a", async (req, res) => {
             const body = req.body;
             if (!body || body.jsonrpc !== "2.0" || typeof body.method !== "string") {
@@ -78,12 +75,21 @@ class A2AHandler {
         });
         return router;
     }
+    /** Extract text content from A2A params.message (object with content field) or flat params. */
+    extractContent(params) {
+        const msg = params.message;
+        if (msg && typeof msg === "object" && "content" in msg) {
+            return msg.content;
+        }
+        return msg ?? params.content ?? "";
+    }
     async handleSend(params, principal) {
-        const taskId = params.taskId ?? (0, uuid_1.v4)();
+        const taskId = params.taskId ?? uuidv4();
+        const msg = params.message;
         const message = {
-            id: (0, uuid_1.v4)(),
-            role: "user",
-            content: params.message ?? params.content ?? "",
+            id: uuidv4(),
+            role: msg?.role ?? "user",
+            content: this.extractContent(params),
             contentType: params.contentType ?? "text/plain",
             metadata: params.metadata ?? {},
             timestamp: Date.now(),
@@ -107,11 +113,12 @@ class A2AHandler {
         };
     }
     async handleSendSubscribe(params, principal, res, jsonrpcId) {
-        const taskId = params.taskId ?? (0, uuid_1.v4)();
+        const taskId = params.taskId ?? uuidv4();
+        const msg = params.message;
         const message = {
-            id: (0, uuid_1.v4)(),
-            role: "user",
-            content: params.message ?? params.content ?? "",
+            id: uuidv4(),
+            role: msg?.role ?? "user",
+            content: this.extractContent(params),
             contentType: params.contentType ?? "text/plain",
             metadata: params.metadata ?? {},
             timestamp: Date.now(),
@@ -187,5 +194,4 @@ class A2AHandler {
         return { taskId: record.id, status: "cancelled" };
     }
 }
-exports.A2AHandler = A2AHandler;
 //# sourceMappingURL=a2a-handler.js.map

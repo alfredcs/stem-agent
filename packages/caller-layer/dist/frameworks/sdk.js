@@ -108,16 +108,16 @@ export class StemAgentClient {
      * Maps to `POST /api/v1/chat/stream`.
      */
     async *chatStream(req) {
-        const url = `${this.baseUrl}/api/v1/chat/stream`;
+        const params = new URLSearchParams({ message: req.message });
+        if (req.callerId)
+            params.set("caller_id", req.callerId);
+        if (req.sessionId)
+            params.set("session_id", req.sessionId);
+        const url = `${this.baseUrl}/api/v1/chat/stream?${params}`;
         this.log.debug({ url }, "chatStream");
         const res = await fetch(url, {
-            method: "POST",
+            method: "GET",
             headers: this.defaultHeaders,
-            body: JSON.stringify({
-                message: req.message,
-                caller_id: req.callerId,
-                session_id: req.sessionId,
-            }),
         });
         if (!res.ok) {
             const text = await res.text().catch(() => "");
@@ -194,17 +194,17 @@ export class StemAgentClient {
     }
     /**
      * Fetch the learned caller profile.
-     * Maps to `GET /api/v1/agent/profile/:callerId`.
+     * Maps to `GET /api/v1/profile/:id`.
      */
     async getCallerProfile(callerId) {
-        return this.request("GET", `/api/v1/agent/profile/${encodeURIComponent(callerId)}`);
+        return this.request("GET", `/api/v1/profile/${encodeURIComponent(callerId)}`);
     }
     /**
      * Fetch current self-adapted behavior parameters.
-     * Maps to `GET /api/v1/agent/behavior`.
+     * Maps to `GET /api/v1/behavior`.
      */
     async getBehaviorParams() {
-        return this.request("GET", "/api/v1/agent/behavior");
+        return this.request("GET", "/api/v1/behavior");
     }
     /**
      * List all available MCP tools.

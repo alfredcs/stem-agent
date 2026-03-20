@@ -1,14 +1,11 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.MemoryIndexer = void 0;
-const shared_1 = require("@stem-agent/shared");
+import { createLogger } from "@stem-agent/shared";
 /**
  * Background memory indexer for re-indexing, compression, and garbage collection.
  *
  * In production this would run on a timer. For simplicity the methods
  * are exposed for manual/test invocation and an optional interval-based loop.
  */
-class MemoryIndexer {
+export class MemoryIndexer {
     episodicStore;
     semanticStore;
     proceduralStore;
@@ -18,7 +15,7 @@ class MemoryIndexer {
         this.episodicStore = stores.episodic;
         this.semanticStore = stores.semantic;
         this.proceduralStore = stores.procedural;
-        this.log = logger ?? (0, shared_1.createLogger)("memory-indexer");
+        this.log = logger ?? createLogger("memory-indexer");
     }
     /**
      * Prune old, low-importance episodic memories.
@@ -209,5 +206,4 @@ class MemoryIndexer {
         }
     }
 }
-exports.MemoryIndexer = MemoryIndexer;
 //# sourceMappingURL=indexer.js.map

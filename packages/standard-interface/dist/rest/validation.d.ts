@@ -13,9 +13,9 @@ export declare const CreateTaskSchema: z.ZodObject<{
     callerId?: string | undefined;
     sessionId?: string | undefined;
 }, {
-    message?: unknown;
     contentType?: string | undefined;
     metadata?: Record<string, unknown> | undefined;
+    message?: unknown;
     callerId?: string | undefined;
     sessionId?: string | undefined;
 }>;

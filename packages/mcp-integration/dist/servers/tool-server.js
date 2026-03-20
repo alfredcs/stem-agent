@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ToolServer = void 0;
-const base_server_js_1 = require("./base-server.js");
+import { BaseMCPServer } from "./base-server.js";
 /**
  * MCP server that wraps CLI tools and scripts.
  *
@@ -9,7 +6,7 @@ const base_server_js_1 = require("./base-server.js");
  * resource limits. Execution is sandboxed via the injected
  * {@link IProcessExecutor}.
  */
-class ToolServer extends base_server_js_1.BaseMCPServer {
+export class ToolServer extends BaseMCPServer {
     executor;
     toolDefs;
     constructor(config, toolConfig, executor, logger) {
@@ -48,5 +45,4 @@ class ToolServer extends base_server_js_1.BaseMCPServer {
         });
     }
 }
-exports.ToolServer = ToolServer;
 //# sourceMappingURL=tool-server.js.map

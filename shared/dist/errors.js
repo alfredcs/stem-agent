@@ -1,11 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.TimeoutError = exports.MCPError = exports.BudgetExceededError = exports.AuthorizationError = exports.AuthenticationError = exports.ValidationError = exports.NotFoundError = exports.BaseError = void 0;
 /**
  * Base error class for all STEM Agent errors.
  * All packages extend this for domain-specific errors.
  */
-class BaseError extends Error {
+export class BaseError extends Error {
     code;
     statusCode;
     details;
@@ -26,9 +23,8 @@ class BaseError extends Error {
         };
     }
 }
-exports.BaseError = BaseError;
 // -- Common error subclasses used across layers --------------------------
-class NotFoundError extends BaseError {
+export class NotFoundError extends BaseError {
     constructor(resource, id) {
         super(`${resource} not found: ${id}`, {
             code: "NOT_FOUND",
@@ -37,38 +33,32 @@ class NotFoundError extends BaseError {
         });
     }
 }
-exports.NotFoundError = NotFoundError;
-class ValidationError extends BaseError {
+export class ValidationError extends BaseError {
     constructor(message, details) {
         super(message, { code: "VALIDATION_ERROR", statusCode: 400, details });
     }
 }
-exports.ValidationError = ValidationError;
-class AuthenticationError extends BaseError {
+export class AuthenticationError extends BaseError {
     constructor(message = "Authentication failed") {
         super(message, { code: "AUTH_ERROR", statusCode: 401 });
     }
 }
-exports.AuthenticationError = AuthenticationError;
-class AuthorizationError extends BaseError {
+export class AuthorizationError extends BaseError {
     constructor(message = "Forbidden") {
         super(message, { code: "FORBIDDEN", statusCode: 403 });
     }
 }
-exports.AuthorizationError = AuthorizationError;
-class BudgetExceededError extends BaseError {
+export class BudgetExceededError extends BaseError {
     constructor(message) {
         super(message, { code: "BUDGET_EXCEEDED", statusCode: 429 });
     }
 }
-exports.BudgetExceededError = BudgetExceededError;
-class MCPError extends BaseError {
+export class MCPError extends BaseError {
     constructor(message, details) {
         super(message, { code: "MCP_ERROR", statusCode: 502, details });
     }
 }
-exports.MCPError = MCPError;
-class TimeoutError extends BaseError {
+export class TimeoutError extends BaseError {
     constructor(operation, timeoutMs) {
         super(`${operation} timed out after ${timeoutMs}ms`, {
             code: "TIMEOUT",
@@ -77,5 +67,4 @@ class TimeoutError extends BaseError {
         });
     }
 }
-exports.TimeoutError = TimeoutError;
 //# sourceMappingURL=errors.js.map

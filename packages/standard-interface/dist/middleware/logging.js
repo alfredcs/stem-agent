@@ -1,10 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.loggingMiddleware = loggingMiddleware;
 /**
  * Creates Express middleware that logs each request/response with pino.
  */
-function loggingMiddleware(logger) {
+export function loggingMiddleware(logger) {
     return (req, res, next) => {
         const start = Date.now();
         const requestId = req.headers["x-request-id"];

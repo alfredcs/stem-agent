@@ -1,16 +1,13 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.StdioTransport = void 0;
-const node_child_process_1 = require("node:child_process");
-const shared_1 = require("@stem-agent/shared");
-const errors_js_1 = require("../errors.js");
+import { spawn } from "node:child_process";
+import { createLogger } from "@stem-agent/shared";
+import { MCPTransportError } from "../errors.js";
 /**
  * MCP transport over child-process stdio using JSON-RPC 2.0.
  *
  * Spawns the MCP server as a subprocess and communicates via
  * newline-delimited JSON on stdin/stdout.
  */
-class StdioTransport {
+export class StdioTransport {
     process = null;
     connected = false;
     nextId = 1;
@@ -25,13 +22,13 @@ class StdioTransport {
         this.command = opts.command;
         this.args = opts.args ?? [];
         this.env = opts.env ?? {};
-        this.logger = opts.logger ?? (0, shared_1.createLogger)("stdio-transport");
+        this.logger = opts.logger ?? createLogger("stdio-transport");
     }
     /** @inheritdoc */
     async connect() {
         if (this.connected)
             return;
-        this.process = (0, node_child_process_1.spawn)(this.command, this.args, {
+        this.process = spawn(this.command, this.args, {
             stdio: ["pipe", "pipe", "pipe"],
             env: { ...process.env, ...this.env },
         });
@@ -65,7 +62,7 @@ class StdioTransport {
     /** @inheritdoc */
     async send(method, params) {
         if (!this.connected || !this.process?.stdin) {
-            throw new errors_js_1.MCPTransportError("stdio", "Transport not connected");
+            throw new MCPTransportError("stdio", "Transport not connected");
         }
         const id = this.nextId++;
         const request = { jsonrpc: "2.0", id, method, params };
@@ -112,7 +109,7 @@ class StdioTransport {
             this.pending.delete(msg["id"]);
             if ("error" in msg) {
                 const err = msg["error"];
-                pending.reject(new errors_js_1.MCPTransportError("stdio", err.message ?? "Unknown RPC error"));
+                pending.reject(new MCPTransportError("stdio", err.message ?? "Unknown RPC error"));
             }
             else {
                 pending.resolve(msg["result"]);
@@ -128,10 +125,9 @@ class StdioTransport {
     }
     rejectAllPending(reason) {
         for (const [, { reject }] of this.pending) {
-            reject(new errors_js_1.MCPTransportError("stdio", reason));
+            reject(new MCPTransportError("stdio", reason));
         }
         this.pending.clear();
     }
 }
-exports.StdioTransport = StdioTransport;
 //# sourceMappingURL=stdio-transport.js.map

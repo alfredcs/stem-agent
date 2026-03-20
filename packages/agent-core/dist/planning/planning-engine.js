@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.PlanningEngine = void 0;
-const shared_1 = require("@stem-agent/shared");
-const shared_2 = require("@stem-agent/shared");
-const zod_1 = require("zod");
+import { ExecutionPlanSchema, PlanStepSchema } from "@stem-agent/shared";
+import { createLogger } from "@stem-agent/shared";
+import { z } from "zod";
 /**
  * Planning Engine — converts reasoning results into executable plans.
  *
@@ -11,7 +8,7 @@ const zod_1 = require("zod");
  * from reasoning, computes parallel execution groups from the dependency
  * graph, and supports adaptive re-planning on step failure.
  */
-class PlanningEngine {
+export class PlanningEngine {
     memory;
     maxPlanSteps;
     log;
@@ -20,7 +17,7 @@ class PlanningEngine {
         this.memory = memory;
         this.maxPlanSteps = config.maxPlanSteps;
         this.llmClient = llmClient;
-        this.log = (0, shared_2.createLogger)("planning-engine");
+        this.log = createLogger("planning-engine");
     }
     /**
      * Create an execution plan from a reasoning result.
@@ -43,7 +40,7 @@ class PlanningEngine {
             if (llmSteps) {
                 const parallelGroups = this.computeParallelGroups(llmSteps);
                 const estimatedCostUsd = this.estimateCost(llmSteps);
-                const plan = shared_1.ExecutionPlanSchema.parse({
+                const plan = ExecutionPlanSchema.parse({
                     goal: reasoning.conclusion,
                     steps: llmSteps,
                     estimatedTotalConfidence: reasoning.confidence,
@@ -59,7 +56,7 @@ class PlanningEngine {
         const steps = this.generateSteps(reasoning, toolNames, behavior);
         const parallelGroups = this.computeParallelGroups(steps);
         const estimatedCostUsd = this.estimateCost(steps);
-        const plan = shared_1.ExecutionPlanSchema.parse({
+        const plan = ExecutionPlanSchema.parse({
             goal: reasoning.conclusion,
             steps,
             estimatedTotalConfidence: reasoning.confidence,
@@ -105,7 +102,7 @@ class PlanningEngine {
             }));
         }
         const parallelGroups = this.computeParallelGroups(newSteps);
-        return shared_1.ExecutionPlanSchema.parse({
+        return ExecutionPlanSchema.parse({
             goal: plan.goal,
             steps: newSteps,
             estimatedTotalConfidence: Math.max(plan.estimatedTotalConfidence - 0.1, 0),
@@ -134,8 +131,9 @@ class PlanningEngine {
                     content: `Goal: ${reasoning.conclusion}\nStrategy: ${reasoning.strategyUsed}\nSteps: ${reasoning.steps.map((s) => s.thought).join("; ")}`,
                 },
             ], { temperature: 0.2 });
-            const parsed = JSON.parse(result.content);
-            const validated = zod_1.z.array(shared_1.PlanStepSchema).safeParse(parsed);
+            const raw = result.content.replace(/^```(?:json)?\s*\n?/m, "").replace(/\n?```\s*$/m, "");
+            const parsed = JSON.parse(raw);
+            const validated = z.array(PlanStepSchema).safeParse(parsed);
             if (validated.success) {
                 return validated.data.slice(0, this.maxPlanSteps);
             }
@@ -160,16 +158,16 @@ class PlanningEngine {
     }
     /** Convert a known procedure into a plan. */
     planFromProcedure(procedure, reasoning) {
-        const steps = procedure.steps.map((desc, i) => ({
+        const steps = procedure.steps.map((desc, i, arr) => ({
             stepId: i + 1,
-            actionType: "reasoning",
+            actionType: i === arr.length - 1 ? "response" : "reasoning",
             description: desc,
             dependsOn: i > 0 ? [i] : [],
             estimatedConfidence: procedure.successRate,
         }));
         // All sequential for known procedures
         const parallelGroups = steps.map((s) => [s.stepId]);
-        return shared_1.ExecutionPlanSchema.parse({
+        return ExecutionPlanSchema.parse({
             goal: reasoning.conclusion,
             steps,
             estimatedTotalConfidence: procedure.successRate,
@@ -259,5 +257,4 @@ class PlanningEngine {
         return Math.round(cost * 1000) / 1000;
     }
 }
-exports.PlanningEngine = PlanningEngine;
 //# sourceMappingURL=planning-engine.js.map

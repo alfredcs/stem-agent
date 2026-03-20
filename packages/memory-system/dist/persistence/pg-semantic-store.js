@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.PgSemanticStore = void 0;
 function formatVector(embedding) {
     return `[${embedding.join(",")}]`;
 }
@@ -29,7 +26,7 @@ function mapRow(row) {
         version: row.version,
     };
 }
-class PgSemanticStore {
+export class PgSemanticStore {
     pool;
     constructor(pool) {
         this.pool = pool;
@@ -83,5 +80,4 @@ class PgSemanticStore {
         return rows[0].cnt;
     }
 }
-exports.PgSemanticStore = PgSemanticStore;
 //# sourceMappingURL=pg-semantic-store.js.map

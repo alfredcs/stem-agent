@@ -1,7 +1,4 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.agentCardRouter = agentCardRouter;
-const express_1 = require("express");
+import { Router } from "express";
 /**
  * Converts an AgentCard to A2A v0.3.0 wire format.
  */
@@ -32,8 +29,8 @@ function toA2AFormat(card) {
 /**
  * Creates Express router serving the agent card at `/.well-known/agent.json`.
  */
-function agentCardRouter(agent) {
-    const router = (0, express_1.Router)();
+export function agentCardRouter(agent) {
+    const router = Router();
     router.get("/.well-known/agent.json", (_req, res) => {
         const card = agent.getAgentCard();
         res.json(toA2AFormat(card));

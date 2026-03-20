@@ -1,17 +1,10 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.createLogger = createLogger;
-exports.withCorrelationId = withCorrelationId;
-const pino_1 = __importDefault(require("pino"));
+import pino from "pino";
 /**
  * Structured logger factory using pino.
  * All packages use this for consistent logging with correlation IDs.
  */
-function createLogger(name, opts = {}) {
-    return (0, pino_1.default)({
+export function createLogger(name, opts = {}) {
+    return pino({
         name,
         level: opts.level ?? process.env["LOG_LEVEL"] ?? "info",
         ...(opts.correlationId
@@ -20,7 +13,7 @@ function createLogger(name, opts = {}) {
     });
 }
 /** Child logger with an attached correlation ID. */
-function withCorrelationId(logger, correlationId) {
+export function withCorrelationId(logger, correlationId) {
     return logger.child({ correlationId });
 }
 //# sourceMappingURL=logger.js.map

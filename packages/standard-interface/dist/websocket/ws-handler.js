@@ -1,22 +1,20 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.WsHandler = void 0;
-const ws_1 = require("ws");
-const uuid_1 = require("uuid");
-const ws_events_js_1 = require("./ws-events.js");
-const ws_room_js_1 = require("./ws-room.js");
+import { WebSocketServer } from "ws";
+import { v4 as uuidv4 } from "uuid";
+import { A2UIUserActionSchema, A2UI_CONTENT_TYPE } from "@stem-agent/shared";
+import { WsEventType } from "./ws-events.js";
+import { RoomManager } from "./ws-room.js";
 const HEARTBEAT_INTERVAL_MS = 30_000;
 const REPLAY_BUFFER_SIZE = 100;
 /**
  * WebSocket handler for real-time bidirectional communication.
  * Supports heartbeat, room-based multiplexing, and message replay on reconnect.
  */
-class WsHandler {
+export class WsHandler {
     agent;
     logger;
     authProviders;
     wss = null;
-    rooms = new ws_room_js_1.RoomManager();
+    rooms = new RoomManager();
     replayBuffer = [];
     heartbeatTimer = null;
     clients = new Set();
@@ -27,7 +25,7 @@ class WsHandler {
     }
     /** Attach to an existing HTTP server for WebSocket upgrade. */
     attach(server) {
-        this.wss = new ws_1.WebSocketServer({ server, path: "/ws" });
+        this.wss = new WebSocketServer({ server, path: "/ws" });
         this.wss.on("connection", async (ws, req) => {
             // Authenticate if auth providers are configured
             if (this.authProviders && this.authProviders.length > 0) {
@@ -111,7 +109,7 @@ class WsHandler {
         }
         catch {
             this.sendEvent(ws, {
-                type: ws_events_js_1.WsEventType.ERROR,
+                type: WsEventType.ERROR,
                 data: { message: "Invalid JSON" },
                 timestamp: Date.now(),
             });
@@ -119,21 +117,24 @@ class WsHandler {
         }
         const type = msg.type;
         switch (type) {
-            case ws_events_js_1.WsEventType.PING:
-                this.sendEvent(ws, { type: ws_events_js_1.WsEventType.PONG, timestamp: Date.now() });
+            case WsEventType.PING:
+                this.sendEvent(ws, { type: WsEventType.PONG, timestamp: Date.now() });
                 break;
-            case ws_events_js_1.WsEventType.CLIENT_JOIN_ROOM:
+            case WsEventType.CLIENT_JOIN_ROOM:
                 if (typeof msg.room === "string") {
                     this.rooms.join(msg.room, ws);
                 }
                 break;
-            case ws_events_js_1.WsEventType.CLIENT_LEAVE_ROOM:
+            case WsEventType.CLIENT_LEAVE_ROOM:
                 if (typeof msg.room === "string") {
                     this.rooms.leave(msg.room, ws);
                 }
                 break;
-            case ws_events_js_1.WsEventType.CLIENT_MESSAGE:
+            case WsEventType.CLIENT_MESSAGE:
                 await this.handleClientTask(ws, msg);
+                break;
+            case WsEventType.A2UI_USER_ACTION:
+                await this.handleA2UIAction(ws, msg);
                 break;
             case "replay": {
                 // Client reconnected and wants missed events from a timestamp
@@ -147,16 +148,16 @@ class WsHandler {
             }
             default:
                 this.sendEvent(ws, {
-                    type: ws_events_js_1.WsEventType.ERROR,
+                    type: WsEventType.ERROR,
                     data: { message: `Unknown event type: ${type}` },
                     timestamp: Date.now(),
                 });
         }
     }
     async handleClientTask(ws, msg) {
-        const taskId = msg.taskId ?? (0, uuid_1.v4)();
+        const taskId = msg.taskId ?? uuidv4();
         const message = {
-            id: (0, uuid_1.v4)(),
+            id: uuidv4(),
             role: "user",
             content: msg.message ?? msg.data ?? "",
             contentType: msg.contentType ?? "text/plain",
@@ -166,14 +167,14 @@ class WsHandler {
             timestamp: Date.now(),
         };
         this.sendEvent(ws, {
-            type: ws_events_js_1.WsEventType.TASK_STARTED,
+            type: WsEventType.TASK_STARTED,
             taskId,
             timestamp: Date.now(),
         });
         try {
             const response = await this.agent.process(taskId, message);
             this.sendEvent(ws, {
-                type: ws_events_js_1.WsEventType.TASK_COMPLETED,
+                type: WsEventType.TASK_COMPLETED,
                 taskId,
                 data: {
                     content: response.content,
@@ -185,7 +186,83 @@ class WsHandler {
         }
         catch (err) {
             this.sendEvent(ws, {
-                type: ws_events_js_1.WsEventType.TASK_FAILED,
+                type: WsEventType.TASK_FAILED,
+                taskId,
+                data: { error: err.message },
+                timestamp: Date.now(),
+            });
+        }
+    }
+    async handleA2UIAction(ws, msg) {
+        const parsed = A2UIUserActionSchema.safeParse(msg.data ?? msg);
+        if (!parsed.success) {
+            this.sendEvent(ws, {
+                type: WsEventType.ERROR,
+                data: { message: "Invalid A2UI userAction", details: parsed.error.issues },
+                timestamp: Date.now(),
+            });
+            return;
+        }
+        const action = parsed.data;
+        const taskId = msg.taskId ?? uuidv4();
+        const message = {
+            id: uuidv4(),
+            role: "user",
+            content: action,
+            contentType: A2UI_CONTENT_TYPE,
+            metadata: {
+                a2uiAction: true,
+                surfaceId: action.surfaceId,
+                componentId: action.componentId,
+            },
+            timestamp: Date.now(),
+        };
+        this.sendEvent(ws, {
+            type: WsEventType.TASK_STARTED,
+            taskId,
+            timestamp: Date.now(),
+        });
+        try {
+            for await (const chunk of this.agent.stream(taskId, message)) {
+                if (chunk.contentType === A2UI_CONTENT_TYPE && chunk.content) {
+                    const messages = Array.isArray(chunk.content)
+                        ? chunk.content
+                        : [chunk.content];
+                    for (const a2uiMsg of messages) {
+                        const msgObj = a2uiMsg;
+                        const WS_EVENT_MAP = {
+                            beginRendering: WsEventType.A2UI_BEGIN_RENDERING,
+                            surfaceUpdate: WsEventType.A2UI_SURFACE_UPDATE,
+                            dataModelUpdate: WsEventType.A2UI_DATA_UPDATE,
+                            deleteSurface: WsEventType.A2UI_DELETE_SURFACE,
+                        };
+                        const eventType = WS_EVENT_MAP[msgObj.type] ?? WsEventType.TASK_PROGRESS;
+                        this.sendEvent(ws, {
+                            type: eventType,
+                            taskId,
+                            data: a2uiMsg,
+                            timestamp: Date.now(),
+                        });
+                    }
+                }
+                else {
+                    this.sendEvent(ws, {
+                        type: WsEventType.TASK_PROGRESS,
+                        taskId,
+                        data: { content: chunk.content, status: chunk.status },
+                        timestamp: Date.now(),
+                    });
+                }
+            }
+            this.sendEvent(ws, {
+                type: WsEventType.TASK_COMPLETED,
+                taskId,
+                timestamp: Date.now(),
+            });
+        }
+        catch (err) {
+            this.sendEvent(ws, {
+                type: WsEventType.TASK_FAILED,
                 taskId,
                 data: { error: err.message },
                 timestamp: Date.now(),
@@ -218,5 +295,4 @@ class WsHandler {
         }, HEARTBEAT_INTERVAL_MS);
     }
 }
-exports.WsHandler = WsHandler;
 //# sourceMappingURL=ws-handler.js.map

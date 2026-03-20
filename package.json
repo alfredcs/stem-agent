@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "STEM Agent — Self-adapting, Tool-enabled, Extensible, Multi-agent System",
+  "type": "module",
   "workspaces": [
     "shared",
     "packages/mcp-integration",
@@ -12,7 +13,8 @@
     "packages/caller-layer"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "npm run build --workspaces && tsc -b tsconfig.json",
+    "start": "node --env-file=.env dist/server.js",
     "test": "npm run test --workspaces",
     "lint": "eslint . --ext .ts",
     "clean": "rm -rf packages/*/dist shared/dist",
@@ -32,6 +34,8 @@
     "node": ">=22.0.0"
   },
   "dependencies": {
+    "@anthropic-ai/bedrock-sdk": "^0.26.4",
+    "@modelcontextprotocol/sdk": "^1.27.1",
     "mime": "^2.6.0"
   }
 }

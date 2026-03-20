@@ -47,12 +47,12 @@ export declare const KnowledgeTripleSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     object: string;
     id: string;
+    version: number;
     subject: string;
     predicate: string;
     confidence: number;
     createdAt: number;
     updatedAt: number;
-    version: number;
     embedding?: number[] | undefined;
     source?: string | undefined;
 }, {
@@ -62,10 +62,10 @@ export declare const KnowledgeTripleSchema: z.ZodObject<{
     predicate: string;
     createdAt: number;
     updatedAt: number;
+    version?: number | undefined;
     embedding?: number[] | undefined;
     confidence?: number | undefined;
     source?: string | undefined;
-    version?: number | undefined;
 }>;
 export type KnowledgeTriple = z.infer<typeof KnowledgeTripleSchema>;
 /** Procedural memory — a learned procedure or skill. */
@@ -83,28 +83,28 @@ export declare const ProcedureSchema: z.ZodObject<{
     tags: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
 }, "strip", z.ZodTypeAny, {
     name: string;
-    description: string;
     id: string;
+    description: string;
+    tags: string[];
     steps: string[];
     preconditions: string[];
     postconditions: string[];
     successRate: number;
     executionCount: number;
-    tags: string[];
     embedding?: number[] | undefined;
     lastUsed?: number | undefined;
 }, {
     name: string;
-    description: string;
     id: string;
+    description: string;
     steps: string[];
+    tags?: string[] | undefined;
     embedding?: number[] | undefined;
     preconditions?: string[] | undefined;
     postconditions?: string[] | undefined;
     successRate?: number | undefined;
     executionCount?: number | undefined;
     lastUsed?: number | undefined;
-    tags?: string[] | undefined;
 }>;
 export type Procedure = z.infer<typeof ProcedureSchema>;
 /** Caller/user profile (from design doc Sec 7.2). */
@@ -195,10 +195,10 @@ export declare const CallerProfileSchema: z.ZodObject<{
     createdAt: z.ZodDefault<z.ZodNumber>;
     updatedAt: z.ZodDefault<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
+    callerId: string;
     confidence: number;
     createdAt: number;
     updatedAt: number;
-    callerId: string;
     philosophy: {
         pragmatismVsIdealism: number;
         simplicityVsCompleteness: number;
@@ -363,10 +363,10 @@ export declare const CallerContextSchema: z.ZodObject<{
         createdAt: z.ZodDefault<z.ZodNumber>;
         updatedAt: z.ZodDefault<z.ZodNumber>;
     }, "strip", z.ZodTypeAny, {
+        callerId: string;
         confidence: number;
         createdAt: number;
         updatedAt: number;
-        callerId: string;
         philosophy: {
             pragmatismVsIdealism: number;
             simplicityVsCompleteness: number;
@@ -436,17 +436,17 @@ export declare const CallerContextSchema: z.ZodObject<{
         satisfactionScores?: number[] | undefined;
     }>>;
 }, "strip", z.ZodTypeAny, {
+    role: string;
     callerId: string;
     sessionId: string;
     currentGoals: string[];
     activeTasks: string[];
     permissions: string[];
-    role: string;
     profile?: {
+        callerId: string;
         confidence: number;
         createdAt: number;
         updatedAt: number;
-        callerId: string;
         philosophy: {
             pragmatismVsIdealism: number;
             simplicityVsCompleteness: number;
@@ -482,10 +482,10 @@ export declare const CallerContextSchema: z.ZodObject<{
 }, {
     callerId: string;
     sessionId: string;
+    role?: string | undefined;
     currentGoals?: string[] | undefined;
     activeTasks?: string[] | undefined;
     permissions?: string[] | undefined;
-    role?: string | undefined;
     profile?: {
         callerId: string;
         philosophy: {

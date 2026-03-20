@@ -10,6 +10,7 @@ import type {
 import { ExecutionResultSchema } from "@stem-agent/shared";
 import { createLogger, type Logger, BaseError } from "@stem-agent/shared";
 import type { AgentCoreConfig } from "../config.js";
+import type { ILLMClient } from "../llm/index.js";
 import { randomUUID } from "node:crypto";
 
 /**
@@ -26,18 +27,23 @@ export class ExecutionEngine {
   private readonly parallelExecution: boolean;
   private readonly circuitBreakerThreshold: number;
   private readonly stepTimeoutMs: number;
+  private readonly llmClient?: ILLMClient;
   private readonly log: Logger;
 
   /** Tracks consecutive failures for circuit breaker. */
   private consecutiveFailures = 0;
 
-  constructor(mcp: IMCPManager, memory: IMemoryManager, config: AgentCoreConfig) {
+  /** The current plan goal — set at the start of each execute() call. */
+  private currentGoal = "";
+
+  constructor(mcp: IMCPManager, memory: IMemoryManager, config: AgentCoreConfig, llmClient?: ILLMClient) {
     this.mcp = mcp;
     this.memory = memory;
     this.maxRetries = config.maxExecutionRetries;
     this.parallelExecution = config.parallelExecution;
     this.circuitBreakerThreshold = config.circuitBreakerThreshold;
     this.stepTimeoutMs = config.stepTimeoutMs;
+    this.llmClient = llmClient;
     this.log = createLogger("execution-engine");
   }
 
@@ -47,8 +53,9 @@ export class ExecutionEngine {
    * @param plan - The execution plan to run.
    * @returns Validated ExecutionResult.
    */
-  async execute(plan: ExecutionPlan, behavior?: BehaviorParameters): Promise<ExecutionResult> {
+  async execute(plan: ExecutionPlan, behavior?: BehaviorParameters, userQuery?: string): Promise<ExecutionResult> {
     this.consecutiveFailures = 0;
+    this.currentGoal = userQuery ?? plan.goal;
     const stepResults: StepResult[] = [];
     const stepMap = new Map(plan.steps.map((s) => [s.stepId, s]));
     const completedResults = new Map<number, StepResult>();
@@ -248,10 +255,17 @@ export class ExecutionEngine {
         }
 
         case "reasoning":
-        case "response":
-          // These are resolved directly — the description is the output
           data = step.description;
           break;
+
+        case "response": {
+          if (this.llmClient) {
+            data = await this.generateResponse(step.description);
+          } else {
+            data = step.description;
+          }
+          break;
+        }
 
         default:
           return {
@@ -277,6 +291,26 @@ export class ExecutionEngine {
         error: err instanceof Error ? err.message : String(err),
         durationMs: Date.now() - start,
       };
+    }
+  }
+
+  /** Generate an actual LLM response for a "response" step. */
+  private async generateResponse(stepDescription: string): Promise<string> {
+    try {
+      const result = await this.llmClient!.chat([
+        {
+          role: "system",
+          content: "You are a helpful assistant. Provide a clear, accurate, and well-structured answer to the user's question.",
+        },
+        {
+          role: "user",
+          content: this.currentGoal,
+        },
+      ]);
+      return result.content;
+    } catch (err) {
+      this.log.warn({ err }, "LLM response generation failed, falling back to step description");
+      return stepDescription;
     }
   }
 

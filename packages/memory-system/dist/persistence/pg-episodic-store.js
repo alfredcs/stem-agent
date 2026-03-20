@@ -1,6 +1,3 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.PgEpisodicStore = void 0;
 function formatVector(embedding) {
     return `[${embedding.join(",")}]`;
 }
@@ -28,7 +25,7 @@ function mapRow(row) {
         summary: row.summary ?? undefined,
     };
 }
-class PgEpisodicStore {
+export class PgEpisodicStore {
     pool;
     constructor(pool) {
         this.pool = pool;
@@ -83,5 +80,4 @@ class PgEpisodicStore {
         return rows.map(mapRow);
     }
 }
-exports.PgEpisodicStore = PgEpisodicStore;
 //# sourceMappingURL=pg-episodic-store.js.map

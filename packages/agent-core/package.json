@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "Layer 3 — STEM Agent Core: perception, reasoning, planning, execution engines",
+  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {

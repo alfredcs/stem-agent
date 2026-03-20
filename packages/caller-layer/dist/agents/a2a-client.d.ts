@@ -1,5 +1,94 @@
-import { type AgentCard, type AgentMessage, type AgentResponse } from "@stem-agent/shared";
+import { type AgentMessage, type AgentResponse } from "@stem-agent/shared";
 import { type Logger } from "@stem-agent/shared";
+import { z } from "zod";
+/**
+ * A2A v0.3.0 wire-format agent card (as returned by `/.well-known/agent.json`).
+ * This differs from the internal AgentCard schema — fields like `agentId` and
+ * `endpoint` are replaced by `url`, and `securitySchemes` is an object map.
+ */
+declare const A2AAgentCardSchema: z.ZodObject<{
+    name: z.ZodString;
+    description: z.ZodString;
+    url: z.ZodOptional<z.ZodString>;
+    version: z.ZodString;
+    protocolVersion: z.ZodDefault<z.ZodString>;
+    capabilities: z.ZodDefault<z.ZodObject<{
+        streaming: z.ZodDefault<z.ZodBoolean>;
+        pushNotifications: z.ZodDefault<z.ZodBoolean>;
+    }, "strip", z.ZodTypeAny, {
+        streaming: boolean;
+        pushNotifications: boolean;
+    }, {
+        streaming?: boolean | undefined;
+        pushNotifications?: boolean | undefined;
+    }>>;
+    defaultInputModes: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
+    defaultOutputModes: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
+    skills: z.ZodDefault<z.ZodArray<z.ZodObject<{
+        id: z.ZodString;
+        name: z.ZodString;
+        description: z.ZodString;
+        tags: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
+        examples: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
+    }, "strip", z.ZodTypeAny, {
+        name: string;
+        description: string;
+        id: string;
+        tags: string[];
+        examples: string[];
+    }, {
+        name: string;
+        description: string;
+        id: string;
+        tags?: string[] | undefined;
+        examples?: string[] | undefined;
+    }>, "many">>;
+    securitySchemes: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
+    security: z.ZodDefault<z.ZodArray<z.ZodRecord<z.ZodString, z.ZodArray<z.ZodString, "many">>, "many">>;
+}, "strip", z.ZodTypeAny, {
+    name: string;
+    description: string;
+    version: string;
+    protocolVersion: string;
+    capabilities: {
+        streaming: boolean;
+        pushNotifications: boolean;
+    };
+    defaultInputModes: string[];
+    defaultOutputModes: string[];
+    skills: {
+        name: string;
+        description: string;
+        id: string;
+        tags: string[];
+        examples: string[];
+    }[];
+    securitySchemes: Record<string, unknown>;
+    security: Record<string, string[]>[];
+    url?: string | undefined;
+}, {
+    name: string;
+    description: string;
+    version: string;
+    url?: string | undefined;
+    protocolVersion?: string | undefined;
+    capabilities?: {
+        streaming?: boolean | undefined;
+        pushNotifications?: boolean | undefined;
+    } | undefined;
+    defaultInputModes?: string[] | undefined;
+    defaultOutputModes?: string[] | undefined;
+    skills?: {
+        name: string;
+        description: string;
+        id: string;
+        tags?: string[] | undefined;
+        examples?: string[] | undefined;
+    }[] | undefined;
+    securitySchemes?: Record<string, unknown> | undefined;
+    security?: Record<string, string[]>[] | undefined;
+}>;
+export type A2AAgentCard = z.infer<typeof A2AAgentCardSchema>;
 /** Options for constructing an {@link A2AClient}. */
 export interface A2AClientOptions {
     /** Base URL of the remote agent (e.g. `http://agent.example.com`). */
@@ -42,7 +131,7 @@ export declare class A2AClient {
      * Discover the remote agent by fetching its Agent Card.
      * Maps to `GET /.well-known/agent.json`.
      */
-    discoverAgent(): Promise<AgentCard>;
+    discoverAgent(): Promise<A2AAgentCard>;
     /**
      * Send a task to the remote agent.
      * Maps to JSON-RPC method `tasks/send`.
@@ -77,4 +166,5 @@ export declare class A2AError extends Error {
     readonly data?: unknown | undefined;
     constructor(code: number, message: string, data?: unknown | undefined);
 }
+export {};
 //# sourceMappingURL=a2a-client.d.ts.map

@@ -1,15 +1,12 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FileServer = void 0;
-const node_path_1 = require("node:path");
-const base_server_js_1 = require("./base-server.js");
+import { resolve, normalize } from "node:path";
+import { BaseMCPServer } from "./base-server.js";
 /**
  * MCP server for filesystem operations.
  *
  * All paths are sandboxed to configured root directories.
  * Supports local FS and S3-compatible backends via {@link IFileSystemAdapter}.
  */
-class FileServer extends base_server_js_1.BaseMCPServer {
+export class FileServer extends BaseMCPServer {
     fs;
     fileConfig;
     watchers = [];
@@ -93,8 +90,8 @@ class FileServer extends base_server_js_1.BaseMCPServer {
      * Throws if the path escapes the sandbox.
      */
     resolveSandboxed(userPath) {
-        const resolved = (0, node_path_1.normalize)((0, node_path_1.resolve)(userPath));
-        const allowed = this.fileConfig.allowedRoots.some((root) => resolved.startsWith((0, node_path_1.normalize)((0, node_path_1.resolve)(root))));
+        const resolved = normalize(resolve(userPath));
+        const allowed = this.fileConfig.allowedRoots.some((root) => resolved.startsWith(normalize(resolve(root))));
         if (!allowed) {
             throw new Error(`Path "${userPath}" is outside allowed roots: ${this.fileConfig.allowedRoots.join(", ")}`);
         }
@@ -117,5 +114,4 @@ class FileServer extends base_server_js_1.BaseMCPServer {
         return { added, removed };
     }
 }
-exports.FileServer = FileServer;
 //# sourceMappingURL=file-server.js.map

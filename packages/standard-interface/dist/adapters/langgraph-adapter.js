@@ -1,13 +1,10 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.LangGraphAdapter = void 0;
-const uuid_1 = require("uuid");
-const abstract_adapter_js_1 = require("./abstract-adapter.js");
+import { v4 as uuidv4 } from "uuid";
+import { AbstractFrameworkAdapter } from "./abstract-adapter.js";
 /**
  * Adapter for LangGraph/LangChain framework (>=1.0).
  * Translates LangGraph state to/from STEM Agent format.
  */
-class LangGraphAdapter extends abstract_adapter_js_1.AbstractFrameworkAdapter {
+export class LangGraphAdapter extends AbstractFrameworkAdapter {
     name = "LangGraph";
     version = "1.0";
     tasks = new Map();
@@ -17,9 +14,9 @@ class LangGraphAdapter extends abstract_adapter_js_1.AbstractFrameworkAdapter {
     async receiveTask(input) {
         const state = input;
         const lastMessage = state.messages[state.messages.length - 1];
-        const taskId = (0, uuid_1.v4)();
+        const taskId = uuidv4();
         const message = {
-            id: (0, uuid_1.v4)(),
+            id: uuidv4(),
             role: lastMessage?.role ?? "user",
             content: lastMessage?.content ?? "",
             contentType: "text/plain",
@@ -38,7 +35,7 @@ class LangGraphAdapter extends abstract_adapter_js_1.AbstractFrameworkAdapter {
     async getTaskStatus(taskId) {
         const record = this.tasks.get(taskId);
         if (!record?.response) {
-            return { id: (0, uuid_1.v4)(), status: "pending", contentType: "text/plain", artifacts: [], metadata: {} };
+            return { id: uuidv4(), status: "pending", contentType: "text/plain", artifacts: [], metadata: {} };
         }
         return record.response;
     }
@@ -54,5 +51,4 @@ class LangGraphAdapter extends abstract_adapter_js_1.AbstractFrameworkAdapter {
         return this.tasks.delete(taskId);
     }
 }
-exports.LangGraphAdapter = LangGraphAdapter;
 //# sourceMappingURL=langgraph-adapter.js.map

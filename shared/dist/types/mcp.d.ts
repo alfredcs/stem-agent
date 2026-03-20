@@ -117,13 +117,13 @@ export declare const MCPResourceSchema: z.ZodObject<{
 }, "strip", z.ZodTypeAny, {
     name: string;
     uri: string;
-    description?: string | undefined;
     mimeType?: string | undefined;
+    description?: string | undefined;
 }, {
     name: string;
     uri: string;
-    description?: string | undefined;
     mimeType?: string | undefined;
+    description?: string | undefined;
 }>;
 export type MCPResource = z.infer<typeof MCPResourceSchema>;
 /** Interface that the MCP Integration Layer exposes to upper layers. */
