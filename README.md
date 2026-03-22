@@ -2,32 +2,26 @@
 
 **Self-adapting, Tool-enabled, Extensible, Multi-agent System**
 
-```
-+------------------------------------------------------------------+
-|                     CALLER / USER LAYER                          |
-|  CLI  |  Web Dashboard  |  A2A Client  |  Framework SDKs        |
-+-------+--------+--------+------+-------+--------+---------------+
-                  |               |                |
-+-------+--------+--------+------+-------+--------+---------------+
-|                  STANDARD INTERFACE LAYER                         |
-|  A2A | REST | WebSocket | AG-UI | A2UI | UCP | AP2 | Adapters   |
-+-------+--------+--------+------+-------+--------+---------------+
-                           |
-+-------+--------+--------+------+-------+--------+---------------+
-|                      STEM AGENT CORE                             |
-|  Perception  |  Skill Match  |  Reasoning  |  Planning  |  Execution  |
-|              |             |            |                         |
-|  +-----------------------------------------------------------+  |
-|  |              MEMORY & LEARNING SYSTEM                      |  |
-|  |  Episodic  |  Semantic  |  Procedural  |  Caller Profile   |  |
-|  +-----------------------------------------------------------+  |
-+------------------------------------------------------------------+
-                           |
-+------------------------------------------------------------------+
-|                   MCP INTEGRATION LAYER                           |
-|  Database  |  API  |  File  |  Tool  |  Custom MCP Servers       |
-+------------------------------------------------------------------+
-```
+A modular AI agent architecture inspired by biological pluripotency. Like a stem cell that differentiates into specialized cell types, the STEM Agent starts as an undifferentiated core and specializes through environmental signals: MCP tool servers provide domain capabilities, caller interactions shape behavioral adaptation, and recurring patterns crystallize into reusable skills.
+
+## Key Features
+
+- **Multi-protocol gateway**: Five interoperability protocols (A2A, AG-UI, A2UI, UCP, AP2) behind a single Express.js gateway, plus four framework adapters (AutoGen, CrewAI, LangGraph, OpenAI Agents SDK)
+- **Eight-phase cognitive pipeline**: Perceive, Adapt, Skill Match, Reason, Plan, Execute, Learn, Respond
+- **Skills acquisition**: Biologically-inspired skill lifecycle where interaction patterns crystallize into reusable skills that mature (progenitor, committed, mature) or undergo apoptosis on persistent failure
+- **Self-adaptive behavior**: Caller Profiler learns user preferences across 20+ dimensions via exponential moving averages, tuning 10 behavior parameters per request
+- **Four-type memory system**: Episodic (interaction history with vector search), semantic (knowledge triples), procedural (learned strategies), and user context (caller profiles with GDPR forget-me)
+- **MCP-native tool integration**: All domain capabilities acquired at runtime via Model Context Protocol; agent reasoning stays domain-agnostic
+- **Commerce protocols**: Novel UCP (checkout sessions, idempotency) and AP2 (payment mandates, audit trails)
+- **Pluggable security**: JWT, OAuth2, SAML, API Key authentication with TTL-based policy caching and rate limiting
+
+## Architecture
+
+![STEM Agent Architecture](./docs/architecture.svg)
+
+The architecture is organized into five layers, each a distinct concern. The Agent Core (Layer 3) is the undifferentiated core that differentiates through protocol handlers (Layer 2) and tool bindings (Layer 5) into specialized capabilities, while Memory (Layer 4) provides persistent state that guides future adaptation.
+
+For multi-agent orchestration, see [stem-platform](../../stem-platform), which composes multiple STEM Agent instances into complex workflows through delegation, consensus, pipeline, and swarm collaboration patterns.
 
 ## Quickstart
 

@@ -1,0 +1,431 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1460" font-family="'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="callerGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f0abfc"/><stop offset="100%" stop-color="#e879f9"/>
+    </linearGradient>
+    <linearGradient id="gatewayGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="coreGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="memoryGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6ee7b7"/><stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <linearGradient id="mcpGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="infraGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#93c5fd"/><stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+    <linearGradient id="protocolGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#06b6d4"/><stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+
+    <!-- Shadows -->
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#94a3b8" flood-opacity="0.18"/>
+    </filter>
+    <filter id="shadowSm">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#94a3b8" flood-opacity="0.12"/>
+    </filter>
+
+    <!-- Filled triangle markers -->
+    <marker id="mSlate" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+      <polygon points="0,0.5 9,4 0,7.5" fill="#475569"/>
+    </marker>
+    <marker id="mIndigo" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+      <polygon points="0,0.5 9,4 0,7.5" fill="#6366f1"/>
+    </marker>
+    <marker id="mPurple" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+      <polygon points="0,0.5 9,4 0,7.5" fill="#7c3aed"/>
+    </marker>
+    <marker id="mGreen" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+      <polygon points="0,0.5 9,4 0,7.5" fill="#059669"/>
+    </marker>
+    <marker id="mAmber" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="userSpaceOnUse">
+      <polygon points="0,0.5 9,4 0,7.5" fill="#d97706"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1440" height="1460" fill="#f8fafc"/>
+
+  <!-- Title -->
+  <text x="720" y="38" text-anchor="middle" fill="#0f172a" font-size="24" font-weight="800" letter-spacing="-0.3">STEM Agent</text>
+  <text x="720" y="60" text-anchor="middle" fill="#64748b" font-size="13">Self-adapting, Tool-enabled, Extensible, Multi-agent System  ·  6 Packages  ·  TypeScript Monorepo  ·  ~12 000 LOC</text>
+
+  <!-- ============================================================ -->
+  <!-- LAYER 1 — CALLERS  (y=84, h=68, bottom=152)                  -->
+  <!-- ============================================================ -->
+  <rect x="140" y="84" width="1160" height="68" rx="14" fill="#fdf4ff" stroke="#f0abfc" stroke-width="1"/>
+  <text x="160" y="102" fill="#a21caf" font-size="10" font-weight="700" letter-spacing="1">CALLERS  (caller-layer)</text>
+
+  <rect x="165" y="110" width="140" height="32" rx="8" fill="url(#callerGrad)" filter="url(#shadowSm)"/>
+  <text x="235" y="130" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">CLI (REPL)</text>
+  <rect x="320" y="110" width="165" height="32" rx="8" fill="url(#callerGrad)" filter="url(#shadowSm)"/>
+  <text x="402" y="130" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">StemAgentClient SDK</text>
+  <rect x="500" y="110" width="140" height="32" rx="8" fill="url(#callerGrad)" filter="url(#shadowSm)"/>
+  <text x="570" y="130" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">A2A Client</text>
+  <rect x="655" y="110" width="150" height="32" rx="8" fill="url(#callerGrad)" filter="url(#shadowSm)"/>
+  <text x="730" y="130" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Agent Mesh</text>
+  <rect x="820" y="110" width="140" height="32" rx="8" fill="#fce7f3" stroke="#f0abfc" stroke-width="1"/>
+  <text x="890" y="130" text-anchor="middle" fill="#a21caf" font-size="10" font-weight="600">Collaboration</text>
+  <rect x="975" y="110" width="310" height="32" rx="8" fill="#fce7f3" stroke="#f0abfc" stroke-width="1"/>
+  <text x="1130" y="130" text-anchor="middle" fill="#a21caf" font-size="10" font-weight="600">Framework Adapters: AutoGen · CrewAI · LangGraph · OpenAI</text>
+
+  <!-- ARROWS: Callers → Gateway  (gap: 152→206) -->
+  <line x1="490" y1="152" x2="490" y2="206" stroke="#475569" stroke-width="1.8" marker-end="url(#mSlate)"/>
+  <text x="460" y="184" fill="#475569" font-size="9" font-weight="600" text-anchor="end">HTTP / WS / A2A / AG-UI</text>
+
+  <line x1="950" y1="206" x2="950" y2="152" stroke="#6366f1" stroke-width="1.8" stroke-dasharray="6,3" marker-end="url(#mIndigo)"/>
+  <text x="980" y="184" fill="#6366f1" font-size="9" font-style="italic">AgentResponse</text>
+
+  <!-- ============================================================ -->
+  <!-- LAYER 2 — STANDARD INTERFACE  (y=206, h=152, bottom=358)     -->
+  <!-- ============================================================ -->
+  <rect x="140" y="206" width="1160" height="152" rx="14" fill="#eff6ff" stroke="#93c5fd" stroke-width="1"/>
+  <text x="160" y="226" fill="#1e40af" font-size="10" font-weight="700" letter-spacing="1">STANDARD INTERFACE  (standard-interface)</text>
+
+  <!-- Gateway bar -->
+  <rect x="165" y="236" width="1120" height="30" rx="8" fill="url(#gatewayGrad)" filter="url(#shadowSm)"/>
+  <text x="725" y="256" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">Gateway</text>
+  <text x="1260" y="256" text-anchor="end" fill="#dbeafe" font-size="9">Express · request-id · logging · rate-limit · error-handler</text>
+
+  <!-- Row 1: Core protocol boxes -->
+  <rect x="165" y="276" width="155" height="32" rx="8" fill="#dbeafe" stroke="#93c5fd" stroke-width="1"/>
+  <text x="242" y="290" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="600">REST  /api/v1/*</text>
+  <text x="242" y="302" text-anchor="middle" fill="#3b82f6" font-size="8">tasks · chat · profile</text>
+
+  <rect x="330" y="276" width="130" height="32" rx="8" fill="#dbeafe" stroke="#93c5fd" stroke-width="1"/>
+  <text x="395" y="290" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="600">WebSocket  /ws</text>
+  <text x="395" y="302" text-anchor="middle" fill="#3b82f6" font-size="8">rooms · streaming</text>
+
+  <rect x="470" y="276" width="165" height="32" rx="8" fill="#dbeafe" stroke="#93c5fd" stroke-width="1"/>
+  <text x="552" y="290" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="600">A2A  /a2a  (JSON-RPC)</text>
+  <text x="552" y="302" text-anchor="middle" fill="#3b82f6" font-size="8">agent-card · push-notify</text>
+
+  <rect x="645" y="276" width="145" height="32" rx="8" fill="#dbeafe" stroke="#93c5fd" stroke-width="1"/>
+  <text x="717" y="290" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="600">SSE  /chat/stream</text>
+  <text x="717" y="302" text-anchor="middle" fill="#3b82f6" font-size="8">streaming responses</text>
+
+  <rect x="800" y="276" width="155" height="32" rx="8" fill="#dbeafe" stroke="#93c5fd" stroke-width="1"/>
+  <text x="877" y="290" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="600">Auth Middleware</text>
+  <text x="877" y="302" text-anchor="middle" fill="#3b82f6" font-size="8">API Key · JWT · OAuth2</text>
+
+  <rect x="965" y="276" width="120" height="32" rx="8" fill="#dbeafe" stroke="#93c5fd" stroke-width="1"/>
+  <text x="1025" y="290" text-anchor="middle" fill="#1e40af" font-size="10" font-weight="600">Swagger UI</text>
+  <text x="1025" y="302" text-anchor="middle" fill="#3b82f6" font-size="8">/docs · /api-docs</text>
+
+  <!-- Row 2: New protocol boxes (AG-UI, A2UI, UCP, AP2) -->
+  <rect x="165" y="316" width="195" height="32" rx="8" fill="#cffafe" stroke="#06b6d4" stroke-width="1.2"/>
+  <text x="262" y="330" text-anchor="middle" fill="#0e7490" font-size="10" font-weight="600">AG-UI  /ag-ui  (SSE)</text>
+  <text x="262" y="342" text-anchor="middle" fill="#0891b2" font-size="8">typed event streaming</text>
+
+  <rect x="370" y="316" width="225" height="32" rx="8" fill="#cffafe" stroke="#06b6d4" stroke-width="1.2"/>
+  <text x="482" y="330" text-anchor="middle" fill="#0e7490" font-size="10" font-weight="600">A2UI  /a2ui/*  (Dynamic UI)</text>
+  <text x="482" y="342" text-anchor="middle" fill="#0891b2" font-size="8">18 primitives · render · action</text>
+
+  <rect x="605" y="316" width="250" height="32" rx="8" fill="#cffafe" stroke="#06b6d4" stroke-width="1.2"/>
+  <text x="730" y="330" text-anchor="middle" fill="#0e7490" font-size="10" font-weight="600">UCP  /ucp/*  (Commerce)</text>
+  <text x="730" y="342" text-anchor="middle" fill="#0891b2" font-size="8">discovery · checkout · idempotency</text>
+
+  <rect x="865" y="316" width="250" height="32" rx="8" fill="#cffafe" stroke="#06b6d4" stroke-width="1.2"/>
+  <text x="990" y="330" text-anchor="middle" fill="#0e7490" font-size="10" font-weight="600">AP2  /ap2/*  (Payments)</text>
+  <text x="990" y="342" text-anchor="middle" fill="#0891b2" font-size="8">mandates · receipts · audit trail</text>
+
+  <!-- ARROWS: Gateway → Agent Core  (gap: 358→422) -->
+  <line x1="400" y1="358" x2="400" y2="422" stroke="#475569" stroke-width="1.8" marker-end="url(#mSlate)"/>
+  <text x="370" y="394" fill="#475569" font-size="9" font-weight="600" text-anchor="end">AgentMessage</text>
+
+  <line x1="1040" y1="422" x2="1040" y2="358" stroke="#6366f1" stroke-width="1.8" stroke-dasharray="6,3" marker-end="url(#mIndigo)"/>
+  <text x="1070" y="394" fill="#6366f1" font-size="9" font-style="italic">AgentResponse</text>
+
+  <!-- ============================================================ -->
+  <!-- LAYER 3 — AGENT CORE  (y=422, h=340, bottom=762)             -->
+  <!-- ============================================================ -->
+  <rect x="140" y="422" width="1160" height="340" rx="14" fill="#faf5ff" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="160" y="442" fill="#6d28d9" font-size="10" font-weight="700" letter-spacing="1">AGENT CORE  (agent-core)  —  StemAgent : IStemAgent</text>
+
+  <!-- Pipeline summary bar -->
+  <rect x="165" y="452" width="1120" height="24" rx="6" fill="#f5f3ff" stroke="#ddd6fe" stroke-width="0.5"/>
+  <text x="725" y="468" text-anchor="middle" fill="#6d28d9" font-size="10" font-weight="500">Perceive  →  Adapt  →  Skill Match  →  Reason  →  Plan  →  Execute  →  Learn (async)</text>
+
+  <!-- 1. Perception Engine -->
+  <rect x="165" y="488" width="224" height="100" rx="10" fill="url(#coreGrad)" filter="url(#shadowSm)"/>
+  <text x="277" y="508" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">1  Perception Engine</text>
+  <text x="277" y="524" text-anchor="middle" fill="#ede9fe" font-size="9">Intent classification (8 types)</text>
+  <text x="277" y="537" text-anchor="middle" fill="#ede9fe" font-size="9">Complexity + urgency scoring</text>
+  <text x="277" y="550" text-anchor="middle" fill="#ede9fe" font-size="9">Entity extraction (URL, code…)</text>
+  <text x="277" y="563" text-anchor="middle" fill="#ede9fe" font-size="9">Memory-enriched context</text>
+  <text x="277" y="576" text-anchor="middle" fill="#ede9fe" font-size="9">Caller style signals</text>
+
+  <line x1="389" y1="538" x2="415" y2="538" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#mPurple)"/>
+
+  <!-- 2. Reasoning Engine -->
+  <rect x="415" y="488" width="224" height="100" rx="10" fill="url(#coreGrad)" filter="url(#shadowSm)"/>
+  <text x="527" y="508" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">2  Reasoning Engine</text>
+  <text x="527" y="524" text-anchor="middle" fill="#ede9fe" font-size="9">StrategySelector (auto-pick)</text>
+  <text x="527" y="537" text-anchor="middle" fill="#ede9fe" font-size="9">Chain-of-Thought</text>
+  <text x="527" y="550" text-anchor="middle" fill="#ede9fe" font-size="9">ReAct (tool loop)</text>
+  <text x="527" y="563" text-anchor="middle" fill="#ede9fe" font-size="9">Reflexion · Internal Debate</text>
+  <text x="527" y="576" text-anchor="middle" fill="#ede9fe" font-size="9">Evidence + confidence</text>
+
+  <line x1="639" y1="538" x2="665" y2="538" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#mPurple)"/>
+
+  <!-- 3. Planning Engine -->
+  <rect x="665" y="488" width="224" height="100" rx="10" fill="url(#coreGrad)" filter="url(#shadowSm)"/>
+  <text x="777" y="508" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">3  Planning Engine</text>
+  <text x="777" y="524" text-anchor="middle" fill="#ede9fe" font-size="9">Procedural memory lookup</text>
+  <text x="777" y="537" text-anchor="middle" fill="#ede9fe" font-size="9">LLM plan generation</text>
+  <text x="777" y="550" text-anchor="middle" fill="#ede9fe" font-size="9">Dependency graph</text>
+  <text x="777" y="563" text-anchor="middle" fill="#ede9fe" font-size="9">Parallel group computation</text>
+  <text x="777" y="576" text-anchor="middle" fill="#ede9fe" font-size="9">Re-planning on failure</text>
+
+  <line x1="889" y1="538" x2="915" y2="538" stroke="#7c3aed" stroke-width="1.8" marker-end="url(#mPurple)"/>
+
+  <!-- 4. Execution Engine -->
+  <rect x="915" y="488" width="224" height="100" rx="10" fill="url(#coreGrad)" filter="url(#shadowSm)"/>
+  <text x="1027" y="508" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">4  Execution Engine</text>
+  <text x="1027" y="524" text-anchor="middle" fill="#ede9fe" font-size="9">Parallel step execution</text>
+  <text x="1027" y="537" text-anchor="middle" fill="#ede9fe" font-size="9">tool_call · memory_lookup</text>
+  <text x="1027" y="550" text-anchor="middle" fill="#ede9fe" font-size="9">reasoning · response</text>
+  <text x="1027" y="563" text-anchor="middle" fill="#ede9fe" font-size="9">Retry (2x) + circuit breaker</text>
+  <text x="1027" y="576" text-anchor="middle" fill="#ede9fe" font-size="9">Step timeout (30s)</text>
+
+  <!-- Re-plan feedback arrow -->
+  <path d="M915,588 L915,605 L777,605 L777,588" fill="none" stroke="#d97706" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#mAmber)"/>
+  <text x="846" y="602" text-anchor="middle" fill="#d97706" font-size="8" font-weight="600">re-plan on failure</text>
+
+  <!-- Supporting modules row -->
+  <rect x="165" y="624" width="210" height="46" rx="8" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="270" y="644" text-anchor="middle" fill="#5b21b6" font-size="11" font-weight="600">Adapt (BehaviorParams)</text>
+  <text x="270" y="658" text-anchor="middle" fill="#7c3aed" font-size="9">depth · verbosity · creativity · confidence</text>
+
+  <rect x="385" y="624" width="210" height="46" rx="8" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="490" y="644" text-anchor="middle" fill="#5b21b6" font-size="11" font-weight="600">LLM Client</text>
+  <text x="490" y="658" text-anchor="middle" fill="#7c3aed" font-size="9">Anthropic · Bedrock · NoOp</text>
+
+  <rect x="605" y="624" width="210" height="46" rx="8" fill="#fef2f2" stroke="#fecaca" stroke-width="1"/>
+  <text x="710" y="644" text-anchor="middle" fill="#991b1b" font-size="11" font-weight="600">Skill Manager</text>
+  <text x="710" y="658" text-anchor="middle" fill="#dc2626" font-size="9">crystallize · match · mature · apoptosis</text>
+
+  <rect x="825" y="624" width="200" height="46" rx="8" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="925" y="644" text-anchor="middle" fill="#5b21b6" font-size="11" font-weight="600">Cost Guardrail</text>
+  <text x="925" y="658" text-anchor="middle" fill="#7c3aed" font-size="9">per-call · interaction · daily · monthly</text>
+
+  <rect x="1035" y="624" width="250" height="46" rx="8" fill="#ede9fe" stroke="#c4b5fd" stroke-width="1"/>
+  <text x="1160" y="644" text-anchor="middle" fill="#5b21b6" font-size="11" font-weight="600">Tiered Model Selection</text>
+  <text x="1160" y="658" text-anchor="middle" fill="#7c3aed" font-size="9">Haiku (percept) · Sonnet · Opus (reason)</text>
+
+  <!-- Learn feedback to Memory -->
+  <rect x="165" y="688" width="1120" height="24" rx="6" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="0.5"/>
+  <text x="725" y="704" text-anchor="middle" fill="#065f46" font-size="10" font-weight="500">Learn (async):  store episode  ·  update caller profile  ·  record procedure  ·  crystallize skills  ·  skill maturation</text>
+
+  <!-- ARROWS: Core ↔ Memory  (gap: 762→828) -->
+  <line x1="350" y1="762" x2="350" y2="828" stroke="#059669" stroke-width="1.8" marker-end="url(#mGreen)"/>
+  <text x="320" y="800" fill="#059669" font-size="9" font-weight="600" text-anchor="end">remember / learn</text>
+
+  <line x1="380" y1="828" x2="380" y2="762" stroke="#059669" stroke-width="1.8" stroke-dasharray="6,3" marker-end="url(#mGreen)"/>
+  <text x="410" y="800" fill="#059669" font-size="9" font-style="italic">recall / search</text>
+
+  <!-- ARROWS: Core ↔ MCP  (gap: 762→828, right side) -->
+  <line x1="1030" y1="762" x2="1030" y2="828" stroke="#d97706" stroke-width="1.8" marker-end="url(#mAmber)"/>
+  <text x="1000" y="800" fill="#d97706" font-size="9" font-weight="600" text-anchor="end">callTool</text>
+
+  <line x1="1060" y1="828" x2="1060" y2="762" stroke="#d97706" stroke-width="1.8" stroke-dasharray="6,3" marker-end="url(#mAmber)"/>
+  <text x="1090" y="800" fill="#d97706" font-size="9" font-style="italic">MCPToolResult</text>
+
+  <!-- ============================================================ -->
+  <!-- LAYER 4 — MEMORY + MCP (split)  (y=828, h=170, bottom=998)   -->
+  <!-- ============================================================ -->
+
+  <!-- Memory System (left) -->
+  <rect x="140" y="828" width="568" height="170" rx="14" fill="#ecfdf5" stroke="#6ee7b7" stroke-width="1"/>
+  <text x="160" y="848" fill="#065f46" font-size="10" font-weight="700" letter-spacing="1">MEMORY &amp; LEARNING  (memory-system)</text>
+
+  <rect x="165" y="858" width="125" height="68" rx="8" fill="url(#memoryGrad)" filter="url(#shadowSm)"/>
+  <text x="227" y="878" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Episodic</text>
+  <text x="227" y="892" text-anchor="middle" fill="#d1fae5" font-size="8">Interaction history</text>
+  <text x="227" y="904" text-anchor="middle" fill="#d1fae5" font-size="8">Vector similarity</text>
+  <text x="227" y="916" text-anchor="middle" fill="#d1fae5" font-size="8">Importance scoring</text>
+
+  <rect x="300" y="858" width="125" height="68" rx="8" fill="url(#memoryGrad)" filter="url(#shadowSm)"/>
+  <text x="362" y="878" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Semantic</text>
+  <text x="362" y="892" text-anchor="middle" fill="#d1fae5" font-size="8">Knowledge triples</text>
+  <text x="362" y="904" text-anchor="middle" fill="#d1fae5" font-size="8">Confidence + version</text>
+  <text x="362" y="916" text-anchor="middle" fill="#d1fae5" font-size="8">Embedding search</text>
+
+  <rect x="435" y="858" width="125" height="68" rx="8" fill="url(#memoryGrad)" filter="url(#shadowSm)"/>
+  <text x="497" y="878" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Procedural</text>
+  <text x="497" y="892" text-anchor="middle" fill="#d1fae5" font-size="8">Learned procedures</text>
+  <text x="497" y="904" text-anchor="middle" fill="#d1fae5" font-size="8">Success rate tracking</text>
+  <text x="497" y="916" text-anchor="middle" fill="#d1fae5" font-size="8">Tags + preconditions</text>
+
+  <rect x="570" y="858" width="125" height="68" rx="8" fill="url(#memoryGrad)" filter="url(#shadowSm)"/>
+  <text x="632" y="878" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">User Context</text>
+  <text x="632" y="892" text-anchor="middle" fill="#d1fae5" font-size="8">Caller profiles</text>
+  <text x="632" y="904" text-anchor="middle" fill="#d1fae5" font-size="8">Session state</text>
+  <text x="632" y="916" text-anchor="middle" fill="#d1fae5" font-size="8">Philosophy · Style</text>
+
+  <!-- Memory Manager facade + persistence -->
+  <rect x="165" y="938" width="265" height="46" rx="8" fill="#d1fae5" stroke="#6ee7b7" stroke-width="1"/>
+  <text x="297" y="958" text-anchor="middle" fill="#065f46" font-size="10" font-weight="600">MemoryManager (facade)</text>
+  <text x="297" y="972" text-anchor="middle" fill="#059669" font-size="9">remember · recall · learn · forget</text>
+
+  <rect x="440" y="938" width="140" height="46" rx="8" fill="#d1fae5" stroke="#6ee7b7" stroke-width="1"/>
+  <text x="510" y="958" text-anchor="middle" fill="#065f46" font-size="10" font-weight="600">Indexer</text>
+  <text x="510" y="972" text-anchor="middle" fill="#059669" font-size="9">Prune · Dedup</text>
+
+  <rect x="590" y="938" width="105" height="46" rx="8" fill="#d1fae5" stroke="#6ee7b7" stroke-width="1"/>
+  <text x="642" y="958" text-anchor="middle" fill="#065f46" font-size="10" font-weight="600">Embedding</text>
+  <text x="642" y="972" text-anchor="middle" fill="#059669" font-size="9">OpenAI · NoOp</text>
+
+  <!-- MCP Integration (right) -->
+  <rect x="732" y="828" width="568" height="170" rx="14" fill="#fffbeb" stroke="#fcd34d" stroke-width="1"/>
+  <text x="752" y="848" fill="#92400e" font-size="10" font-weight="700" letter-spacing="1">MCP INTEGRATION  (mcp-integration)</text>
+
+  <!-- MCP Manager bar -->
+  <rect x="757" y="858" width="528" height="26" rx="6" fill="url(#mcpGrad)" filter="url(#shadowSm)"/>
+  <text x="1021" y="876" text-anchor="middle" fill="#78350f" font-size="11" font-weight="700">MCPManager  —  connectAll · discoverCapabilities · callTool · healthCheck</text>
+
+  <!-- MCP Server types -->
+  <rect x="757" y="894" width="105" height="52" rx="8" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+  <text x="809" y="914" text-anchor="middle" fill="#92400e" font-size="10" font-weight="600">Database</text>
+  <text x="809" y="928" text-anchor="middle" fill="#a16207" font-size="8">SQL adapter</text>
+  <text x="809" y="938" text-anchor="middle" fill="#a16207" font-size="8">PostgreSQL · MySQL</text>
+
+  <rect x="872" y="894" width="95" height="52" rx="8" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+  <text x="919" y="914" text-anchor="middle" fill="#92400e" font-size="10" font-weight="600">API</text>
+  <text x="919" y="928" text-anchor="middle" fill="#a16207" font-size="8">REST / GraphQL</text>
+  <text x="919" y="938" text-anchor="middle" fill="#a16207" font-size="8">Retry + backoff</text>
+
+  <rect x="977" y="894" width="95" height="52" rx="8" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+  <text x="1024" y="914" text-anchor="middle" fill="#92400e" font-size="10" font-weight="600">File</text>
+  <text x="1024" y="928" text-anchor="middle" fill="#a16207" font-size="8">read · write</text>
+  <text x="1024" y="938" text-anchor="middle" fill="#a16207" font-size="8">list · search</text>
+
+  <rect x="1082" y="894" width="95" height="52" rx="8" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+  <text x="1129" y="914" text-anchor="middle" fill="#92400e" font-size="10" font-weight="600">Tool</text>
+  <text x="1129" y="928" text-anchor="middle" fill="#a16207" font-size="8">CLI wrappers</text>
+  <text x="1129" y="938" text-anchor="middle" fill="#a16207" font-size="8">Custom exec</text>
+
+  <rect x="1187" y="894" width="98" height="52" rx="8" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+  <text x="1236" y="914" text-anchor="middle" fill="#92400e" font-size="10" font-weight="600">Custom</text>
+  <text x="1236" y="928" text-anchor="middle" fill="#a16207" font-size="8">User-defined</text>
+  <text x="1236" y="938" text-anchor="middle" fill="#a16207" font-size="8">MCP servers</text>
+
+  <!-- Transports -->
+  <rect x="757" y="958" width="258" height="28" rx="6" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+  <text x="886" y="977" text-anchor="middle" fill="#92400e" font-size="10" font-weight="600">StdioTransport  (local processes)</text>
+
+  <rect x="1025" y="958" width="260" height="28" rx="6" fill="#fef3c7" stroke="#fcd34d" stroke-width="1"/>
+  <text x="1155" y="977" text-anchor="middle" fill="#92400e" font-size="10" font-weight="600">SSETransport  (remote servers)</text>
+
+  <!-- ARROWS: Memory → Infrastructure -->
+  <line x1="350" y1="998" x2="350" y2="1052" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3"/>
+  <!-- ARROWS: MCP → Infrastructure -->
+  <line x1="1020" y1="998" x2="1020" y2="1052" stroke="#94a3b8" stroke-width="1" stroke-dasharray="4,3"/>
+
+  <!-- ============================================================ -->
+  <!-- LAYER 5 — INFRASTRUCTURE  (y=1056, h=92, bottom=1148)        -->
+  <!-- ============================================================ -->
+  <rect x="140" y="1056" width="1160" height="92" rx="14" fill="#eef2ff" stroke="#a5b4fc" stroke-width="1"/>
+  <text x="160" y="1076" fill="#3730a3" font-size="10" font-weight="700" letter-spacing="1">INFRASTRUCTURE &amp; EXTERNAL SERVICES</text>
+
+  <rect x="165" y="1086" width="280" height="52" rx="8" fill="url(#infraGrad)" filter="url(#shadowSm)"/>
+  <text x="305" y="1106" text-anchor="middle" fill="#fff" font-size="11" font-weight="700">PostgreSQL 17 + pgvector</text>
+  <text x="305" y="1120" text-anchor="middle" fill="#e0e7ff" font-size="9">Relational + vector store</text>
+  <text x="305" y="1130" text-anchor="middle" fill="#e0e7ff" font-size="9">Shared with stem-platform</text>
+
+  <rect x="460" y="1086" width="170" height="52" rx="8" fill="#e0e7ff" stroke="#a5b4fc" stroke-width="1"/>
+  <text x="545" y="1106" text-anchor="middle" fill="#3730a3" font-size="11" font-weight="600">Redis 7</text>
+  <text x="545" y="1120" text-anchor="middle" fill="#4f46e5" font-size="9">Session cache</text>
+  <text x="545" y="1130" text-anchor="middle" fill="#4f46e5" font-size="9">:6379</text>
+
+  <rect x="645" y="1086" width="240" height="52" rx="8" fill="#e0e7ff" stroke="#a5b4fc" stroke-width="1"/>
+  <text x="765" y="1106" text-anchor="middle" fill="#3730a3" font-size="11" font-weight="600">Anthropic LLM  (Claude)</text>
+  <text x="765" y="1120" text-anchor="middle" fill="#4f46e5" font-size="9">Bedrock or direct API</text>
+  <text x="765" y="1130" text-anchor="middle" fill="#4f46e5" font-size="9">Haiku · Sonnet · Opus</text>
+
+  <rect x="900" y="1086" width="190" height="52" rx="8" fill="#e0e7ff" stroke="#a5b4fc" stroke-width="1"/>
+  <text x="995" y="1106" text-anchor="middle" fill="#3730a3" font-size="11" font-weight="600">OpenAI Embeddings</text>
+  <text x="995" y="1120" text-anchor="middle" fill="#4f46e5" font-size="9">text-embedding-3-small</text>
+  <text x="995" y="1130" text-anchor="middle" fill="#4f46e5" font-size="9">1536 dimensions</text>
+
+  <rect x="1105" y="1086" width="180" height="52" rx="8" fill="#e0e7ff" stroke="#a5b4fc" stroke-width="1"/>
+  <text x="1195" y="1106" text-anchor="middle" fill="#3730a3" font-size="11" font-weight="600">External MCP Servers</text>
+  <text x="1195" y="1120" text-anchor="middle" fill="#4f46e5" font-size="9">stdio / SSE transport</text>
+  <text x="1195" y="1130" text-anchor="middle" fill="#4f46e5" font-size="9">Dynamic connect</text>
+
+  <!-- ============================================================ -->
+  <!-- LAYER 6 — FOUNDATIONS  (y=1188, h=84)                        -->
+  <!-- ============================================================ -->
+  <rect x="140" y="1188" width="1160" height="84" rx="14" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="160" y="1208" fill="#475569" font-size="10" font-weight="700" letter-spacing="1">FOUNDATIONS  (shared)</text>
+  <rect x="165" y="1216" width="560" height="46" rx="6" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="0.5"/>
+  <text x="445" y="1234" text-anchor="middle" fill="#334155" font-size="10" font-weight="600">Types &amp; Schemas (Zod)</text>
+  <text x="445" y="1250" text-anchor="middle" fill="#64748b" font-size="9">AgentMessage · PerceptionResult · ExecutionPlan · Episode · Skill · MCPTool · AgentCard · AG-UI · A2UI · UCP · AP2</text>
+
+  <rect x="740" y="1216" width="545" height="46" rx="6" fill="#e2e8f0" stroke="#cbd5e1" stroke-width="0.5"/>
+  <text x="1012" y="1234" text-anchor="middle" fill="#334155" font-size="10" font-weight="600">Utilities</text>
+  <text x="1012" y="1250" text-anchor="middle" fill="#64748b" font-size="9">Pino logger · Error hierarchy (BaseError, ValidationError…) · IStemAgent · IMemoryManager · IMCPManager</text>
+
+  <!-- ============================================================ -->
+  <!-- LAYER 7 — DEPLOYMENT + TESTING  (y=1306, h=44)               -->
+  <!-- ============================================================ -->
+  <rect x="140" y="1306" width="565" height="44" rx="10" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="422" y="1328" text-anchor="middle" fill="#475569" font-size="10" font-weight="600">DEPLOYMENT  —  Docker Compose (3 svc + pgAdmin dev)  ·  Dockerfile  ·  .env config</text>
+  <text x="422" y="1342" text-anchor="middle" fill="#94a3b8" font-size="9">pgvector/pgvector:pg17 · redis:7-alpine  ·  cost guardrails  ·  tiered LLM models</text>
+
+  <rect x="735" y="1306" width="565" height="44" rx="10" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="1017" y="1328" text-anchor="middle" fill="#475569" font-size="10" font-weight="600">TESTING  —  Vitest · 37 test files · 413 tests · 100% pass · TypeScript strict</text>
+  <text x="1017" y="1342" text-anchor="middle" fill="#94a3b8" font-size="9">Orchestrator · Engines · Skills · Memory · MCP · Gateway · A2A · AG-UI · A2UI · UCP · AP2 · Mesh · SDK</text>
+
+  <!-- ============================================================ -->
+  <!-- LEGEND                                                        -->
+  <!-- ============================================================ -->
+  <g transform="translate(140,1366)">
+    <rect x="0" y="0" width="1160" height="44" rx="10" fill="#fff" stroke="#e2e8f0" stroke-width="1"/>
+    <text x="20" y="28" fill="#64748b" font-size="10" font-weight="700">LEGEND</text>
+
+    <rect x="80" y="16" width="14" height="14" rx="4" fill="url(#callerGrad)"/>
+    <text x="100" y="28" fill="#334155" font-size="9">Caller</text>
+
+    <rect x="150" y="16" width="14" height="14" rx="4" fill="url(#gatewayGrad)"/>
+    <text x="170" y="28" fill="#334155" font-size="9">Gateway</text>
+
+    <rect x="235" y="16" width="14" height="14" rx="4" fill="url(#coreGrad)"/>
+    <text x="255" y="28" fill="#334155" font-size="9">Core Engine</text>
+
+    <rect x="330" y="16" width="14" height="14" rx="4" fill="url(#memoryGrad)"/>
+    <text x="350" y="28" fill="#334155" font-size="9">Memory</text>
+
+    <rect x="410" y="16" width="14" height="14" rx="4" fill="url(#mcpGrad)"/>
+    <text x="430" y="28" fill="#334155" font-size="9">MCP</text>
+
+    <rect x="470" y="16" width="14" height="14" rx="4" fill="url(#infraGrad)"/>
+    <text x="490" y="28" fill="#334155" font-size="9">Infrastructure</text>
+
+    <rect x="575" y="16" width="14" height="14" rx="4" fill="#cffafe" stroke="#06b6d4" stroke-width="1"/>
+    <text x="595" y="28" fill="#334155" font-size="9">New Protocols</text>
+
+    <line x1="680" y1="23" x2="715" y2="23" stroke="#475569" stroke-width="2"/>
+    <polygon points="715,19 725,23 715,27" fill="#475569"/>
+    <text x="733" y="28" fill="#334155" font-size="9">Request</text>
+
+    <line x1="790" y1="23" x2="825" y2="23" stroke="#6366f1" stroke-width="2" stroke-dasharray="6,3"/>
+    <polygon points="825,19 835,23 825,27" fill="#6366f1"/>
+    <text x="843" y="28" fill="#334155" font-size="9">Response</text>
+
+    <line x1="905" y1="23" x2="940" y2="23" stroke="#059669" stroke-width="2"/>
+    <polygon points="940,19 950,23 940,27" fill="#059669"/>
+    <text x="958" y="28" fill="#334155" font-size="9">Memory I/O</text>
+
+    <line x1="1025" y1="23" x2="1060" y2="23" stroke="#d97706" stroke-width="1.5" stroke-dasharray="5,3"/>
+    <polygon points="1060,19.5 1068,23 1060,26.5" fill="#d97706"/>
+    <text x="1076" y="28" fill="#334155" font-size="9">Tool / Feedback</text>
+  </g>
+
+</svg>
