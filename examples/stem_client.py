@@ -92,6 +92,7 @@ class StemAgentClient:
         caller_id: str | None = None,
         session_id: str | None = None,
         metadata: dict[str, Any] | None = None,
+        timeout: float | None = None,
     ) -> dict:
         """POST /api/v1/chat — synchronous one-shot chat."""
         body: dict[str, Any] = {
@@ -101,7 +102,7 @@ class StemAgentClient:
         }
         if metadata:
             body["metadata"] = metadata
-        r = httpx.post(f"{self.base_url}/api/v1/chat", json=body, timeout=self.timeout)
+        r = httpx.post(f"{self.base_url}/api/v1/chat", json=body, timeout=timeout or self.timeout)
         r.raise_for_status()
         return r.json()
 
