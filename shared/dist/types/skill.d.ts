@@ -83,14 +83,19 @@ export declare const SkillSchema: z.ZodObject<{
     createdAt: z.ZodDefault<z.ZodNumber>;
     updatedAt: z.ZodDefault<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
-    id: string;
     name: string;
+    id: string;
     description: string;
+    tags: string[];
+    source: "crystallized" | "plugin";
+    createdAt: number;
+    updatedAt: number;
+    steps: string[];
+    successRate: number;
     toolChain: {
         toolName: string;
         argumentTemplate: Record<string, unknown>;
     }[];
-    steps: string[];
     trigger: {
         intentPatterns: string[];
         domains: string[];
@@ -98,16 +103,11 @@ export declare const SkillSchema: z.ZodObject<{
         minComplexity?: "simple" | "medium" | "complex" | undefined;
     };
     maturity: "progenitor" | "committed" | "mature";
-    source: "crystallized" | "plugin";
     activationCount: number;
-    successRate: number;
-    tags: string[];
-    createdAt: number;
-    updatedAt: number;
     embedding?: number[] | undefined;
 }, {
-    id: string;
     name: string;
+    id: string;
     description: string;
     trigger: {
         intentPatterns?: string[] | undefined;
@@ -115,19 +115,19 @@ export declare const SkillSchema: z.ZodObject<{
         entityTypes?: string[] | undefined;
         minComplexity?: "simple" | "medium" | "complex" | undefined;
     };
+    tags?: string[] | undefined;
+    embedding?: number[] | undefined;
+    source?: "crystallized" | "plugin" | undefined;
+    createdAt?: number | undefined;
+    updatedAt?: number | undefined;
+    steps?: string[] | undefined;
+    successRate?: number | undefined;
     toolChain?: {
         toolName: string;
         argumentTemplate?: Record<string, unknown> | undefined;
     }[] | undefined;
-    steps?: string[] | undefined;
     maturity?: "progenitor" | "committed" | "mature" | undefined;
-    source?: "crystallized" | "plugin" | undefined;
     activationCount?: number | undefined;
-    successRate?: number | undefined;
-    embedding?: number[] | undefined;
-    tags?: string[] | undefined;
-    createdAt?: number | undefined;
-    updatedAt?: number | undefined;
 }>;
 export type Skill = z.infer<typeof SkillSchema>;
 export interface ISkillRegistry {

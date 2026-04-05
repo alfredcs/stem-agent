@@ -23,7 +23,8 @@
       "@stem-agent/memory-system": ["./packages/memory-system/src"],
       "@stem-agent/agent-core": ["./packages/agent-core/src"],
       "@stem-agent/standard-interface": ["./packages/standard-interface/src"],
-      "@stem-agent/caller-layer": ["./packages/caller-layer/src"]
+      "@stem-agent/caller-layer": ["./packages/caller-layer/src"],
+      "@stem-agent/mcp-server": ["./packages/mcp-server/src"]
     }
   },
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]

@@ -100,6 +100,16 @@ export class MemoryManager implements IMemoryManager {
     return this.procedural.getBestProcedure(taskDescription);
   }
 
+  /** Update utility score for a retrieved episodic memory from outcome reward. */
+  async updateEpisodeUtility(id: string, reward: number): Promise<void> {
+    await this.episodic.updateUtilityFromReward(id, reward);
+  }
+
+  /** Update utility score for a retrieved semantic memory from outcome reward. */
+  async updateKnowledgeUtility(id: string, reward: number): Promise<void> {
+    await this.semantic.updateUtilityFromReward(id, reward);
+  }
+
   /** Shutdown and flush. */
   async shutdown(): Promise<void> {
     if (this.indexer) {

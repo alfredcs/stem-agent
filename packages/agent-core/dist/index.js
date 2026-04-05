@@ -7,4 +7,5 @@ export { ReasoningEngine, StrategySelector } from "./reasoning/index.js";
 export { PlanningEngine } from "./planning/index.js";
 export { ExecutionEngine } from "./execution/index.js";
 export { AnthropicLLMClient, NoOpLLMClient, CostGuardrail } from "./llm/index.js";
+export { SkillManager, InMemorySkillRegistry } from "./skills/index.js";
 //# sourceMappingURL=index.js.map

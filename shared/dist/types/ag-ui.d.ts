@@ -122,15 +122,15 @@ export declare const AGUITextMessageStartSchema: z.ZodObject<{
     messageId: z.ZodString;
     role: z.ZodDefault<z.ZodEnum<["assistant", "user", "system", "developer", "tool"]>>;
 }, "strip", z.ZodTypeAny, {
+    role: "user" | "system" | "tool" | "assistant" | "developer";
     type: "TEXT_MESSAGE_START";
     messageId: string;
-    role: "assistant" | "user" | "system" | "developer" | "tool";
     timestamp?: number | undefined;
 }, {
     type: "TEXT_MESSAGE_START";
     messageId: string;
+    role?: "user" | "system" | "tool" | "assistant" | "developer" | undefined;
     timestamp?: number | undefined;
-    role?: "assistant" | "user" | "system" | "developer" | "tool" | undefined;
 }>;
 export declare const AGUITextMessageContentSchema: z.ZodObject<{
     timestamp: z.ZodOptional<z.ZodNumber>;
@@ -223,19 +223,19 @@ export declare const AGUIToolCallResultSchema: z.ZodObject<{
     content: z.ZodUnknown;
     role: z.ZodDefault<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
+    role: string;
     type: "TOOL_CALL_RESULT";
     messageId: string;
-    role: string;
     toolCallId: string;
-    timestamp?: number | undefined;
     content?: unknown;
+    timestamp?: number | undefined;
 }, {
     type: "TOOL_CALL_RESULT";
     messageId: string;
     toolCallId: string;
-    timestamp?: number | undefined;
     role?: string | undefined;
     content?: unknown;
+    timestamp?: number | undefined;
 }>;
 export declare const AGUIStateSnapshotSchema: z.ZodObject<{
     timestamp: z.ZodOptional<z.ZodNumber>;
@@ -286,14 +286,14 @@ export declare const AGUIReasoningMessageStartSchema: z.ZodObject<{
     messageId: z.ZodString;
     role: z.ZodLiteral<"assistant">;
 }, "strip", z.ZodTypeAny, {
+    role: "assistant";
     type: "REASONING_MESSAGE_START";
     messageId: string;
-    role: "assistant";
     timestamp?: number | undefined;
 }, {
+    role: "assistant";
     type: "REASONING_MESSAGE_START";
     messageId: string;
-    role: "assistant";
     timestamp?: number | undefined;
 }>;
 export declare const AGUIReasoningMessageContentSchema: z.ZodObject<{
@@ -348,13 +348,13 @@ export declare const AGUICustomEventSchema: z.ZodObject<{
     name: z.ZodString;
     value: z.ZodUnknown;
 }, "strip", z.ZodTypeAny, {
-    type: "CUSTOM";
     name: string;
+    type: "CUSTOM";
     value?: unknown;
     timestamp?: number | undefined;
 }, {
-    type: "CUSTOM";
     name: string;
+    type: "CUSTOM";
     value?: unknown;
     timestamp?: number | undefined;
 }>;
@@ -442,15 +442,15 @@ export declare const AGUIEventSchema: z.ZodDiscriminatedUnion<"type", [z.ZodObje
     messageId: z.ZodString;
     role: z.ZodDefault<z.ZodEnum<["assistant", "user", "system", "developer", "tool"]>>;
 }, "strip", z.ZodTypeAny, {
+    role: "user" | "system" | "tool" | "assistant" | "developer";
     type: "TEXT_MESSAGE_START";
     messageId: string;
-    role: "assistant" | "user" | "system" | "developer" | "tool";
     timestamp?: number | undefined;
 }, {
     type: "TEXT_MESSAGE_START";
     messageId: string;
+    role?: "user" | "system" | "tool" | "assistant" | "developer" | undefined;
     timestamp?: number | undefined;
-    role?: "assistant" | "user" | "system" | "developer" | "tool" | undefined;
 }>, z.ZodObject<{
     timestamp: z.ZodOptional<z.ZodNumber>;
 } & {
@@ -537,19 +537,19 @@ export declare const AGUIEventSchema: z.ZodDiscriminatedUnion<"type", [z.ZodObje
     content: z.ZodUnknown;
     role: z.ZodDefault<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
+    role: string;
     type: "TOOL_CALL_RESULT";
     messageId: string;
-    role: string;
     toolCallId: string;
-    timestamp?: number | undefined;
     content?: unknown;
+    timestamp?: number | undefined;
 }, {
     type: "TOOL_CALL_RESULT";
     messageId: string;
     toolCallId: string;
-    timestamp?: number | undefined;
     role?: string | undefined;
     content?: unknown;
+    timestamp?: number | undefined;
 }>, z.ZodObject<{
     timestamp: z.ZodOptional<z.ZodNumber>;
 } & {
@@ -596,14 +596,14 @@ export declare const AGUIEventSchema: z.ZodDiscriminatedUnion<"type", [z.ZodObje
     messageId: z.ZodString;
     role: z.ZodLiteral<"assistant">;
 }, "strip", z.ZodTypeAny, {
+    role: "assistant";
     type: "REASONING_MESSAGE_START";
     messageId: string;
-    role: "assistant";
     timestamp?: number | undefined;
 }, {
+    role: "assistant";
     type: "REASONING_MESSAGE_START";
     messageId: string;
-    role: "assistant";
     timestamp?: number | undefined;
 }>, z.ZodObject<{
     timestamp: z.ZodOptional<z.ZodNumber>;
@@ -654,13 +654,13 @@ export declare const AGUIEventSchema: z.ZodDiscriminatedUnion<"type", [z.ZodObje
     name: z.ZodString;
     value: z.ZodUnknown;
 }, "strip", z.ZodTypeAny, {
-    type: "CUSTOM";
     name: string;
+    type: "CUSTOM";
     value?: unknown;
     timestamp?: number | undefined;
 }, {
-    type: "CUSTOM";
     name: string;
+    type: "CUSTOM";
     value?: unknown;
     timestamp?: number | undefined;
 }>]>;
@@ -671,11 +671,11 @@ export declare const AGUIMessageSchema: z.ZodObject<{
     content: z.ZodUnknown;
 }, "strip", z.ZodTypeAny, {
     id: string;
-    role: "assistant" | "user" | "system" | "developer" | "tool";
+    role: "user" | "system" | "tool" | "assistant" | "developer";
     content?: unknown;
 }, {
     id: string;
-    role: "assistant" | "user" | "system" | "developer" | "tool";
+    role: "user" | "system" | "tool" | "assistant" | "developer";
     content?: unknown;
 }>;
 export type AGUIMessage = z.infer<typeof AGUIMessageSchema>;
@@ -701,11 +701,11 @@ export declare const RunAgentInputSchema: z.ZodObject<{
         content: z.ZodUnknown;
     }, "strip", z.ZodTypeAny, {
         id: string;
-        role: "assistant" | "user" | "system" | "developer" | "tool";
+        role: "user" | "system" | "tool" | "assistant" | "developer";
         content?: unknown;
     }, {
         id: string;
-        role: "assistant" | "user" | "system" | "developer" | "tool";
+        role: "user" | "system" | "tool" | "assistant" | "developer";
         content?: unknown;
     }>, "many">>;
     tools: z.ZodDefault<z.ZodArray<z.ZodObject<{
@@ -725,11 +725,12 @@ export declare const RunAgentInputSchema: z.ZodObject<{
     context: z.ZodDefault<z.ZodArray<z.ZodUnknown, "many">>;
     forwardedProps: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
 }, "strip", z.ZodTypeAny, {
+    context: unknown[];
     threadId: string;
     runId: string;
     messages: {
         id: string;
-        role: "assistant" | "user" | "system" | "developer" | "tool";
+        role: "user" | "system" | "tool" | "assistant" | "developer";
         content?: unknown;
     }[];
     tools: {
@@ -738,14 +739,14 @@ export declare const RunAgentInputSchema: z.ZodObject<{
         parameters?: Record<string, unknown> | undefined;
     }[];
     state: Record<string, unknown>;
-    context: unknown[];
     forwardedProps: Record<string, unknown>;
 }, {
     threadId: string;
     runId: string;
+    context?: unknown[] | undefined;
     messages?: {
         id: string;
-        role: "assistant" | "user" | "system" | "developer" | "tool";
+        role: "user" | "system" | "tool" | "assistant" | "developer";
         content?: unknown;
     }[] | undefined;
     tools?: {
@@ -754,7 +755,6 @@ export declare const RunAgentInputSchema: z.ZodObject<{
         parameters?: Record<string, unknown> | undefined;
     }[] | undefined;
     state?: Record<string, unknown> | undefined;
-    context?: unknown[] | undefined;
     forwardedProps?: Record<string, unknown> | undefined;
 }>;
 export type RunAgentInput = z.infer<typeof RunAgentInputSchema>;

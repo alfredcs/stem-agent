@@ -59,4 +59,24 @@ export class InMemorySemanticStore implements ISemanticStore {
   async count(): Promise<number> {
     return this.triples.size;
   }
+
+  async updateUtility(id: string, utility: number, retrievalCount: number): Promise<void> {
+    const triple = this.triples.get(id);
+    if (triple) {
+      this.triples.set(id, {
+        ...triple,
+        utility,
+        retrievalCount,
+        lastRetrieved: Date.now(),
+        updatedAt: Date.now(),
+      });
+    }
+  }
+
+  async merge(ids: string[], merged: KnowledgeTriple): Promise<void> {
+    for (const id of ids) {
+      this.triples.delete(id);
+    }
+    this.triples.set(merged.id, merged);
+  }
 }

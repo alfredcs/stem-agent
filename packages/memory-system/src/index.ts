@@ -39,6 +39,18 @@ export {
   PgUserContextStore,
 } from "./persistence/index.js";
 
+// Utility tracking (ATLAS self-learning)
+export { UtilityTracker } from "./utility-tracker.js";
+export type { UtilityTrackerConfig } from "./utility-tracker.js";
+
+// Retrieval ranking (ATLAS self-learning)
+export { RetrievalRanker } from "./retrieval-ranker.js";
+export type { RetrievalRankerConfig, RankerCandidate, ScoredResult } from "./retrieval-ranker.js";
+
+// Consolidation engine (ATLAS self-learning)
+export { ConsolidationEngine } from "./consolidation-engine.js";
+export type { ConsolidationConfig, ConsolidationStats } from "./consolidation-engine.js";
+
 // Config & store interfaces
 export { MemorySystemConfigSchema } from "./types.js";
 export type {

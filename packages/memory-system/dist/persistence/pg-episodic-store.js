@@ -23,6 +23,9 @@ function mapRow(row) {
         embedding: parseVector(row.embedding),
         importance: row.importance,
         summary: row.summary ?? undefined,
+        utility: row.utility != null ? row.utility : undefined,
+        retrievalCount: row.retrieval_count ?? 0,
+        lastRetrieved: row.last_retrieved != null ? Number(row.last_retrieved) : undefined,
     };
 }
 export class PgEpisodicStore {
@@ -43,6 +46,10 @@ export class PgEpisodicStore {
             episode.importance,
             episode.summary ?? null,
         ]);
+    }
+    async get(id) {
+        const { rows } = await this.pool.query("SELECT * FROM episodes WHERE id = $1", [id]);
+        return rows.length > 0 ? mapRow(rows[0]) : null;
     }
     async getByTimeRange(start, end) {
         const { rows } = await this.pool.query("SELECT * FROM episodes WHERE timestamp BETWEEN $1 AND $2 ORDER BY timestamp", [start, end]);
@@ -74,6 +81,9 @@ export class PgEpisodicStore {
     async count() {
         const { rows } = await this.pool.query("SELECT COUNT(*)::int AS cnt FROM episodes");
         return rows[0].cnt;
+    }
+    async updateUtility(id, utility, retrievalCount) {
+        await this.pool.query("UPDATE episodes SET utility = $1, retrieval_count = $2, last_retrieved = $3 WHERE id = $4", [utility, retrievalCount, Date.now(), id]);
     }
     async getAll() {
         const { rows } = await this.pool.query("SELECT * FROM episodes ORDER BY timestamp DESC");

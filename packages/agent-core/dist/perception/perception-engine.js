@@ -58,7 +58,10 @@ export class PerceptionEngine {
                     try {
                         const memories = await this.memory.recall(text, 5);
                         if (memories.length > 0) {
-                            context = { relevantMemories: memories.map((m) => m.summary ?? m.id) };
+                            context = {
+                                relevantMemories: memories.map((m) => m.summary ?? m.id),
+                                retrievedMemoryIds: memories.map((m) => m.id),
+                            };
                         }
                     }
                     catch (err) {
@@ -97,7 +100,10 @@ export class PerceptionEngine {
         try {
             const memories = await this.memory.recall(text, 5);
             if (memories.length > 0) {
-                context = { relevantMemories: memories.map((m) => m.summary ?? m.id) };
+                context = {
+                    relevantMemories: memories.map((m) => m.summary ?? m.id),
+                    retrievedMemoryIds: memories.map((m) => m.id),
+                };
             }
         }
         catch (err) {

@@ -1,6 +1,7 @@
 import type { IStemAgent, IMCPManager, IMemoryManager, AgentMessage, AgentResponse, AgentCard } from "@stem-agent/shared";
 import type { AgentCoreConfig } from "./config.js";
 import type { Principal } from "@stem-agent/shared";
+import { SkillManager } from "./skills/index.js";
 /**
  * StemAgent — the main agent orchestrator.
  *
@@ -18,9 +19,11 @@ export declare class StemAgent implements IStemAgent {
     private readonly reasoning;
     private readonly planning;
     private readonly execution;
+    private readonly skillManager;
     private readonly log;
     private readonly behavior;
     private readonly costGuardrail;
+    private readonly utilityTracker;
     private tools;
     private toolNames;
     private initialized;
@@ -40,10 +43,20 @@ export declare class StemAgent implements IStemAgent {
      * and Execution.
      */
     stream(taskId: string, message: AgentMessage): AsyncIterable<AgentResponse>;
+    /** Access the skill manager for plugin registration/removal. */
+    getSkillManager(): SkillManager;
     /** Return the agent card describing this agent's capabilities. */
     getAgentCard(): AgentCard;
     /** Adapt behavior parameters based on caller profile and perception. */
     private adapt;
+    /** Update utility scores for all retrieved memories based on outcome reward. */
+    private updateRetrievedUtilities;
+    /**
+     * Distill a significant experience into a KnowledgeTriple immediately.
+     * Captures outlier successes/failures in real-time without waiting for
+     * periodic consolidation.
+     */
+    private distillExperience;
     /** Store an episode in episodic memory. */
     private storeEpisode;
 }

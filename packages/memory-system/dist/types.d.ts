@@ -36,6 +36,7 @@ export type MemorySystemConfig = z.infer<typeof MemorySystemConfigSchema>;
 /** Append-only store for episodic memories. */
 export interface IEpisodicStore {
     append(episode: Episode): Promise<void>;
+    get(id: string): Promise<Episode | null>;
     getByTimeRange(start: number, end: number): Promise<Episode[]>;
     getByActor(actor: string): Promise<Episode[]>;
     searchByEmbedding(embedding: number[], limit: number): Promise<Episode[]>;
@@ -44,6 +45,8 @@ export interface IEpisodicStore {
     deleteByActor(actor: string): Promise<void>;
     count(): Promise<number>;
     getAll(): Promise<Episode[]>;
+    /** Update utility score and retrieval count for an episode. */
+    updateUtility(id: string, utility: number, retrievalCount: number): Promise<void>;
 }
 /** Knowledge-triple store for semantic memory. */
 export interface ISemanticStore {
@@ -54,6 +57,10 @@ export interface ISemanticStore {
     delete(id: string): Promise<void>;
     getAll(): Promise<KnowledgeTriple[]>;
     count(): Promise<number>;
+    /** Update utility score and retrieval count for a triple. */
+    updateUtility(id: string, utility: number, retrievalCount: number): Promise<void>;
+    /** Atomically merge multiple triples into one, removing originals. */
+    merge(ids: string[], merged: KnowledgeTriple): Promise<void>;
 }
 /** Store for procedural memories (learned skills). */
 export interface IProceduralStore {

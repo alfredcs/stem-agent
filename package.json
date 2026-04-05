@@ -10,7 +10,8 @@
     "packages/memory-system",
     "packages/agent-core",
     "packages/standard-interface",
-    "packages/caller-layer"
+    "packages/caller-layer",
+    "packages/mcp-server"
   ],
   "scripts": {
     "build": "npm run build --workspaces && tsc -b tsconfig.json",

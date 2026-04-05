@@ -72,8 +72,11 @@ export declare const AP2IntentMandateSchema: z.ZodObject<{
     status: z.ZodDefault<z.ZodEnum<["active", "expired", "revoked"]>>;
     metadata: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
 }, "strip", z.ZodTypeAny, {
-    status: "active" | "expired" | "revoked";
     id: string;
+    status: "active" | "expired" | "revoked";
+    metadata: Record<string, unknown>;
+    createdAt: number;
+    expiresAt: number;
     ownerId: string;
     allowedMerchants: string[];
     maxAmount: {
@@ -81,30 +84,27 @@ export declare const AP2IntentMandateSchema: z.ZodObject<{
         currency: string;
     };
     refundable: boolean;
-    expiresAt: number;
-    createdAt: number;
-    metadata: Record<string, unknown>;
     autoApproveBelow?: {
         amount: string;
         currency: string;
     } | undefined;
 }, {
     id: string;
+    expiresAt: number;
     ownerId: string;
     maxAmount: {
         amount: string;
         currency?: string | undefined;
     };
-    expiresAt: number;
     status?: "active" | "expired" | "revoked" | undefined;
+    metadata?: Record<string, unknown> | undefined;
+    createdAt?: number | undefined;
     allowedMerchants?: string[] | undefined;
     autoApproveBelow?: {
         amount: string;
         currency?: string | undefined;
     } | undefined;
     refundable?: boolean | undefined;
-    createdAt?: number | undefined;
-    metadata?: Record<string, unknown> | undefined;
 }>;
 export type AP2IntentMandate = z.infer<typeof AP2IntentMandateSchema>;
 export declare const AP2PaymentMandateSchema: z.ZodObject<{
@@ -159,12 +159,12 @@ export declare const AP2PaymentMandateSchema: z.ZodObject<{
     createdAt: z.ZodDefault<z.ZodNumber>;
     metadata: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
 }, "strip", z.ZodTypeAny, {
-    status: "pending_approval" | "approved" | "rejected" | "executed" | "failed";
     id: string;
-    createdAt: number;
+    status: "failed" | "pending_approval" | "approved" | "rejected" | "executed";
     metadata: Record<string, unknown>;
-    intentMandateId: string;
     agentId: string;
+    createdAt: number;
+    intentMandateId: string;
     merchantId: string;
     items: {
         name: string;
@@ -183,8 +183,8 @@ export declare const AP2PaymentMandateSchema: z.ZodObject<{
     approvedBy?: string | undefined;
 }, {
     id: string;
-    intentMandateId: string;
     agentId: string;
+    intentMandateId: string;
     merchantId: string;
     items: {
         name: string;
@@ -199,9 +199,9 @@ export declare const AP2PaymentMandateSchema: z.ZodObject<{
         amount: string;
         currency?: string | undefined;
     };
-    status?: "pending_approval" | "approved" | "rejected" | "executed" | "failed" | undefined;
-    createdAt?: number | undefined;
+    status?: "failed" | "pending_approval" | "approved" | "rejected" | "executed" | undefined;
     metadata?: Record<string, unknown> | undefined;
+    createdAt?: number | undefined;
     signature?: string | undefined;
     approvedBy?: string | undefined;
 }>;
@@ -225,29 +225,29 @@ export declare const AP2PaymentReceiptSchema: z.ZodObject<{
     timestamp: z.ZodDefault<z.ZodNumber>;
     metadata: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
 }, "strip", z.ZodTypeAny, {
+    id: string;
+    status: "failed" | "success" | "refunded";
+    metadata: Record<string, unknown>;
+    timestamp: number;
     amount: {
         amount: string;
         currency: string;
     };
-    status: "failed" | "success" | "refunded";
-    id: string;
-    metadata: Record<string, unknown>;
     merchantId: string;
     paymentMandateId: string;
-    timestamp: number;
     transactionRef?: string | undefined;
 }, {
+    id: string;
+    status: "failed" | "success" | "refunded";
     amount: {
         amount: string;
         currency?: string | undefined;
     };
-    status: "failed" | "success" | "refunded";
-    id: string;
     merchantId: string;
     paymentMandateId: string;
     metadata?: Record<string, unknown> | undefined;
-    transactionRef?: string | undefined;
     timestamp?: number | undefined;
+    transactionRef?: string | undefined;
 }>;
 export type AP2PaymentReceipt = z.infer<typeof AP2PaymentReceiptSchema>;
 //# sourceMappingURL=ap2.d.ts.map

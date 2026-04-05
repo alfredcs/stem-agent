@@ -13,6 +13,10 @@ export class InMemoryEpisodicStore implements IEpisodicStore {
     this.episodes.push(episode);
   }
 
+  async get(id: string): Promise<Episode | null> {
+    return this.episodes.find((e) => e.id === id) ?? null;
+  }
+
   async getByTimeRange(start: number, end: number): Promise<Episode[]> {
     return this.episodes.filter(
       (e) => e.timestamp >= start && e.timestamp <= end,
@@ -71,5 +75,14 @@ export class InMemoryEpisodicStore implements IEpisodicStore {
 
   async getAll(): Promise<Episode[]> {
     return [...this.episodes];
+  }
+
+  async updateUtility(id: string, utility: number, retrievalCount: number): Promise<void> {
+    const episode = this.episodes.find((e) => e.id === id);
+    if (episode) {
+      (episode as Record<string, unknown>).utility = utility;
+      (episode as Record<string, unknown>).retrievalCount = retrievalCount;
+      (episode as Record<string, unknown>).lastRetrieved = Date.now();
+    }
   }
 }

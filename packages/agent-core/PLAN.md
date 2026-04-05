@@ -181,12 +181,20 @@ Methods:
   6. Execution: `executionEngine.execute(plan)`
   7. Format response as `AgentResponse`
   8. Learn (async): store episode, update caller profile, record skill outcome, attempt crystallization
-  9. Return response
+  9. ATLAS utility feedback: compute reward from response status (`completed→1.0`, `failed→-0.5`, `error→-1.0`), update utility scores for all retrieved memory IDs via `memoryManager.updateEpisodeUtility(id, reward)`
+  10. Experience distillation: if reward is statistically significant (outlier vs sliding-window mean), immediately distill the episode into a `KnowledgeTriple` via `memoryManager.storeKnowledge()` — captures outlier successes/failures without waiting for periodic consolidation
+  11. Return response
 - `stream(taskId, message)`: async generator that yields partial responses after each phase
 - `getAgentCard()`: return an `AgentCard` built from config
 - `getSkillManager()`: expose SkillManager for plugin registration
 
 Error boundary: catch errors in process, return failed `AgentResponse`, store failure in memory.
+
+**ATLAS Integration:**
+- Constructor creates `UtilityTracker` (from `@stem-agent/memory-system`) for EMA reward tracking
+- Perception engine includes `retrievedMemoryIds` in perception context for downstream utility updates
+- Learn phase calls `updateRetrievedUtilities(ids, reward)` → loops through IDs calling `memoryManager.updateEpisodeUtility(id, reward)`
+- Learn phase calls `distillExperience()` for significant outcomes → creates `KnowledgeTriple` with subject=callerId, predicate=intent, object=outcome
 
 Verify: integration test with mocked MCP and Memory.
 

@@ -1,0 +1,30 @@
+{
+  "name": "@stem-agent/mcp-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MCP Server transport — exposes a running stem-agent as MCP tools for Claude Code",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@stem-agent/shared": "*",
+    "@modelcontextprotocol/sdk": "^1.27.1",
+    "pino": "^9.0.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}

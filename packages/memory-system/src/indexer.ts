@@ -1,6 +1,7 @@
 import type { Logger } from "@stem-agent/shared";
 import { createLogger } from "@stem-agent/shared";
 import type { IEpisodicStore, ISemanticStore, IProceduralStore } from "./types.js";
+import type { ConsolidationEngine } from "./consolidation-engine.js";
 
 /**
  * Background memory indexer for re-indexing, compression, and garbage collection.
@@ -12,6 +13,7 @@ export class MemoryIndexer {
   private readonly episodicStore: IEpisodicStore;
   private readonly semanticStore: ISemanticStore;
   private readonly proceduralStore: IProceduralStore;
+  private readonly consolidationEngine: ConsolidationEngine | null;
   private readonly log: Logger;
   private timer: ReturnType<typeof setInterval> | null = null;
 
@@ -22,10 +24,12 @@ export class MemoryIndexer {
       procedural: IProceduralStore;
     },
     logger?: Logger,
+    consolidationEngine?: ConsolidationEngine,
   ) {
     this.episodicStore = stores.episodic;
     this.semanticStore = stores.semantic;
     this.proceduralStore = stores.procedural;
+    this.consolidationEngine = consolidationEngine ?? null;
     this.log = logger ?? createLogger("memory-indexer");
   }
 
@@ -167,6 +171,8 @@ export class MemoryIndexer {
           createdAt: now,
           updatedAt: now,
           version: 1,
+          sourceCount: count,
+          retrievalCount: 0,
         });
         created++;
       }
@@ -230,9 +236,16 @@ export class MemoryIndexer {
   /** Run all maintenance tasks once. */
   async runMaintenance(): Promise<void> {
     try {
-      await this.pruneEpisodic();
-      await this.deduplicateSemantic();
-      await this.extractPatterns();
+      if (this.consolidationEngine) {
+        // ATLAS-style consolidation: promote/merge/prune with capacity bounds
+        await this.consolidationEngine.consolidate();
+      } else {
+        // Legacy maintenance: prune, dedup, extract patterns
+        await this.pruneEpisodic();
+        await this.deduplicateSemantic();
+        await this.extractPatterns();
+      }
+      // Always extract strategies — feeds STEM's procedural memory / skill system
       await this.extractStrategies();
     } catch (err) {
       this.log.error({ err }, "maintenance run failed");

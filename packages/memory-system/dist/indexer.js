@@ -9,12 +9,14 @@ export class MemoryIndexer {
     episodicStore;
     semanticStore;
     proceduralStore;
+    consolidationEngine;
     log;
     timer = null;
-    constructor(stores, logger) {
+    constructor(stores, logger, consolidationEngine) {
         this.episodicStore = stores.episodic;
         this.semanticStore = stores.semantic;
         this.proceduralStore = stores.procedural;
+        this.consolidationEngine = consolidationEngine ?? null;
         this.log = logger ?? createLogger("memory-indexer");
     }
     /**
@@ -139,6 +141,8 @@ export class MemoryIndexer {
                     createdAt: now,
                     updatedAt: now,
                     version: 1,
+                    sourceCount: count,
+                    retrievalCount: 0,
                 });
                 created++;
             }
@@ -196,9 +200,17 @@ export class MemoryIndexer {
     /** Run all maintenance tasks once. */
     async runMaintenance() {
         try {
-            await this.pruneEpisodic();
-            await this.deduplicateSemantic();
-            await this.extractPatterns();
+            if (this.consolidationEngine) {
+                // ATLAS-style consolidation: promote/merge/prune with capacity bounds
+                await this.consolidationEngine.consolidate();
+            }
+            else {
+                // Legacy maintenance: prune, dedup, extract patterns
+                await this.pruneEpisodic();
+                await this.deduplicateSemantic();
+                await this.extractPatterns();
+            }
+            // Always extract strategies — feeds STEM's procedural memory / skill system
             await this.extractStrategies();
         }
         catch (err) {

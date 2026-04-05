@@ -8,6 +8,9 @@ export class InMemoryEpisodicStore {
     async append(episode) {
         this.episodes.push(episode);
     }
+    async get(id) {
+        return this.episodes.find((e) => e.id === id) ?? null;
+    }
     async getByTimeRange(start, end) {
         return this.episodes.filter((e) => e.timestamp >= start && e.timestamp <= end);
     }
@@ -55,6 +58,14 @@ export class InMemoryEpisodicStore {
     }
     async getAll() {
         return [...this.episodes];
+    }
+    async updateUtility(id, utility, retrievalCount) {
+        const episode = this.episodes.find((e) => e.id === id);
+        if (episode) {
+            episode.utility = utility;
+            episode.retrievalCount = retrievalCount;
+            episode.lastRetrieved = Date.now();
+        }
     }
 }
 //# sourceMappingURL=store.js.map

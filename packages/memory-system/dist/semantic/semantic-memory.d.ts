@@ -12,10 +12,12 @@ export declare class SemanticMemory {
     private readonly _store;
     private readonly embeddings;
     private readonly log;
+    private readonly utilityTracker;
+    private readonly ranker;
     constructor(store: ISemanticStore, embeddings: IEmbeddingProvider, logger?: Logger);
     /** Store or update a knowledge triple, computing its embedding. */
     store(triple: KnowledgeTriple): Promise<void>;
-    /** Search knowledge by semantic similarity. */
+    /** Search knowledge by semantic similarity, re-ranked by utility and recency. */
     search(query: string, limit?: number): Promise<KnowledgeTriple[]>;
     /** Search knowledge triples by subject. */
     searchBySubject(subject: string): Promise<KnowledgeTriple[]>;
@@ -29,6 +31,8 @@ export declare class SemanticMemory {
     exportTriples(): Promise<KnowledgeTriple[]>;
     /** Import triples from a JSON array (upserts each). */
     importTriples(triples: KnowledgeTriple[]): Promise<number>;
+    /** Update utility score for a triple from outcome reward (ATLAS feedback loop). */
+    updateUtilityFromReward(id: string, reward: number): Promise<void>;
     /** Get total triple count. */
     count(): Promise<number>;
 }

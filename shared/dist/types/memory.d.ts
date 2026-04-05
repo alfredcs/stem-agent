@@ -10,6 +10,12 @@ export declare const EpisodeSchema: z.ZodObject<{
     embedding: z.ZodOptional<z.ZodArray<z.ZodNumber, "many">>;
     importance: z.ZodDefault<z.ZodNumber>;
     summary: z.ZodOptional<z.ZodString>;
+    /** Dynamic utility score updated from outcome feedback (ATLAS). */
+    utility: z.ZodOptional<z.ZodNumber>;
+    /** Number of times this memory was retrieved. */
+    retrievalCount: z.ZodOptional<z.ZodNumber>;
+    /** Timestamp of last retrieval. */
+    lastRetrieved: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
     id: string;
     timestamp: number;
@@ -20,6 +26,9 @@ export declare const EpisodeSchema: z.ZodObject<{
     outcome?: string | undefined;
     embedding?: number[] | undefined;
     summary?: string | undefined;
+    utility?: number | undefined;
+    retrievalCount?: number | undefined;
+    lastRetrieved?: number | undefined;
 }, {
     id: string;
     timestamp: number;
@@ -30,6 +39,9 @@ export declare const EpisodeSchema: z.ZodObject<{
     embedding?: number[] | undefined;
     importance?: number | undefined;
     summary?: string | undefined;
+    utility?: number | undefined;
+    retrievalCount?: number | undefined;
+    lastRetrieved?: number | undefined;
 }>;
 export type Episode = z.infer<typeof EpisodeSchema>;
 /** Semantic memory — a knowledge triple. */
@@ -44,6 +56,14 @@ export declare const KnowledgeTripleSchema: z.ZodObject<{
     createdAt: z.ZodNumber;
     updatedAt: z.ZodNumber;
     version: z.ZodDefault<z.ZodNumber>;
+    /** Dynamic utility score updated from outcome feedback (ATLAS). */
+    utility: z.ZodOptional<z.ZodNumber>;
+    /** Number of source episodes merged into this triple. */
+    sourceCount: z.ZodOptional<z.ZodNumber>;
+    /** Number of times this triple was retrieved. */
+    retrievalCount: z.ZodOptional<z.ZodNumber>;
+    /** Timestamp of last retrieval. */
+    lastRetrieved: z.ZodOptional<z.ZodNumber>;
 }, "strip", z.ZodTypeAny, {
     object: string;
     id: string;
@@ -54,7 +74,11 @@ export declare const KnowledgeTripleSchema: z.ZodObject<{
     createdAt: number;
     updatedAt: number;
     embedding?: number[] | undefined;
+    utility?: number | undefined;
+    retrievalCount?: number | undefined;
+    lastRetrieved?: number | undefined;
     source?: string | undefined;
+    sourceCount?: number | undefined;
 }, {
     object: string;
     id: string;
@@ -64,8 +88,12 @@ export declare const KnowledgeTripleSchema: z.ZodObject<{
     updatedAt: number;
     version?: number | undefined;
     embedding?: number[] | undefined;
+    utility?: number | undefined;
+    retrievalCount?: number | undefined;
+    lastRetrieved?: number | undefined;
     confidence?: number | undefined;
     source?: string | undefined;
+    sourceCount?: number | undefined;
 }>;
 export type KnowledgeTriple = z.infer<typeof KnowledgeTripleSchema>;
 /** Procedural memory — a learned procedure or skill. */
@@ -546,6 +574,10 @@ export interface IMemoryManager {
     updateCallerProfile(callerId: string, interaction: Record<string, unknown>): Promise<void>;
     /** Get best matching procedure for a task. */
     getBestProcedure(taskDescription: string): Promise<Procedure | null>;
+    /** Update utility score for a retrieved episodic memory from outcome reward (ATLAS feedback loop). */
+    updateEpisodeUtility(id: string, reward: number): Promise<void>;
+    /** Update utility score for a retrieved semantic memory from outcome reward (ATLAS feedback loop). */
+    updateKnowledgeUtility(id: string, reward: number): Promise<void>;
     /** Shutdown and flush. */
     shutdown(): Promise<void>;
 }

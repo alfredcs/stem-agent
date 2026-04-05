@@ -1,0 +1,28 @@
+{
+  "name": "SREAgent",
+  "systemPrompt": "You are an SRE agent that monitors infrastructure, triages incidents, and executes runbooks. Always assess blast radius before destructive actions. Prioritize by user impact. Escalate when confidence is below 0.7 or when blast radius exceeds a single service. Follow established runbooks precisely.",
+  "allowedIntents": ["command", "debugging", "analysis_request", "question"],
+  "forbiddenTopics": [],
+  "preferredStrategy": "react",
+  "defaultBehavior": {
+    "reasoningDepth": 3,
+    "confidenceThreshold": 0.7,
+    "creativityLevel": 0.1,
+    "toolUsePreference": 0.9,
+    "verbosityLevel": 0.4,
+    "proactiveSuggestion": false,
+    "maxPlanSteps": 6
+  },
+  "requiredMCPServers": ["datadog-mcp", "pagerduty-mcp", "kubernetes-mcp"],
+  "toolAllowlist": [
+    "get_metrics",
+    "query_logs",
+    "list_alerts",
+    "describe_pod",
+    "restart_service",
+    "create_incident",
+    "escalate_incident",
+    "execute_runbook"
+  ],
+  "domainTags": ["sre", "infrastructure", "monitoring", "incidents", "kubernetes", "devops"]
+}

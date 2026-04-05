@@ -3,6 +3,8 @@ import type { IEpisodicStore } from "../types.js";
 import type { IEmbeddingProvider } from "../embeddings/provider.js";
 import type { Logger } from "@stem-agent/shared";
 import { createLogger } from "@stem-agent/shared";
+import { UtilityTracker } from "../utility-tracker.js";
+import { RetrievalRanker } from "../retrieval-ranker.js";
 
 /**
  * Episodic memory — sequential records of past interactions/events.
@@ -14,6 +16,8 @@ export class EpisodicMemory {
   private readonly _store: IEpisodicStore;
   private readonly embeddings: IEmbeddingProvider;
   private readonly log: Logger;
+  private readonly utilityTracker = new UtilityTracker();
+  private readonly ranker = new RetrievalRanker();
 
   constructor(store: IEpisodicStore, embeddings: IEmbeddingProvider, logger?: Logger) {
     this._store = store;
@@ -34,10 +38,28 @@ export class EpisodicMemory {
     this.log.debug({ id: episode.id }, "episode stored");
   }
 
-  /** Search episodes by semantic similarity to a query string. */
+  /** Search episodes by semantic similarity, re-ranked by utility and recency. */
   async search(query: string, limit = 10): Promise<Episode[]> {
     const embedding = await this.embeddings.embed(query);
-    return this._store.searchByEmbedding(embedding, limit);
+    // Over-fetch 2x for re-ranking headroom
+    const candidates = await this._store.searchByEmbedding(embedding, limit * 2);
+    if (candidates.length === 0) return [];
+
+    // Compute similarity scores for re-ranking (store returns sorted by similarity)
+    const withSimilarity = candidates.map((ep, idx) => ({
+      item: ep,
+      // Approximate similarity from rank position (store doesn't return scores)
+      similarity: 1 - idx / candidates.length,
+    }));
+
+    const ranked = this.ranker.rank(
+      withSimilarity,
+      limit,
+      (ep) => ep.utility ?? ep.importance,
+      (ep) => ep.timestamp,
+    );
+
+    return ranked.map((r) => r.item);
   }
 
   /** Retrieve episodes within a time range. */
@@ -68,6 +90,16 @@ export class EpisodicMemory {
   /** Get total episode count. */
   async count(): Promise<number> {
     return this._store.count();
+  }
+
+  /** Update utility score for an episode from outcome reward (ATLAS feedback loop). */
+  async updateUtilityFromReward(id: string, reward: number): Promise<void> {
+    const episode = await this._store.get(id);
+    if (!episode) return;
+    const currentUtility = episode.utility ?? episode.importance;
+    const currentCount = episode.retrievalCount ?? 0;
+    const newUtility = this.utilityTracker.updateUtility(currentUtility, reward);
+    await this._store.updateUtility(id, newUtility, currentCount + 1);
   }
 
   /**

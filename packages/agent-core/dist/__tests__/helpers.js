@@ -77,6 +77,8 @@ export function createMockMemory(overrides = {}) {
         }),
         updateCallerProfile: async (_callerId, _interaction) => { },
         getBestProcedure: async (_taskDescription) => null,
+        updateEpisodeUtility: async (_id, _reward) => { },
+        updateKnowledgeUtility: async (_id, _reward) => { },
         shutdown: async () => { },
         ...overrides,
     };

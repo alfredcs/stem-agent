@@ -44,6 +44,10 @@ export declare class MemoryManager implements IMemoryManager {
     updateCallerProfile(callerId: string, interaction: Record<string, unknown>): Promise<void>;
     /** Get best matching procedure for a task. */
     getBestProcedure(taskDescription: string): Promise<Procedure | null>;
+    /** Update utility score for a retrieved episodic memory from outcome reward. */
+    updateEpisodeUtility(id: string, reward: number): Promise<void>;
+    /** Update utility score for a retrieved semantic memory from outcome reward. */
+    updateKnowledgeUtility(id: string, reward: number): Promise<void>;
     /** Shutdown and flush. */
     shutdown(): Promise<void>;
 }

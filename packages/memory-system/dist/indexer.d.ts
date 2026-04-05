@@ -1,5 +1,6 @@
 import type { Logger } from "@stem-agent/shared";
 import type { IEpisodicStore, ISemanticStore, IProceduralStore } from "./types.js";
+import type { ConsolidationEngine } from "./consolidation-engine.js";
 /**
  * Background memory indexer for re-indexing, compression, and garbage collection.
  *
@@ -10,13 +11,14 @@ export declare class MemoryIndexer {
     private readonly episodicStore;
     private readonly semanticStore;
     private readonly proceduralStore;
+    private readonly consolidationEngine;
     private readonly log;
     private timer;
     constructor(stores: {
         episodic: IEpisodicStore;
         semantic: ISemanticStore;
         procedural: IProceduralStore;
-    }, logger?: Logger);
+    }, logger?: Logger, consolidationEngine?: ConsolidationEngine);
     /**
      * Prune old, low-importance episodic memories.
      * Keeps the top `keepPercent`% by importance.

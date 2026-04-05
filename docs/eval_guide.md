@@ -1020,6 +1020,59 @@ The agent crystallizes reusable skills from recurring interaction patterns. Skil
 
 Plugin skills can be registered and removed programmatically via `SkillManager.registerPlugin()` and `removePluginByName()`. Plugin skills are exempt from apoptosis.
 
+### 20.6 ATLAS Utility Scoring
+
+Memory utility scores are updated via EMA after each interaction outcome. Verify:
+
+| Criteria | Expected |
+|---|---|
+| Completed task → reward=1.0 | Retrieved memories' utility increases toward 1.0 |
+| Failed task → reward=-0.5 | Retrieved memories' utility decreases toward -0.5 |
+| EMA convergence | After 10+ interactions with reward=1.0, utility approaches ~0.95 |
+| Significance detection | Outlier rewards (deviation > 0.3 from running mean) trigger immediate distillation |
+| Status mapping | `completed→1.0`, `failed→-0.5`, `error→-1.0` |
+
+**Unit tests**: `memory-system/src/__tests__/utility-tracker.test.ts` (7 tests)
+
+### 20.7 ATLAS Utility-Biased Retrieval
+
+Memory retrieval re-ranks candidates by composite score: `similarity + β·sigmoid(utility) + ρ·exp(-κ·age)`.
+
+| Criteria | Expected |
+|---|---|
+| High-utility memory (utility=3.0) + moderate similarity (0.8) | Ranks above low-utility (utility=-2.0) + high similarity (0.9) |
+| All utilities zero | Falls back to similarity-only ranking (backward compatible) |
+| Over-fetch + re-rank | Search retrieves 2x candidates from store, re-ranks top K |
+| Recency decay | Very old memories with low utility rank below recent ones |
+
+**Unit tests**: `memory-system/src/__tests__/retrieval-ranker.test.ts` (5 tests)
+
+### 20.8 ATLAS Consolidation Engine
+
+Three-phase memory consolidation: promote, merge, prune.
+
+| Phase | Criteria | Expected |
+|---|---|---|
+| **Promote** | Episodes with `utility > 0.3` | Promoted to semantic triples (grouped by embedding similarity) |
+| **Promote** | Episodes with `utility < 0.3` | Skipped, remain in episodic store |
+| **Merge** | Semantic triples with cosine > 0.85 | Merged into single triple with weighted-average utility |
+| **Merge** | Dissimilar triples (cosine < 0.85) | Kept separate |
+| **Prune** | `utility < -0.1 AND age > 7d AND retrievalCount >= 5` | Removed from store |
+| **Capacity** | Episodic store > 1000 entries | Lowest-utility entries evicted to enforce bound |
+| **Capacity** | Semantic store > 500 entries | Lowest-utility entries evicted to enforce bound |
+
+**Unit tests**: `memory-system/src/__tests__/consolidation-engine.test.ts` (7 tests)
+
+### 20.9 ATLAS Experience Distillation
+
+Significant outcomes (outlier rewards) are immediately distilled into KnowledgeTriples without waiting for periodic consolidation.
+
+| Criteria | Expected |
+|---|---|
+| Reward significantly above mean | KnowledgeTriple created: subject=callerId, predicate=intent, object=success description |
+| Reward significantly below mean | KnowledgeTriple created: subject=callerId, predicate=intent, object=failure description |
+| Normal reward (within threshold) | No immediate distillation (handled by periodic consolidation) |
+
 ---
 
 ## Quick Smoke Test Script

@@ -13,6 +13,12 @@ export const EpisodeSchema = z.object({
     embedding: z.array(z.number()).optional(),
     importance: z.number().min(0).max(1).default(0.5),
     summary: z.string().optional(),
+    /** Dynamic utility score updated from outcome feedback (ATLAS). */
+    utility: z.number().optional(),
+    /** Number of times this memory was retrieved. */
+    retrievalCount: z.number().int().optional(),
+    /** Timestamp of last retrieval. */
+    lastRetrieved: z.number().optional(),
 });
 /** Semantic memory — a knowledge triple. */
 export const KnowledgeTripleSchema = z.object({
@@ -26,6 +32,14 @@ export const KnowledgeTripleSchema = z.object({
     createdAt: z.number(),
     updatedAt: z.number(),
     version: z.number().int().default(1),
+    /** Dynamic utility score updated from outcome feedback (ATLAS). */
+    utility: z.number().optional(),
+    /** Number of source episodes merged into this triple. */
+    sourceCount: z.number().int().optional(),
+    /** Number of times this triple was retrieved. */
+    retrievalCount: z.number().int().optional(),
+    /** Timestamp of last retrieval. */
+    lastRetrieved: z.number().optional(),
 });
 /** Procedural memory — a learned procedure or skill. */
 export const ProcedureSchema = z.object({

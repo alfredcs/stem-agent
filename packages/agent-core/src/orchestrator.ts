@@ -26,6 +26,7 @@ import type { Principal } from "@stem-agent/shared";
 import type { ILLMClient } from "./llm/index.js";
 import { AnthropicLLMClient, NoOpLLMClient, CostGuardrail } from "./llm/index.js";
 import { SkillManager, InMemorySkillRegistry } from "./skills/index.js";
+import { UtilityTracker } from "@stem-agent/memory-system";
 
 /**
  * StemAgent — the main agent orchestrator.
@@ -48,6 +49,7 @@ export class StemAgent implements IStemAgent {
   private readonly log: Logger;
   private readonly behavior: BehaviorParameters;
   private readonly costGuardrail: CostGuardrail;
+  private readonly utilityTracker: UtilityTracker;
 
   private tools: MCPTool[] = [];
   private toolNames: string[] = [];
@@ -89,6 +91,7 @@ export class StemAgent implements IStemAgent {
     const activeLlm = isNoOp ? undefined : llmClient;
 
     this.costGuardrail = new CostGuardrail(config.agent.cost);
+    this.utilityTracker = new UtilityTracker();
 
     this.perception = new PerceptionEngine(memoryManager, activeLlm, llmConfig.models.perception);
     this.reasoning = new ReasoningEngine(mcpManager, memoryManager, config, activeLlm, this.costGuardrail);
@@ -210,6 +213,23 @@ export class StemAgent implements IStemAgent {
         this.log.warn({ err }, "Skill crystallization failed");
       });
 
+      // 5. ATLAS utility feedback — update utility for retrieved memories
+      const reward = UtilityTracker.statusToReward(response.status);
+      this.utilityTracker.recordReward(reward);
+      const retrievedIds = (perception.context as Record<string, unknown>).retrievedMemoryIds as string[] | undefined;
+      if (retrievedIds && retrievedIds.length > 0) {
+        this.updateRetrievedUtilities(retrievedIds, reward).catch((err) => {
+          this.log.warn({ err }, "Failed to update memory utilities");
+        });
+      }
+
+      // 6. Experience distillation — significant outcomes get immediately distilled
+      if (this.utilityTracker.isSignificant(reward)) {
+        this.distillExperience(taskId, message, perception, response).catch((err) => {
+          this.log.warn({ err }, "Experience distillation failed");
+        });
+      }
+
       return response;
     } catch (err) {
       this.log.error({ err, taskId }, "Pipeline error");
@@ -315,6 +335,30 @@ export class StemAgent implements IStemAgent {
       this.skillManager.tryCrystallize().catch((err) => {
         this.log.warn({ err }, "Skill crystallization failed");
       });
+
+      // ATLAS utility feedback — update utility for retrieved memories
+      const finalStatus = executionResult.success ? "completed" : "failed";
+      const reward = UtilityTracker.statusToReward(finalStatus);
+      this.utilityTracker.recordReward(reward);
+      const retrievedIds = (perception.context as Record<string, unknown>).retrievedMemoryIds as string[] | undefined;
+      if (retrievedIds && retrievedIds.length > 0) {
+        this.updateRetrievedUtilities(retrievedIds, reward).catch((err) => {
+          this.log.warn({ err }, "Failed to update memory utilities");
+        });
+      }
+
+      // Experience distillation — significant outcomes get immediately distilled
+      if (this.utilityTracker.isSignificant(reward)) {
+        const streamResponse = AgentResponseSchema.parse({
+          id: randomUUID(),
+          status: finalStatus,
+          content: executionResult.finalResult ?? reasoningResult.conclusion,
+          metadata: { taskId },
+        });
+        this.distillExperience(taskId, message, perception, streamResponse).catch((err) => {
+          this.log.warn({ err }, "Experience distillation failed");
+        });
+      }
     } catch (err) {
       yield AgentResponseSchema.parse({
         id: randomUUID(),
@@ -365,6 +409,58 @@ export class StemAgent implements IStemAgent {
       maxPlanSteps: 10,
       memoryRetrievalBreadth: 10,
     });
+  }
+
+  /** Update utility scores for all retrieved memories based on outcome reward. */
+  private async updateRetrievedUtilities(ids: string[], reward: number): Promise<void> {
+    for (const id of ids) {
+      try {
+        await this.memoryManager.updateEpisodeUtility(id, reward);
+      } catch {
+        // Not an episode — try as knowledge triple
+        try {
+          await this.memoryManager.updateKnowledgeUtility(id, reward);
+        } catch (err) {
+          this.log.warn({ err, id }, "Failed to update utility for memory");
+        }
+      }
+    }
+  }
+
+  /**
+   * Distill a significant experience into a KnowledgeTriple immediately.
+   * Captures outlier successes/failures in real-time without waiting for
+   * periodic consolidation.
+   */
+  private async distillExperience(
+    taskId: string,
+    message: AgentMessage,
+    perception: PerceptionResult,
+    response: AgentResponse,
+  ): Promise<void> {
+    const reward = UtilityTracker.statusToReward(response.status);
+    const subject = message.callerId ?? "agent";
+    const predicate = perception.intent;
+    const object = response.status === "completed"
+      ? `successfully handled ${perception.complexity} ${perception.intent}`
+      : `failed ${perception.complexity} ${perception.intent}`;
+
+    await this.memoryManager.storeKnowledge({
+      id: randomUUID(),
+      subject,
+      predicate,
+      object,
+      confidence: Math.abs(reward),
+      source: "experience_distillation",
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      version: 1,
+      utility: reward > 0 ? reward : 0,
+      sourceCount: 1,
+      retrievalCount: 0,
+    });
+
+    this.log.debug({ taskId, intent: perception.intent, reward }, "experience distilled");
   }
 
   /** Store an episode in episodic memory. */

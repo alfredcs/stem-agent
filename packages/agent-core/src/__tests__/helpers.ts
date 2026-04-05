@@ -80,6 +80,8 @@ export function createMockMemory(overrides: Partial<IMemoryManager> = {}): IMemo
     }),
     updateCallerProfile: async (_callerId: string, _interaction: Record<string, unknown>) => {},
     getBestProcedure: async (_taskDescription: string): Promise<Procedure | null> => null,
+    updateEpisodeUtility: async (_id: string, _reward: number) => {},
+    updateKnowledgeUtility: async (_id: string, _reward: number) => {},
     shutdown: async () => {},
     ...overrides,
   };

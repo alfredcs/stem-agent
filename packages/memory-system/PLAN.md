@@ -103,6 +103,45 @@ tests/
 - Run `npm run build` and `npm run test`
 - Verify >80% coverage
 
+### Step 8: ATLAS Self-Learning Integration
+
+Adds utility-scored memories with outcome-driven retrieval and three-phase consolidation (ATLAS architecture).
+
+**New files created:**
+- `src/utility-tracker.ts` — EMA utility scoring: `u(m) ← u(m) + η·(r - u(m))`, sliding-window reward mean, significance detection. Config: `eta=0.1`, `rewardWindow=100`, `significanceThreshold=0.3`
+- `src/retrieval-ranker.ts` — Composite retrieval scoring: `score = similarity + β·sigmoid(utility) + ρ·exp(-κ·age)`. Config: `beta=0.3`, `rho=0.2`, `kappa=1e-6`
+- `src/consolidation-engine.ts` — Three-phase consolidation: promote (high-utility episodes → semantic triples via embedding clustering), merge (similar triples via weighted-average utility), prune (stale low-utility entries + hard capacity enforcement). Config: `uPromote=0.3`, `uPrune=-0.1`, `tMaxAge=7d`, `thetaMerge=0.85`, `episodicCapacity=1000`, `semanticCapacity=500`
+
+**Store interface additions** (`src/types.ts`):
+- `IEpisodicStore.get(id): Promise<Episode | null>`
+- `IEpisodicStore.updateUtility(id, utility, retrievalCount): Promise<void>`
+- `ISemanticStore.updateUtility(id, utility, retrievalCount): Promise<void>`
+- `ISemanticStore.merge(ids: string[], merged: KnowledgeTriple): Promise<void>`
+
+**Modified files:**
+- `src/episodic/store.ts` — Added `get()` and `updateUtility()` to InMemoryEpisodicStore
+- `src/semantic/store.ts` — Added `updateUtility()` and `merge()` to InMemorySemanticStore
+- `src/episodic/episodic-memory.ts` — Injected UtilityTracker + RetrievalRanker; added `updateUtilityFromReward()`; search over-fetches 2x and re-ranks
+- `src/semantic/semantic-memory.ts` — Same pattern as episodic
+- `src/manager.ts` — Added `updateEpisodeUtility()` and `updateKnowledgeUtility()` delegating to memory modules
+- `src/indexer.ts` — Delegates to ConsolidationEngine when available; falls back to legacy prune/dedup/extract
+- `src/persistence/pg-episodic-store.ts` — Added `get()` and `updateUtility()` SQL methods
+- `src/persistence/pg-semantic-store.ts` — Added `updateUtility()` and `merge()` with transaction
+- `src/index.ts` — Exported all new classes and types
+
+**New test files:**
+- `src/__tests__/utility-tracker.test.ts` (7 tests)
+- `src/__tests__/retrieval-ranker.test.ts` (5 tests)
+- `src/__tests__/consolidation-engine.test.ts` (7 tests)
+- `src/__tests__/store-utility.test.ts` (6 tests)
+
+**Shared type changes** (`@stem-agent/shared` — `shared/src/types/memory.ts`):
+- `Episode`: added `utility?: number`, `retrievalCount?: number`, `lastRetrieved?: number`
+- `KnowledgeTriple`: added `utility?: number`, `sourceCount?: number`, `retrievalCount?: number`, `lastRetrieved?: number`
+- `IMemoryManager`: added `updateEpisodeUtility(id, reward)` and `updateKnowledgeUtility(id, reward)`
+
+Verify: 153 memory-system tests pass, all existing tests unaffected (new fields are optional).
+
 ## Key Interfaces (preview)
 
 ```typescript

@@ -28,6 +28,9 @@ function mapRow(row: Record<string, unknown>): Episode {
     embedding: parseVector(row.embedding),
     importance: row.importance as number,
     summary: (row.summary as string) ?? undefined,
+    utility: row.utility != null ? (row.utility as number) : undefined,
+    retrievalCount: (row.retrieval_count as number) ?? 0,
+    lastRetrieved: row.last_retrieved != null ? Number(row.last_retrieved) : undefined,
   };
 }
 
@@ -50,6 +53,11 @@ export class PgEpisodicStore implements IEpisodicStore {
         episode.summary ?? null,
       ],
     );
+  }
+
+  async get(id: string): Promise<Episode | null> {
+    const { rows } = await this.pool.query("SELECT * FROM episodes WHERE id = $1", [id]);
+    return rows.length > 0 ? mapRow(rows[0]) : null;
   }
 
   async getByTimeRange(start: number, end: number): Promise<Episode[]> {
@@ -103,6 +111,13 @@ export class PgEpisodicStore implements IEpisodicStore {
   async count(): Promise<number> {
     const { rows } = await this.pool.query("SELECT COUNT(*)::int AS cnt FROM episodes");
     return rows[0].cnt;
+  }
+
+  async updateUtility(id: string, utility: number, retrievalCount: number): Promise<void> {
+    await this.pool.query(
+      "UPDATE episodes SET utility = $1, retrieval_count = $2, last_retrieved = $3 WHERE id = $4",
+      [utility, retrievalCount, Date.now(), id],
+    );
   }
 
   async getAll(): Promise<Episode[]> {

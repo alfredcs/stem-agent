@@ -7,10 +7,10 @@ A modular AI agent architecture inspired by biological pluripotency. Like a stem
 ## Key Features
 
 - **Multi-protocol gateway**: Five interoperability protocols (A2A, AG-UI, A2UI, UCP, AP2) behind a single Express.js gateway, plus four framework adapters (AutoGen, CrewAI, LangGraph, OpenAI Agents SDK)
-- **Eight-phase cognitive pipeline**: Perceive, Adapt, Skill Match, Reason, Plan, Execute, Learn, Respond
+- **Eight-phase cognitive pipeline**: Perceive, Adapt, Skill Match, Reason, Plan, Execute, Learn (with ATLAS utility feedback + experience distillation), Respond
 - **Skills acquisition**: Biologically-inspired skill lifecycle where interaction patterns crystallize into reusable skills that mature (progenitor, committed, mature) or undergo apoptosis on persistent failure
 - **Self-adaptive behavior**: Caller Profiler learns user preferences across 20+ dimensions via exponential moving averages, tuning 10 behavior parameters per request
-- **Four-type memory system**: Episodic (interaction history with vector search), semantic (knowledge triples), procedural (learned strategies), and user context (caller profiles with GDPR forget-me)
+- **Four-type memory system with ATLAS self-learning**: Episodic (interaction history with vector search), semantic (knowledge triples), procedural (learned strategies), and user context (caller profiles with GDPR forget-me). Memories are actively scored via utility feedback (EMA), retrieved with reinforcement-guided ranking (similarity + utility + recency), and consolidated through three-phase promote/merge/prune with hard capacity bounds
 - **MCP-native tool integration**: All domain capabilities acquired at runtime via Model Context Protocol; agent reasoning stays domain-agnostic
 - **Commerce protocols**: Novel UCP (checkout sessions, idempotency) and AP2 (payment mandates, audit trails)
 - **Pluggable security**: JWT, OAuth2, SAML, API Key authentication with TTL-based policy caching and rate limiting
@@ -56,7 +56,7 @@ node packages/caller-layer/dist/human/cli.js
 |---------|-------|-------------|
 | `shared` | -- | Shared types, errors, logger |
 | `packages/mcp-integration` | 5 | MCP server management, tool discovery |
-| `packages/memory-system` | 4 | Episodic, semantic, procedural memory |
+| `packages/memory-system` | 4 | Episodic, semantic, procedural memory + ATLAS self-learning |
 | `packages/agent-core` | 3 | Perception, reasoning, planning, execution |
 | `packages/standard-interface` | 2 | REST, WebSocket, A2A, AG-UI, A2UI, UCP, AP2 gateway |
 | `packages/caller-layer` | 1 | CLI, web dashboard, SDKs |

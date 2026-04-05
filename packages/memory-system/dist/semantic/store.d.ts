@@ -13,5 +13,7 @@ export declare class InMemorySemanticStore implements ISemanticStore {
     delete(id: string): Promise<void>;
     getAll(): Promise<KnowledgeTriple[]>;
     count(): Promise<number>;
+    updateUtility(id: string, utility: number, retrievalCount: number): Promise<void>;
+    merge(ids: string[], merged: KnowledgeTriple): Promise<void>;
 }
 //# sourceMappingURL=store.d.ts.map

@@ -15,6 +15,12 @@ export const EpisodeSchema = z.object({
   embedding: z.array(z.number()).optional(),
   importance: z.number().min(0).max(1).default(0.5),
   summary: z.string().optional(),
+  /** Dynamic utility score updated from outcome feedback (ATLAS). */
+  utility: z.number().optional(),
+  /** Number of times this memory was retrieved. */
+  retrievalCount: z.number().int().optional(),
+  /** Timestamp of last retrieval. */
+  lastRetrieved: z.number().optional(),
 });
 
 export type Episode = z.infer<typeof EpisodeSchema>;
@@ -31,6 +37,14 @@ export const KnowledgeTripleSchema = z.object({
   createdAt: z.number(),
   updatedAt: z.number(),
   version: z.number().int().default(1),
+  /** Dynamic utility score updated from outcome feedback (ATLAS). */
+  utility: z.number().optional(),
+  /** Number of source episodes merged into this triple. */
+  sourceCount: z.number().int().optional(),
+  /** Number of times this triple was retrieved. */
+  retrievalCount: z.number().int().optional(),
+  /** Timestamp of last retrieval. */
+  lastRetrieved: z.number().optional(),
 });
 
 export type KnowledgeTriple = z.infer<typeof KnowledgeTripleSchema>;
@@ -143,6 +157,12 @@ export interface IMemoryManager {
 
   /** Get best matching procedure for a task. */
   getBestProcedure(taskDescription: string): Promise<Procedure | null>;
+
+  /** Update utility score for a retrieved episodic memory from outcome reward (ATLAS feedback loop). */
+  updateEpisodeUtility(id: string, reward: number): Promise<void>;
+
+  /** Update utility score for a retrieved semantic memory from outcome reward (ATLAS feedback loop). */
+  updateKnowledgeUtility(id: string, reward: number): Promise<void>;
 
   /** Shutdown and flush. */
   shutdown(): Promise<void>;

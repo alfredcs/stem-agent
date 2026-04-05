@@ -1,4 +1,6 @@
 import { createLogger } from "@stem-agent/shared";
+import { UtilityTracker } from "../utility-tracker.js";
+import { RetrievalRanker } from "../retrieval-ranker.js";
 /**
  * Semantic memory — long-term knowledge store with knowledge graph structure.
  *
@@ -9,6 +11,8 @@ export class SemanticMemory {
     _store;
     embeddings;
     log;
+    utilityTracker = new UtilityTracker();
+    ranker = new RetrievalRanker();
     constructor(store, embeddings, logger) {
         this._store = store;
         this.embeddings = embeddings;
@@ -21,10 +25,18 @@ export class SemanticMemory {
         await this._store.upsert({ ...triple, embedding });
         this.log.debug({ id: triple.id }, "knowledge triple stored");
     }
-    /** Search knowledge by semantic similarity. */
+    /** Search knowledge by semantic similarity, re-ranked by utility and recency. */
     async search(query, limit = 10) {
         const embedding = await this.embeddings.embed(query);
-        return this._store.searchByEmbedding(embedding, limit);
+        const candidates = await this._store.searchByEmbedding(embedding, limit * 2);
+        if (candidates.length === 0)
+            return [];
+        const withSimilarity = candidates.map((triple, idx) => ({
+            item: triple,
+            similarity: 1 - idx / candidates.length,
+        }));
+        const ranked = this.ranker.rank(withSimilarity, limit, (t) => t.utility ?? t.confidence, (t) => t.updatedAt);
+        return ranked.map((r) => r.item);
     }
     /** Search knowledge triples by subject. */
     async searchBySubject(subject) {
@@ -55,6 +67,16 @@ export class SemanticMemory {
             count++;
         }
         return count;
+    }
+    /** Update utility score for a triple from outcome reward (ATLAS feedback loop). */
+    async updateUtilityFromReward(id, reward) {
+        const triple = await this._store.get(id);
+        if (!triple)
+            return;
+        const currentUtility = triple.utility ?? triple.confidence;
+        const currentCount = triple.retrievalCount ?? 0;
+        const newUtility = this.utilityTracker.updateUtility(currentUtility, reward);
+        await this._store.updateUtility(id, newUtility, currentCount + 1);
     }
     /** Get total triple count. */
     async count() {

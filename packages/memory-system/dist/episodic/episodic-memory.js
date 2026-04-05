@@ -1,4 +1,6 @@
 import { createLogger } from "@stem-agent/shared";
+import { UtilityTracker } from "../utility-tracker.js";
+import { RetrievalRanker } from "../retrieval-ranker.js";
 /**
  * Episodic memory — sequential records of past interactions/events.
  *
@@ -9,6 +11,8 @@ export class EpisodicMemory {
     _store;
     embeddings;
     log;
+    utilityTracker = new UtilityTracker();
+    ranker = new RetrievalRanker();
     constructor(store, embeddings, logger) {
         this._store = store;
         this.embeddings = embeddings;
@@ -26,10 +30,21 @@ export class EpisodicMemory {
         await this._store.append(scored);
         this.log.debug({ id: episode.id }, "episode stored");
     }
-    /** Search episodes by semantic similarity to a query string. */
+    /** Search episodes by semantic similarity, re-ranked by utility and recency. */
     async search(query, limit = 10) {
         const embedding = await this.embeddings.embed(query);
-        return this._store.searchByEmbedding(embedding, limit);
+        // Over-fetch 2x for re-ranking headroom
+        const candidates = await this._store.searchByEmbedding(embedding, limit * 2);
+        if (candidates.length === 0)
+            return [];
+        // Compute similarity scores for re-ranking (store returns sorted by similarity)
+        const withSimilarity = candidates.map((ep, idx) => ({
+            item: ep,
+            // Approximate similarity from rank position (store doesn't return scores)
+            similarity: 1 - idx / candidates.length,
+        }));
+        const ranked = this.ranker.rank(withSimilarity, limit, (ep) => ep.utility ?? ep.importance, (ep) => ep.timestamp);
+        return ranked.map((r) => r.item);
     }
     /** Retrieve episodes within a time range. */
     async getByTimeRange(start, end) {
@@ -54,6 +69,16 @@ export class EpisodicMemory {
     /** Get total episode count. */
     async count() {
         return this._store.count();
+    }
+    /** Update utility score for an episode from outcome reward (ATLAS feedback loop). */
+    async updateUtilityFromReward(id, reward) {
+        const episode = await this._store.get(id);
+        if (!episode)
+            return;
+        const currentUtility = episode.utility ?? episode.importance;
+        const currentCount = episode.retrievalCount ?? 0;
+        const newUtility = this.utilityTracker.updateUtility(currentUtility, reward);
+        await this._store.updateUtility(id, newUtility, currentCount + 1);
     }
     /**
      * Estimate importance of an episode for memory retention.

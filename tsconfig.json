@@ -10,6 +10,7 @@
     { "path": "./packages/mcp-integration" },
     { "path": "./packages/memory-system" },
     { "path": "./packages/agent-core" },
-    { "path": "./packages/standard-interface" }
+    { "path": "./packages/standard-interface" },
+    { "path": "./packages/mcp-server" }
   ]
 }

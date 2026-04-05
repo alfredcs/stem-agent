@@ -7,13 +7,13 @@ export declare const A2UIComponentSchema: z.ZodObject<{
     properties: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
     childIds: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
 }, "strip", z.ZodTypeAny, {
-    type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
     id: string;
+    type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
     properties: Record<string, unknown>;
     childIds: string[];
 }, {
-    type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
     id: string;
+    type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
     properties?: Record<string, unknown> | undefined;
     childIds?: string[] | undefined;
 }>;
@@ -41,13 +41,13 @@ export declare const A2UISurfaceUpdateSchema: z.ZodObject<{
         properties: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
         childIds: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
     }, "strip", z.ZodTypeAny, {
-        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         id: string;
+        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         properties: Record<string, unknown>;
         childIds: string[];
     }, {
-        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         id: string;
+        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         properties?: Record<string, unknown> | undefined;
         childIds?: string[] | undefined;
     }>, "many">;
@@ -55,8 +55,8 @@ export declare const A2UISurfaceUpdateSchema: z.ZodObject<{
     type: "surfaceUpdate";
     surfaceId: string;
     components: {
-        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         id: string;
+        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         properties: Record<string, unknown>;
         childIds: string[];
     }[];
@@ -64,8 +64,8 @@ export declare const A2UISurfaceUpdateSchema: z.ZodObject<{
     type: "surfaceUpdate";
     surfaceId: string;
     components: {
-        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         id: string;
+        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         properties?: Record<string, unknown> | undefined;
         childIds?: string[] | undefined;
     }[];
@@ -77,12 +77,12 @@ export declare const A2UIDataModelUpdateSchema: z.ZodObject<{
     data: z.ZodRecord<z.ZodString, z.ZodUnknown>;
 }, "strip", z.ZodTypeAny, {
     type: "dataModelUpdate";
-    surfaceId: string;
     data: Record<string, unknown>;
+    surfaceId: string;
 }, {
     type: "dataModelUpdate";
-    surfaceId: string;
     data: Record<string, unknown>;
+    surfaceId: string;
 }>;
 export type A2UIDataModelUpdate = z.infer<typeof A2UIDataModelUpdateSchema>;
 export declare const A2UIDeleteSurfaceSchema: z.ZodObject<{
@@ -118,13 +118,13 @@ export declare const A2UIServerMessageSchema: z.ZodDiscriminatedUnion<"type", [z
         properties: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
         childIds: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
     }, "strip", z.ZodTypeAny, {
-        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         id: string;
+        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         properties: Record<string, unknown>;
         childIds: string[];
     }, {
-        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         id: string;
+        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         properties?: Record<string, unknown> | undefined;
         childIds?: string[] | undefined;
     }>, "many">;
@@ -132,8 +132,8 @@ export declare const A2UIServerMessageSchema: z.ZodDiscriminatedUnion<"type", [z
     type: "surfaceUpdate";
     surfaceId: string;
     components: {
-        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         id: string;
+        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         properties: Record<string, unknown>;
         childIds: string[];
     }[];
@@ -141,8 +141,8 @@ export declare const A2UIServerMessageSchema: z.ZodDiscriminatedUnion<"type", [z
     type: "surfaceUpdate";
     surfaceId: string;
     components: {
-        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         id: string;
+        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         properties?: Record<string, unknown> | undefined;
         childIds?: string[] | undefined;
     }[];
@@ -152,12 +152,12 @@ export declare const A2UIServerMessageSchema: z.ZodDiscriminatedUnion<"type", [z
     data: z.ZodRecord<z.ZodString, z.ZodUnknown>;
 }, "strip", z.ZodTypeAny, {
     type: "dataModelUpdate";
-    surfaceId: string;
     data: Record<string, unknown>;
+    surfaceId: string;
 }, {
     type: "dataModelUpdate";
-    surfaceId: string;
     data: Record<string, unknown>;
+    surfaceId: string;
 }>, z.ZodObject<{
     type: z.ZodLiteral<"deleteSurface">;
     surfaceId: z.ZodString;
@@ -177,15 +177,15 @@ export declare const A2UIUserActionSchema: z.ZodObject<{
     value: z.ZodOptional<z.ZodUnknown>;
 }, "strip", z.ZodTypeAny, {
     type: "userAction";
+    action: string;
     surfaceId: string;
     componentId: string;
-    action: string;
     value?: unknown;
 }, {
     type: "userAction";
+    action: string;
     surfaceId: string;
     componentId: string;
-    action: string;
     value?: unknown;
 }>;
 export type A2UIUserAction = z.infer<typeof A2UIUserActionSchema>;
@@ -211,13 +211,13 @@ export declare const A2UIMessageSchema: z.ZodUnion<[z.ZodDiscriminatedUnion<"typ
         properties: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
         childIds: z.ZodDefault<z.ZodArray<z.ZodString, "many">>;
     }, "strip", z.ZodTypeAny, {
-        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         id: string;
+        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         properties: Record<string, unknown>;
         childIds: string[];
     }, {
-        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         id: string;
+        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         properties?: Record<string, unknown> | undefined;
         childIds?: string[] | undefined;
     }>, "many">;
@@ -225,8 +225,8 @@ export declare const A2UIMessageSchema: z.ZodUnion<[z.ZodDiscriminatedUnion<"typ
     type: "surfaceUpdate";
     surfaceId: string;
     components: {
-        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         id: string;
+        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         properties: Record<string, unknown>;
         childIds: string[];
     }[];
@@ -234,8 +234,8 @@ export declare const A2UIMessageSchema: z.ZodUnion<[z.ZodDiscriminatedUnion<"typ
     type: "surfaceUpdate";
     surfaceId: string;
     components: {
-        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         id: string;
+        type: "text" | "button" | "row" | "column" | "card" | "list" | "list_item" | "text_field" | "checkbox" | "radio_group" | "radio_option" | "select" | "select_option" | "date_input" | "divider" | "image" | "link" | "spacer";
         properties?: Record<string, unknown> | undefined;
         childIds?: string[] | undefined;
     }[];
@@ -245,12 +245,12 @@ export declare const A2UIMessageSchema: z.ZodUnion<[z.ZodDiscriminatedUnion<"typ
     data: z.ZodRecord<z.ZodString, z.ZodUnknown>;
 }, "strip", z.ZodTypeAny, {
     type: "dataModelUpdate";
-    surfaceId: string;
     data: Record<string, unknown>;
+    surfaceId: string;
 }, {
     type: "dataModelUpdate";
-    surfaceId: string;
     data: Record<string, unknown>;
+    surfaceId: string;
 }>, z.ZodObject<{
     type: z.ZodLiteral<"deleteSurface">;
     surfaceId: z.ZodString;
@@ -268,15 +268,15 @@ export declare const A2UIMessageSchema: z.ZodUnion<[z.ZodDiscriminatedUnion<"typ
     value: z.ZodOptional<z.ZodUnknown>;
 }, "strip", z.ZodTypeAny, {
     type: "userAction";
+    action: string;
     surfaceId: string;
     componentId: string;
-    action: string;
     value?: unknown;
 }, {
     type: "userAction";
+    action: string;
     surfaceId: string;
     componentId: string;
-    action: string;
     value?: unknown;
 }>]>;
 export type A2UIMessage = z.infer<typeof A2UIMessageSchema>;

@@ -17,6 +17,12 @@ export { cosineSimilarity, NoOpEmbeddingProvider, OpenAIEmbeddingProvider, } fro
 export { MemoryError, MemoryNotFoundError, EmbeddingError } from "./errors.js";
 // Persistence (PostgreSQL + pgvector)
 export { createPgPool, runMigrations, PgEpisodicStore, PgSemanticStore, PgProceduralStore, PgUserContextStore, } from "./persistence/index.js";
+// Utility tracking (ATLAS self-learning)
+export { UtilityTracker } from "./utility-tracker.js";
+// Retrieval ranking (ATLAS self-learning)
+export { RetrievalRanker } from "./retrieval-ranker.js";
+// Consolidation engine (ATLAS self-learning)
+export { ConsolidationEngine } from "./consolidation-engine.js";
 // Config & store interfaces
 export { MemorySystemConfigSchema } from "./types.js";
 //# sourceMappingURL=index.js.map

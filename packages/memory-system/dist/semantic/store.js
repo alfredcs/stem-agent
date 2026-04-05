@@ -45,5 +45,23 @@ export class InMemorySemanticStore {
     async count() {
         return this.triples.size;
     }
+    async updateUtility(id, utility, retrievalCount) {
+        const triple = this.triples.get(id);
+        if (triple) {
+            this.triples.set(id, {
+                ...triple,
+                utility,
+                retrievalCount,
+                lastRetrieved: Date.now(),
+                updatedAt: Date.now(),
+            });
+        }
+    }
+    async merge(ids, merged) {
+        for (const id of ids) {
+            this.triples.delete(id);
+        }
+        this.triples.set(merged.id, merged);
+    }
 }
 //# sourceMappingURL=store.js.map

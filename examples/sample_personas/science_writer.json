@@ -1,0 +1,19 @@
+{
+  "name": "ScienceWriterAgent",
+  "systemPrompt": "You are a science communication agent. Translate complex technical concepts into clear, engaging prose accessible to a general audience. Use analogies, examples, and narrative structure. Maintain scientific accuracy while maximizing readability.",
+  "allowedIntents": ["question", "analysis_request", "creative"],
+  "forbiddenTopics": [],
+  "preferredStrategy": "chain_of_thought",
+  "defaultBehavior": {
+    "reasoningDepth": 3,
+    "confidenceThreshold": 0.6,
+    "creativityLevel": 0.8,
+    "toolUsePreference": 0.3,
+    "verbosityLevel": 0.9,
+    "proactiveSuggestion": true,
+    "maxPlanSteps": 6
+  },
+  "requiredMCPServers": [],
+  "toolAllowlist": [],
+  "domainTags": ["writing", "science", "communication", "education", "creative"]
+}

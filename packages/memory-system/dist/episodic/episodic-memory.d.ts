@@ -12,10 +12,12 @@ export declare class EpisodicMemory {
     private readonly _store;
     private readonly embeddings;
     private readonly log;
+    private readonly utilityTracker;
+    private readonly ranker;
     constructor(store: IEpisodicStore, embeddings: IEmbeddingProvider, logger?: Logger);
     /** Store a new episode, computing its embedding and importance score. */
     store(episode: Episode): Promise<void>;
-    /** Search episodes by semantic similarity to a query string. */
+    /** Search episodes by semantic similarity, re-ranked by utility and recency. */
     search(query: string, limit?: number): Promise<Episode[]>;
     /** Retrieve episodes within a time range. */
     getByTimeRange(start: number, end: number): Promise<Episode[]>;
@@ -29,6 +31,8 @@ export declare class EpisodicMemory {
     deleteByActor(actor: string): Promise<void>;
     /** Get total episode count. */
     count(): Promise<number>;
+    /** Update utility score for an episode from outcome reward (ATLAS feedback loop). */
+    updateUtilityFromReward(id: string, reward: number): Promise<void>;
     /**
      * Estimate importance of an episode for memory retention.
      * Higher importance = more likely to be retained during pruning.

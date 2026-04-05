@@ -77,24 +77,24 @@ export declare const UcpItemSchema: z.ZodObject<{
     metadata: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
 }, "strip", z.ZodTypeAny, {
     name: string;
+    metadata: Record<string, unknown>;
     quantity: number;
     unitPrice: {
         amount: string;
         currency: string;
     };
-    metadata: Record<string, unknown>;
-    description?: string | undefined;
     id?: string | undefined;
+    description?: string | undefined;
 }, {
     name: string;
     unitPrice: {
         amount: string;
         currency?: string | undefined;
     };
-    description?: string | undefined;
-    quantity?: number | undefined;
     id?: string | undefined;
     metadata?: Record<string, unknown> | undefined;
+    description?: string | undefined;
+    quantity?: number | undefined;
 }>;
 export type UcpItem = z.infer<typeof UcpItemSchema>;
 export declare const UcpCheckoutStatus: z.ZodEnum<["open", "processing", "completed", "cancelled", "expired"]>;
@@ -120,24 +120,24 @@ export declare const UcpCheckoutSessionSchema: z.ZodObject<{
         metadata: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
     }, "strip", z.ZodTypeAny, {
         name: string;
+        metadata: Record<string, unknown>;
         quantity: number;
         unitPrice: {
             amount: string;
             currency: string;
         };
-        metadata: Record<string, unknown>;
-        description?: string | undefined;
         id?: string | undefined;
+        description?: string | undefined;
     }, {
         name: string;
         unitPrice: {
             amount: string;
             currency?: string | undefined;
         };
-        description?: string | undefined;
-        quantity?: number | undefined;
         id?: string | undefined;
         metadata?: Record<string, unknown> | undefined;
+        description?: string | undefined;
+        quantity?: number | undefined;
     }>, "many">;
     totals: z.ZodOptional<z.ZodObject<{
         subtotal: z.ZodString;
@@ -159,30 +159,30 @@ export declare const UcpCheckoutSessionSchema: z.ZodObject<{
         method: z.ZodOptional<z.ZodString>;
         status: z.ZodDefault<z.ZodEnum<["pending", "authorized", "captured", "failed"]>>;
     }, "strip", z.ZodTypeAny, {
-        status: "failed" | "pending" | "authorized" | "captured";
+        status: "pending" | "failed" | "authorized" | "captured";
         method?: string | undefined;
     }, {
-        status?: "failed" | "pending" | "authorized" | "captured" | undefined;
+        status?: "pending" | "failed" | "authorized" | "captured" | undefined;
         method?: string | undefined;
     }>>;
     createdAt: z.ZodNumber;
     expiresAt: z.ZodOptional<z.ZodNumber>;
     metadata: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
 }, "strip", z.ZodTypeAny, {
-    status: "expired" | "open" | "processing" | "completed" | "cancelled";
     id: string;
-    createdAt: number;
+    status: "completed" | "cancelled" | "expired" | "open" | "processing";
     metadata: Record<string, unknown>;
+    createdAt: number;
     lineItems: {
         name: string;
+        metadata: Record<string, unknown>;
         quantity: number;
         unitPrice: {
             amount: string;
             currency: string;
         };
-        metadata: Record<string, unknown>;
-        description?: string | undefined;
         id?: string | undefined;
+        description?: string | undefined;
     }[];
     expiresAt?: number | undefined;
     totals?: {
@@ -192,12 +192,12 @@ export declare const UcpCheckoutSessionSchema: z.ZodObject<{
         tax?: string | undefined;
     } | undefined;
     payment?: {
-        status: "failed" | "pending" | "authorized" | "captured";
+        status: "pending" | "failed" | "authorized" | "captured";
         method?: string | undefined;
     } | undefined;
 }, {
-    status: "expired" | "open" | "processing" | "completed" | "cancelled";
     id: string;
+    status: "completed" | "cancelled" | "expired" | "open" | "processing";
     createdAt: number;
     lineItems: {
         name: string;
@@ -205,13 +205,13 @@ export declare const UcpCheckoutSessionSchema: z.ZodObject<{
             amount: string;
             currency?: string | undefined;
         };
-        description?: string | undefined;
-        quantity?: number | undefined;
         id?: string | undefined;
         metadata?: Record<string, unknown> | undefined;
+        description?: string | undefined;
+        quantity?: number | undefined;
     }[];
-    expiresAt?: number | undefined;
     metadata?: Record<string, unknown> | undefined;
+    expiresAt?: number | undefined;
     totals?: {
         subtotal: string;
         total: string;
@@ -219,7 +219,7 @@ export declare const UcpCheckoutSessionSchema: z.ZodObject<{
         tax?: string | undefined;
     } | undefined;
     payment?: {
-        status?: "failed" | "pending" | "authorized" | "captured" | undefined;
+        status?: "pending" | "failed" | "authorized" | "captured" | undefined;
         method?: string | undefined;
     } | undefined;
 }>;
@@ -243,24 +243,24 @@ export declare const UcpCheckoutCreateRequestSchema: z.ZodObject<{
         metadata: z.ZodDefault<z.ZodRecord<z.ZodString, z.ZodUnknown>>;
     }, "strip", z.ZodTypeAny, {
         name: string;
+        metadata: Record<string, unknown>;
         quantity: number;
         unitPrice: {
             amount: string;
             currency: string;
         };
-        metadata: Record<string, unknown>;
-        description?: string | undefined;
         id?: string | undefined;
+        description?: string | undefined;
     }, {
         name: string;
         unitPrice: {
             amount: string;
             currency?: string | undefined;
         };
-        description?: string | undefined;
-        quantity?: number | undefined;
         id?: string | undefined;
         metadata?: Record<string, unknown> | undefined;
+        description?: string | undefined;
+        quantity?: number | undefined;
     }>, "many">;
     payment: z.ZodOptional<z.ZodObject<{
         method: z.ZodOptional<z.ZodString>;
@@ -274,14 +274,14 @@ export declare const UcpCheckoutCreateRequestSchema: z.ZodObject<{
     metadata: Record<string, unknown>;
     lineItems: {
         name: string;
+        metadata: Record<string, unknown>;
         quantity: number;
         unitPrice: {
             amount: string;
             currency: string;
         };
-        metadata: Record<string, unknown>;
-        description?: string | undefined;
         id?: string | undefined;
+        description?: string | undefined;
     }[];
     payment?: {
         method?: string | undefined;
@@ -293,10 +293,10 @@ export declare const UcpCheckoutCreateRequestSchema: z.ZodObject<{
             amount: string;
             currency?: string | undefined;
         };
-        description?: string | undefined;
-        quantity?: number | undefined;
         id?: string | undefined;
         metadata?: Record<string, unknown> | undefined;
+        description?: string | undefined;
+        quantity?: number | undefined;
     }[];
     metadata?: Record<string, unknown> | undefined;
     payment?: {

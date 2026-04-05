@@ -10,4 +10,5 @@ export * from "./ag-ui.js";
 export * from "./a2ui.js";
 export * from "./ucp.js";
 export * from "./skill.js";
+export * from "./domain-persona.js";
 //# sourceMappingURL=index.d.ts.map
