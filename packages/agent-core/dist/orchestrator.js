@@ -272,6 +272,28 @@ export class StemAgent {
             this.skillManager.tryCrystallize().catch((err) => {
                 this.log.warn({ err }, "Skill crystallization failed");
             });
+            // ATLAS utility feedback — update utility for retrieved memories
+            const finalStatus = executionResult.success ? "completed" : "failed";
+            const reward = UtilityTracker.statusToReward(finalStatus);
+            this.utilityTracker.recordReward(reward);
+            const retrievedIds = perception.context.retrievedMemoryIds;
+            if (retrievedIds && retrievedIds.length > 0) {
+                this.updateRetrievedUtilities(retrievedIds, reward).catch((err) => {
+                    this.log.warn({ err }, "Failed to update memory utilities");
+                });
+            }
+            // Experience distillation — significant outcomes get immediately distilled
+            if (this.utilityTracker.isSignificant(reward)) {
+                const streamResponse = AgentResponseSchema.parse({
+                    id: randomUUID(),
+                    status: finalStatus,
+                    content: executionResult.finalResult ?? reasoningResult.conclusion,
+                    metadata: { taskId },
+                });
+                this.distillExperience(taskId, message, perception, streamResponse).catch((err) => {
+                    this.log.warn({ err }, "Experience distillation failed");
+                });
+            }
         }
         catch (err) {
             yield AgentResponseSchema.parse({
@@ -327,8 +349,14 @@ export class StemAgent {
             try {
                 await this.memoryManager.updateEpisodeUtility(id, reward);
             }
-            catch (err) {
-                this.log.warn({ err, id }, "Failed to update utility for episode");
+            catch {
+                // Not an episode — try as knowledge triple
+                try {
+                    await this.memoryManager.updateKnowledgeUtility(id, reward);
+                }
+                catch (err) {
+                    this.log.warn({ err, id }, "Failed to update utility for memory");
+                }
             }
         }
     }

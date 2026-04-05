@@ -101,5 +101,5 @@ response = client.chat("What is quantum entanglement?")
 |---------|----------|
 | `Cannot reach STEM Agent` | Start the server: `npm start` or `docker compose up` |
 | `httpx not installed` | `pip install httpx` |
-| `Connection refused` | Check `STEM_AGENT_URL` (default: `http://localhost:8000`) |
+| `Connection refused` | Check `STEM_AGENT_URL` (default: `http://localhost:8080`) |
 | Notebooks won't run | Install Jupyter: `pip install jupyter` |

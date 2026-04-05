@@ -50,7 +50,14 @@ export class MCPManager implements IMCPManager {
   async connectAll(): Promise<void> {
     for (const cfg of this.configs) {
       if (!cfg.autoConnect) continue;
-      await this.startServer(cfg);
+      try {
+        await this.startServer(cfg);
+      } catch (err) {
+        this.logger.warn(
+          { server: cfg.name, err },
+          "failed to connect MCP server, skipping",
+        );
+      }
     }
     this.logger.info(
       { count: this.servers.size },

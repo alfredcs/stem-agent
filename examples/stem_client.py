@@ -71,15 +71,15 @@ class StemAgentClient:
         return r.json()
 
     def get_behavior(self) -> dict:
-        """GET /api/v1/agent/behavior — current behavior parameters."""
-        r = httpx.get(f"{self.base_url}/api/v1/agent/behavior", timeout=self.timeout)
+        """GET /api/v1/behavior — current behavior parameters."""
+        r = httpx.get(f"{self.base_url}/api/v1/behavior", timeout=self.timeout)
         r.raise_for_status()
         return r.json()
 
     def get_profile(self, caller_id: str | None = None) -> dict:
-        """GET /api/v1/agent/profile/:id — caller profile."""
+        """GET /api/v1/profile/:id — caller profile."""
         cid = caller_id or self.caller_id
-        r = httpx.get(f"{self.base_url}/api/v1/agent/profile/{cid}", timeout=self.timeout)
+        r = httpx.get(f"{self.base_url}/api/v1/profile/{cid}", timeout=self.timeout)
         r.raise_for_status()
         return r.json()
 

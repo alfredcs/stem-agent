@@ -42,7 +42,8 @@ export class UtilityTracker {
         switch (status) {
             case "completed": return 1.0;
             case "failed": return -0.5;
-            default: return -1.0;
+            case "in_progress": return 0.0;
+            default: return 0.0;
         }
     }
 }
