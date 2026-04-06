@@ -43,7 +43,7 @@ class StemAgentClient:
         base_url: str | None = None,
         caller_id: str | None = None,
         session_id: str | None = None,
-        timeout: float = 60,
+        timeout: float = 120,
     ) -> None:
         self.base_url = (base_url or os.getenv("STEM_AGENT_URL", "http://localhost:8000")).rstrip("/")
         self.caller_id = caller_id or os.getenv("STEM_CALLER_ID", "python-examples")
@@ -145,6 +145,21 @@ class StemAgentClient:
         r.raise_for_status()
         return r.json()
 
+    def list_tasks(self, *, status: str | None = None, limit: int = 20) -> list[dict]:
+        """GET /api/v1/tasks — list tasks with optional filter."""
+        params: dict[str, Any] = {"limit": limit}
+        if status:
+            params["status"] = status
+        r = httpx.get(f"{self.base_url}/api/v1/tasks", params=params, timeout=self.timeout)
+        r.raise_for_status()
+        return r.json()
+
+    def cancel_task(self, task_id: str) -> dict:
+        """POST /api/v1/tasks/:id/cancel"""
+        r = httpx.post(f"{self.base_url}/api/v1/tasks/{task_id}/cancel", timeout=self.timeout)
+        r.raise_for_status()
+        return r.json()
+
     # -- A2A protocol --------------------------------------------------------
 
     def a2a_send(self, method: str, params: dict) -> dict:
@@ -182,12 +197,27 @@ class StemAgentClient:
             r.raise_for_status()
             return r.json()
 
+    async def acreate_task(self, message: str, **kwargs: Any) -> dict:
+        """Async version of create_task()."""
+        body: dict[str, Any] = {"message": message, "callerId": self.caller_id, **kwargs}
+        async with httpx.AsyncClient(timeout=self.timeout) as c:
+            r = await c.post(f"{self.base_url}/api/v1/tasks", json=body)
+            r.raise_for_status()
+            return r.json()
+
+    async def aget_task(self, task_id: str) -> dict:
+        """Async version of get_task()."""
+        async with httpx.AsyncClient(timeout=self.timeout) as c:
+            r = await c.get(f"{self.base_url}/api/v1/tasks/{task_id}")
+            r.raise_for_status()
+            return r.json()
+
     # -- Connection helpers ---------------------------------------------------
 
     def ensure_running(self) -> bool:
         """Check if the STEM agent server is reachable. Print help if not."""
         try:
-            h = self.health()
+            self.health()
             print(f"[OK] STEM Agent is running at {self.base_url}")
             return True
         except (httpx.ConnectError, httpx.TimeoutException):
@@ -217,15 +247,15 @@ class StemAgentClient:
 # Display utilities
 # ---------------------------------------------------------------------------
 
-def print_response(response: dict, *, show_trace: bool = True) -> None:
+def print_response(response: dict, *, show_trace: bool = True, max_content: int = 500) -> None:
     """Pretty-print a STEM Agent chat response."""
     status = response.get("status", "unknown")
-    content = response.get("content", "")
+    content = str(response.get("content", ""))
     trace = response.get("reasoningTrace") or response.get("reasoning_trace") or []
 
     status_icon = {"completed": "+", "failed": "!", "in_progress": "~"}.get(status, "?")
     print(f"[{status_icon}] Status: {status}")
-    print(f"    Content: {content[:500]}{'...' if len(str(content)) > 500 else ''}")
+    print(f"    Content: {content[:max_content]}{'...' if len(content) > max_content else ''}")
 
     if show_trace and trace:
         print(f"    Trace ({len(trace)} steps):")
@@ -248,7 +278,30 @@ def print_persona(persona: dict) -> None:
     print(f"  Confidence:       {behavior.get('confidenceThreshold', '-')}")
     tags = persona.get("domainTags", [])
     print(f"  Domain Tags:      {', '.join(tags)}")
+    forbidden = persona.get("forbiddenTopics", [])
+    if forbidden:
+        print(f"  Forbidden Topics: {', '.join(forbidden)}")
+    tools = persona.get("toolAllowlist", [])
+    if tools:
+        print(f"  Tool Allowlist:   {', '.join(tools)}")
     print()
+
+
+def print_stream_events(events: Iterator[dict]) -> str:
+    """Display streaming SSE events with phase markers. Returns final content."""
+    content_parts = []
+    current_phase = None
+    for event in events:
+        phase = event.get("phase", "")
+        if phase and phase != current_phase:
+            current_phase = phase
+            print(f"\n  [{phase.upper()}]", end=" ", flush=True)
+        chunk = event.get("content") or event.get("delta", "")
+        if chunk:
+            content_parts.append(chunk)
+            print(".", end="", flush=True)
+    print()
+    return "".join(content_parts)
 
 
 def compare_responses(responses: list[dict], labels: list[str]) -> None:
@@ -260,7 +313,8 @@ def compare_responses(responses: list[dict], labels: list[str]) -> None:
         content = str(resp.get("content", ""))[:300]
         status = resp.get("status", "?")
         trace_len = len(resp.get("reasoningTrace") or resp.get("reasoning_trace") or [])
-        print(f"\n--- {label} [{status}] ({trace_len} reasoning steps) ---")
+        word_count = len(str(resp.get("content", "")).split())
+        print(f"\n--- {label} [{status}] ({trace_len} reasoning steps, {word_count} words) ---")
         print(content)
         if len(str(resp.get("content", ""))) > 300:
             print("...")
@@ -283,7 +337,33 @@ def bar_chart(data: dict[str, dict[str, float]], width: int = 30) -> None:
             val = data[cat].get(field, 0)
             bar_len = int((val / max_val) * width)
             bar = "#" * bar_len
-            print(f"    {cat:20s} |{bar:<{width}s}| {val:.2f}")
+            print(f"    {cat:22s} |{bar:<{width}s}| {val:.2f}")
+
+
+def radar_text(persona: dict, width: int = 20) -> None:
+    """Text-based radar chart showing persona behavior dimensions."""
+    behavior = persona.get("defaultBehavior", {})
+    dims = [
+        ("Depth", behavior.get("reasoningDepth", 0) / 5),
+        ("Confidence", behavior.get("confidenceThreshold", 0)),
+        ("Creativity", behavior.get("creativityLevel", 0)),
+        ("Tool Use", behavior.get("toolUsePreference", 0)),
+        ("Verbosity", behavior.get("verbosityLevel", 0)),
+    ]
+    print(f"  {persona['name']}  [{persona.get('preferredStrategy', 'auto')}]")
+    for label, val in dims:
+        filled = int(val * width)
+        empty = width - filled
+        print(f"    {label:14s} [{'#' * filled}{'.' * empty}] {val:.1%}")
+
+
+def print_task_status(task: dict) -> None:
+    """Pretty-print a task's current state."""
+    status = task.get("status", "unknown")
+    task_id = task.get("id", task.get("taskId", "?"))
+    icon = {"completed": "+", "failed": "!", "in_progress": "~", "pending": " ", "cancelled": "x"}.get(status, "?")
+    content = str(task.get("content", task.get("message", "")))[:80]
+    print(f"  [{icon}] {task_id[:8]}  {status:12s}  {content}")
 
 
 @contextmanager
@@ -293,3 +373,16 @@ def timed(label: str) -> Generator[None, None, None]:
     yield
     elapsed = time.perf_counter() - start
     print(f"  [{label}] {elapsed:.2f}s")
+
+
+def timing_chart(results: list[dict], name_key: str = "name", time_key: str = "elapsed") -> None:
+    """Horizontal bar chart of timing results."""
+    if not results:
+        return
+    max_t = max(r[time_key] for r in results)
+    if max_t == 0:
+        max_t = 1
+    for r in results:
+        bar_len = int((r[time_key] / max_t) * 30)
+        bar = "#" * bar_len
+        print(f"    {r[name_key]:22s} |{bar:<30s}| {r[time_key]:.2f}s")
