@@ -16,13 +16,15 @@ export class ReasoningEngine {
     log;
     llmClient;
     costGuardrail;
-    constructor(mcp, memory, config, llmClient, costGuardrail) {
+    systemPromptPrefix;
+    constructor(mcp, memory, config, llmClient, costGuardrail, systemPromptPrefix) {
         this.mcp = mcp;
         this.memory = memory;
         this.selector = new StrategySelector();
         this.maxSteps = config.maxReasoningSteps;
         this.llmClient = llmClient;
         this.costGuardrail = costGuardrail;
+        this.systemPromptPrefix = systemPromptPrefix;
         this.log = createLogger("reasoning-engine");
     }
     /**
@@ -30,13 +32,15 @@ export class ReasoningEngine {
      *
      * @param perception - Output from the perception engine.
      * @param behavior - Current behavior parameters.
+     * @param strategyOverride - When provided, bypasses the strategy selector.
+     *   Used by DomainPersona.preferredStrategy to pin differentiated agents.
      * @returns Validated ReasoningResult.
      */
-    async reason(perception, behavior) {
+    async reason(perception, behavior, strategyOverride) {
         const requiresTools = perception.context.toolsRequired === true
             || perception.entities.some((e) => e.type === "url");
-        const strategy = this.selector.select(perception, requiresTools);
-        this.log.debug({ strategy, intent: perception.intent }, "Strategy selected");
+        const strategy = strategyOverride ?? this.selector.select(perception, requiresTools);
+        this.log.debug({ strategy, intent: perception.intent, override: !!strategyOverride }, "Strategy selected");
         let result;
         switch (strategy) {
             case "chain_of_thought":
@@ -65,13 +69,21 @@ export class ReasoningEngine {
         this.log.debug({ strategy: result.strategyUsed, confidence: result.confidence, steps: result.steps.length }, "Reasoning complete");
         return result;
     }
-    /** Try an LLM chat call with cost guardrail. Returns null on failure. */
+    /**
+     * Try an LLM chat call with cost guardrail. Returns null on failure.
+     *
+     * When a persona systemPromptPrefix is configured, it is prepended to
+     * the first system message (or inserted as a new system message at the
+     * front) so every reasoning step stays in character for the differentiated
+     * agent.
+     */
     async llmChat(messages, opts) {
         if (!this.llmClient)
             return null;
         try {
+            const withPersona = this.injectPersonaPrefix(messages);
             this.costGuardrail?.checkBudget("reasoning");
-            const result = await this.llmClient.chat(messages, opts);
+            const result = await this.llmClient.chat(withPersona, opts);
             this.costGuardrail?.recordCost("reasoning", result.costUsd);
             return result.content;
         }
@@ -79,6 +91,18 @@ export class ReasoningEngine {
             this.log.warn({ err }, "LLM call failed in reasoning");
             return null;
         }
+    }
+    injectPersonaPrefix(messages) {
+        const prefix = this.systemPromptPrefix;
+        if (!prefix)
+            return messages;
+        if (messages.length > 0 && messages[0].role === "system") {
+            return [
+                { role: "system", content: `${prefix}\n\n${messages[0].content}` },
+                ...messages.slice(1),
+            ];
+        }
+        return [{ role: "system", content: prefix }, ...messages];
     }
     /** Chain-of-Thought: sequential reasoning steps without tool use. */
     async chainOfThought(perception, behavior) {

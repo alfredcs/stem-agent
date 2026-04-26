@@ -11,6 +11,7 @@
     { "path": "./packages/memory-system" },
     { "path": "./packages/agent-core" },
     { "path": "./packages/standard-interface" },
-    { "path": "./packages/mcp-server" }
+    { "path": "./packages/mcp-server" },
+    { "path": "./tsconfig.domains.json" }
   ]
 }

@@ -28,20 +28,22 @@ import {
   type IEmbeddingProvider,
 } from "@stem-agent/memory-system";
 import { StemMCPServer } from "@stem-agent/mcp-server";
-import { DomainPersonaSchema } from "@stem-agent/shared";
 import type { DomainPersona, MCPServerConfig } from "@stem-agent/shared";
 import type { BaseMCPServer } from "@stem-agent/mcp-integration";
-import { readFileSync } from "node:fs";
+import { loadPersona, registerPersonaDomainSkills } from "./persona-loader.js";
 
 async function main() {
   // Load domain persona if configured
   let persona: DomainPersona | undefined;
   const personaPath = process.env.DOMAIN_PERSONA;
   if (personaPath) {
-    const raw = JSON.parse(readFileSync(personaPath, "utf-8"));
-    persona = DomainPersonaSchema.parse(raw);
-    // Write to stderr (stdout is reserved for MCP stdio transport)
-    process.stderr.write(`[mcp-entrypoint] Loaded persona: ${persona.name}\n`);
+    try {
+      persona = loadPersona(personaPath);
+      // Write to stderr (stdout is reserved for MCP stdio transport)
+      process.stderr.write(`[mcp-entrypoint] Loaded persona: ${persona.name}\n`);
+    } catch (err) {
+      process.stderr.write(`[mcp-entrypoint] Failed to load persona (${personaPath}): ${err}\n`);
+    }
   }
 
   // Parse config
@@ -84,9 +86,13 @@ async function main() {
     },
   });
 
-  // Agent core
-  const agent = new StemAgent(config, mcpManager, memoryManager);
+  // Agent core (differentiated if persona was loaded)
+  const agent = new StemAgent(config, mcpManager, memoryManager, persona);
   await agent.initialize();
+  if (persona) {
+    const registered = await registerPersonaDomainSkills(persona, agent.getSkillManager());
+    process.stderr.write(`[mcp-entrypoint] Registered domain skills: ${registered.join(", ") || "(none)"}\n`);
+  }
 
   // Start MCP server on stdio
   const mcpServer = new StemMCPServer({

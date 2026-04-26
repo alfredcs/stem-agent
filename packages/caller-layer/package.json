@@ -1,6 +1,6 @@
 {
   "name": "@stem-agent/caller-layer",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Layer 1 — Caller/User Layer: CLI, web dashboard, A2A client, framework SDKs",
   "type": "module",

@@ -29,10 +29,12 @@ export class PerceptionEngine {
     log;
     llmClient;
     llmModel;
-    constructor(memory, llmClient, llmModel) {
+    systemPromptPrefix;
+    constructor(memory, llmClient, llmModel, systemPromptPrefix) {
         this.memory = memory;
         this.llmClient = llmClient;
         this.llmModel = llmModel;
+        this.systemPromptPrefix = systemPromptPrefix;
         this.log = createLogger("perception-engine");
     }
     /**
@@ -128,7 +130,7 @@ export class PerceptionEngine {
     }
     /** Attempt LLM-based perception. Returns null on parse failure. */
     async llmPerceive(text) {
-        const systemPrompt = [
+        const perceptionSystem = [
             "You are a perception engine. Analyze the user message and return ONLY valid JSON with these fields:",
             '- "intent": string (one of: question, command, analysis_request, creative_request, debugging, conversation, feedback, clarification)',
             '- "complexity": "simple" | "medium" | "complex"',
@@ -136,6 +138,9 @@ export class PerceptionEngine {
             '- "callerStyleSignals": object with numeric values 0-1 for keys: formality, verbosity, technicalDepth',
             "Return ONLY the JSON object, no markdown fences or extra text.",
         ].join("\n");
+        const systemPrompt = this.systemPromptPrefix
+            ? `${this.systemPromptPrefix}\n\n${perceptionSystem}`
+            : perceptionSystem;
         const result = await this.llmClient.chat([
             { role: "system", content: systemPrompt },
             { role: "user", content: text },

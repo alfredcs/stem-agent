@@ -1,6 +1,6 @@
 {
   "name": "@stem-agent/agent-core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Layer 3 — STEM Agent Core: perception, reasoning, planning, execution engines",
   "type": "module",

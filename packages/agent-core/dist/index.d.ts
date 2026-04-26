@@ -7,4 +7,5 @@ export { ExecutionEngine } from "./execution/index.js";
 export type { ILLMClient } from "./llm/index.js";
 export { AnthropicLLMClient, NoOpLLMClient, CostGuardrail } from "./llm/index.js";
 export { SkillManager, InMemorySkillRegistry } from "./skills/index.js";
+export type { SkillPluginInput } from "./skills/index.js";
 //# sourceMappingURL=index.d.ts.map

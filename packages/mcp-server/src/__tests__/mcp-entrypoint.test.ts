@@ -65,9 +65,12 @@ describe("MCP Entrypoint — Persona Loading", () => {
     expect(source).toContain('from "@stem-agent/mcp-server"');
   });
 
-  it("entrypoint source imports DomainPersonaSchema", () => {
-    const source = readFileSync(resolve(ROOT, "src/mcp-entrypoint.ts"), "utf-8");
-    expect(source).toContain("DomainPersonaSchema");
+  it("persona loader uses DomainPersonaSchema for validation", () => {
+    // DomainPersonaSchema lives in src/persona-loader.ts (a shared helper used
+    // by both the HTTP and MCP-stdio entrypoints) as of the
+    // 2026-04-25 agent-differentiation review.
+    const loaderSource = readFileSync(resolve(ROOT, "src/persona-loader.ts"), "utf-8");
+    expect(loaderSource).toContain("DomainPersonaSchema");
   });
 
   it("entrypoint reads DOMAIN_PERSONA env var for persona path", () => {

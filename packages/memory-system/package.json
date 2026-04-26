@@ -1,6 +1,6 @@
 {
   "name": "@stem-agent/memory-system",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Layer 4 — Memory & Learning System: episodic, semantic, procedural, user-context",
   "type": "module",

@@ -9,11 +9,24 @@ import { MCPManager, RemoteMCPServer } from "@stem-agent/mcp-integration";
 import { MemoryManager, EpisodicMemory, SemanticMemory, ProceduralMemory, UserContextManager, InMemoryEpisodicStore, InMemorySemanticStore, InMemoryProceduralStore, InMemoryUserContextStore, NoOpEmbeddingProvider, OpenAIEmbeddingProvider, } from "@stem-agent/memory-system";
 import { Gateway } from "@stem-agent/standard-interface";
 import { createLogger } from "@stem-agent/shared";
+import { loadPersona, registerPersonaDomainSkills } from "./persona-loader.js";
 const log = createLogger("server");
 async function main() {
     // Parse configuration from environment
     const config = AgentCoreConfigSchema.parse({});
     const embeddingCfg = config.agent.embedding;
+    // Load optional DomainPersona — the "transcription-factor" that
+    // differentiates the agent into a specialized role.
+    let persona;
+    if (process.env.DOMAIN_PERSONA) {
+        try {
+            persona = loadPersona(process.env.DOMAIN_PERSONA);
+            log.info({ persona: persona.name }, "Loaded domain persona");
+        }
+        catch (err) {
+            log.warn({ err, path: process.env.DOMAIN_PERSONA }, "Failed to load DOMAIN_PERSONA; running undifferentiated");
+        }
+    }
     // Embedding provider
     let embeddings;
     if (embeddingCfg.provider === "openai" && embeddingCfg.apiKey) {
@@ -52,9 +65,13 @@ async function main() {
             throw new Error(`Unsupported MCP transport "${cfg.transport}" for server "${cfg.name}"`);
         },
     });
-    // Agent core
-    const agent = new StemAgent(config, mcpManager, memoryManager);
+    // Agent core (differentiated if persona was loaded)
+    const agent = new StemAgent(config, mcpManager, memoryManager, persona);
     await agent.initialize();
+    if (persona) {
+        const registered = await registerPersonaDomainSkills(persona, agent.getSkillManager());
+        log.info({ persona: persona.name, domains: registered }, "Domain skills registered");
+    }
     log.info("Agent initialized");
     // Gateway
     const gateway = new Gateway(agent, {

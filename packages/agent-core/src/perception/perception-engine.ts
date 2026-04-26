@@ -34,11 +34,18 @@ export class PerceptionEngine {
   private readonly log: Logger;
   private readonly llmClient?: ILLMClient;
   private readonly llmModel?: string;
+  private readonly systemPromptPrefix?: string;
 
-  constructor(memory: IMemoryManager, llmClient?: ILLMClient, llmModel?: string) {
+  constructor(
+    memory: IMemoryManager,
+    llmClient?: ILLMClient,
+    llmModel?: string,
+    systemPromptPrefix?: string,
+  ) {
     this.memory = memory;
     this.llmClient = llmClient;
     this.llmModel = llmModel;
+    this.systemPromptPrefix = systemPromptPrefix;
     this.log = createLogger("perception-engine");
   }
 
@@ -150,7 +157,7 @@ export class PerceptionEngine {
     urgency: "low" | "medium" | "high";
     callerStyleSignals: Record<string, number>;
   } | null> {
-    const systemPrompt = [
+    const perceptionSystem = [
       "You are a perception engine. Analyze the user message and return ONLY valid JSON with these fields:",
       '- "intent": string (one of: question, command, analysis_request, creative_request, debugging, conversation, feedback, clarification)',
       '- "complexity": "simple" | "medium" | "complex"',
@@ -158,6 +165,9 @@ export class PerceptionEngine {
       '- "callerStyleSignals": object with numeric values 0-1 for keys: formality, verbosity, technicalDepth',
       "Return ONLY the JSON object, no markdown fences or extra text.",
     ].join("\n");
+    const systemPrompt = this.systemPromptPrefix
+      ? `${this.systemPromptPrefix}\n\n${perceptionSystem}`
+      : perceptionSystem;
 
     const result = await this.llmClient!.chat(
       [

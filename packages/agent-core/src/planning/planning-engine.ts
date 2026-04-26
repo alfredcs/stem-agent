@@ -24,11 +24,18 @@ export class PlanningEngine {
   private readonly maxPlanSteps: number;
   private readonly log: Logger;
   private readonly llmClient?: ILLMClient;
+  private readonly systemPromptPrefix?: string;
 
-  constructor(memory: IMemoryManager, config: AgentCoreConfig, llmClient?: ILLMClient) {
+  constructor(
+    memory: IMemoryManager,
+    config: AgentCoreConfig,
+    llmClient?: ILLMClient,
+    systemPromptPrefix?: string,
+  ) {
     this.memory = memory;
     this.maxPlanSteps = config.maxPlanSteps;
     this.llmClient = llmClient;
+    this.systemPromptPrefix = systemPromptPrefix;
     this.log = createLogger("planning-engine");
   }
 
@@ -157,16 +164,20 @@ export class PlanningEngine {
   ): Promise<PlanStep[] | null> {
     try {
       const toolList = [...toolNames].join(", ");
+      const planSystem = [
+        "Generate an execution plan as a JSON array of PlanStep objects.",
+        "Each step: {\"stepId\": number, \"actionType\": \"tool_call\"|\"reasoning\"|\"response\", \"description\": string, \"dependsOn\": number[], \"estimatedConfidence\": number, \"toolName\"?: string, \"toolArguments\"?: object, \"fallbackAction\"?: string}",
+        `Available tools: [${toolList}]`,
+        `Max steps: ${this.maxPlanSteps}`,
+        "Return ONLY the JSON array.",
+      ].join("\n");
+      const systemContent = this.systemPromptPrefix
+        ? `${this.systemPromptPrefix}\n\n${planSystem}`
+        : planSystem;
       const result = await this.llmClient!.chat([
         {
           role: "system",
-          content: [
-            "Generate an execution plan as a JSON array of PlanStep objects.",
-            "Each step: {\"stepId\": number, \"actionType\": \"tool_call\"|\"reasoning\"|\"response\", \"description\": string, \"dependsOn\": number[], \"estimatedConfidence\": number, \"toolName\"?: string, \"toolArguments\"?: object, \"fallbackAction\"?: string}",
-            `Available tools: [${toolList}]`,
-            `Max steps: ${this.maxPlanSteps}`,
-            "Return ONLY the JSON array.",
-          ].join("\n"),
+          content: systemContent,
         },
         {
           role: "user",

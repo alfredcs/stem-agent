@@ -12,7 +12,8 @@ export declare class PerceptionEngine {
     private readonly log;
     private readonly llmClient?;
     private readonly llmModel?;
-    constructor(memory: IMemoryManager, llmClient?: ILLMClient, llmModel?: string);
+    private readonly systemPromptPrefix?;
+    constructor(memory: IMemoryManager, llmClient?: ILLMClient, llmModel?: string, systemPromptPrefix?: string);
     /**
      * Perceive an incoming message and produce a structured PerceptionResult.
      *

@@ -1,6 +1,6 @@
 {
   "name": "@stem-agent/mcp-integration",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Layer 5 — MCP Integration Layer: database, API, file, tool, and custom MCP servers",
   "type": "module",

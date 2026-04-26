@@ -1,4 +1,8 @@
 import type { Skill, ISkillRegistry, IMemoryManager, PerceptionResult, ExecutionPlan } from "@stem-agent/shared";
+import { SkillSchema } from "@stem-agent/shared";
+import type { z } from "zod";
+/** Input shape for plugin skills — respects Zod defaults (source, steps, entityTypes, etc.). */
+export type SkillPluginInput = Omit<z.input<typeof SkillSchema>, "id" | "createdAt" | "updatedAt">;
 import { type Logger } from "@stem-agent/shared";
 /**
  * In-memory implementation of ISkillRegistry.
@@ -44,7 +48,7 @@ export declare class SkillManager {
     /** Expose the registry for direct access (e.g., listing skills). */
     getRegistry(): ISkillRegistry;
     /** Manually register a skill plugin. */
-    registerPlugin(skill: Omit<Skill, "id" | "createdAt" | "updatedAt">): Promise<Skill>;
+    registerPlugin(skill: SkillPluginInput): Promise<Skill>;
     /** Remove a skill by ID. */
     removePlugin(skillId: string): Promise<void>;
     /** Remove a skill by name. */

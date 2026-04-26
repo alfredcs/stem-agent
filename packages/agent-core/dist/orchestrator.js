@@ -8,6 +8,13 @@ import { ExecutionEngine } from "./execution/index.js";
 import { AnthropicLLMClient, NoOpLLMClient, CostGuardrail } from "./llm/index.js";
 import { SkillManager, InMemorySkillRegistry } from "./skills/index.js";
 import { UtilityTracker } from "@stem-agent/memory-system";
+// ---------------------------------------------------------------------------
+// Caller-profile confidence gating (design doc Sec 7.3)
+// ---------------------------------------------------------------------------
+/** Below this interaction count the profile is considered unreliable. */
+const MIN_INTERACTIONS_FOR_TRUST = 5;
+/** Below this confidence the agent falls back to current-message signals. */
+const CONFIDENCE_FOR_PROFILE = 0.5;
 /**
  * StemAgent — the main agent orchestrator.
  *
@@ -30,13 +37,15 @@ export class StemAgent {
     behavior;
     costGuardrail;
     utilityTracker;
+    persona;
     tools = [];
     toolNames = [];
     initialized = false;
-    constructor(config, mcpManager, memoryManager) {
+    constructor(config, mcpManager, memoryManager, persona) {
         this.config = config;
         this.mcp = mcpManager;
         this.memoryManager = memoryManager;
+        this.persona = persona;
         this.log = createLogger("stem-agent");
         this.behavior = BehaviorParametersSchema.parse({});
         // Create LLM client based on config (which reads from env vars).
@@ -60,11 +69,15 @@ export class StemAgent {
         const activeLlm = isNoOp ? undefined : llmClient;
         this.costGuardrail = new CostGuardrail(config.agent.cost);
         this.utilityTracker = new UtilityTracker();
-        this.perception = new PerceptionEngine(memoryManager, activeLlm, llmConfig.models.perception);
-        this.reasoning = new ReasoningEngine(mcpManager, memoryManager, config, activeLlm, this.costGuardrail);
-        this.planning = new PlanningEngine(memoryManager, config, activeLlm);
+        this.perception = new PerceptionEngine(memoryManager, activeLlm, llmConfig.models.perception, persona?.systemPrompt);
+        this.reasoning = new ReasoningEngine(mcpManager, memoryManager, config, activeLlm, this.costGuardrail, persona?.systemPrompt);
+        this.planning = new PlanningEngine(memoryManager, config, activeLlm, persona?.systemPrompt);
         this.execution = new ExecutionEngine(mcpManager, memoryManager, config, activeLlm);
         this.skillManager = new SkillManager(new InMemorySkillRegistry(), memoryManager);
+    }
+    /** Access the domain persona (if differentiated). */
+    getPersona() {
+        return this.persona;
     }
     /** Initialize the agent: connect MCP servers and discover tools. */
     async initialize() {
@@ -93,7 +106,18 @@ export class StemAgent {
         try {
             // Phase 1: Perception
             const perception = await this.perception.perceive(message, this.toolNames);
-            // Phase 2: Adapt — tune behavior from caller profile
+            // Phase 1b: Persona guardrails — refuse disallowed intents / forbidden topics
+            const refusal = this.checkPersonaGuardrails(perception, message);
+            if (refusal) {
+                return AgentResponseSchema.parse({
+                    id: randomUUID(),
+                    status: "failed",
+                    content: refusal.content,
+                    contentType: "text/plain",
+                    metadata: { taskId, refusal: refusal.reason, persona: this.persona?.name },
+                });
+            }
+            // Phase 2: Adapt — tune behavior from caller profile + persona overrides
             const callerId = message.callerId ?? "anonymous";
             const callerProfile = await this.memoryManager.getCallerProfile(callerId);
             const adaptedBehavior = this.adapt(perception, callerProfile);
@@ -102,6 +126,7 @@ export class StemAgent {
             let usedSkillId;
             let reasoningResult;
             let plan;
+            const scopedTools = this.filterToolsByPersona(this.tools);
             if (matchedSkills.length > 0 && matchedSkills[0].maturity !== "progenitor") {
                 // Use the best matching committed/mature skill
                 const skill = matchedSkills[0];
@@ -120,8 +145,8 @@ export class StemAgent {
             }
             else {
                 // Normal pipeline: Reason → Plan
-                reasoningResult = await this.reasoning.reason(perception, adaptedBehavior);
-                plan = await this.planning.createPlan(reasoningResult, this.tools, adaptedBehavior);
+                reasoningResult = await this.reasoning.reason(perception, adaptedBehavior, this.persona?.preferredStrategy);
+                plan = await this.planning.createPlan(reasoningResult, scopedTools, adaptedBehavior);
             }
             // Phase 4: Execution
             const executionResult = await this.execution.execute(plan, adaptedBehavior, String(message.content ?? ""));
@@ -141,8 +166,11 @@ export class StemAgent {
                 },
             });
             // LEARN phase (async, non-blocking)
-            // 1. Store episode
-            this.storeEpisode(taskId, message, response).catch((err) => {
+            // 1. Store episode (with rich actions for meaningful crystallization)
+            const executedToolNames = plan.steps
+                .map((s) => s.toolName)
+                .filter((n) => typeof n === "string");
+            this.storeEpisode(taskId, message, response, perception, executedToolNames).catch((err) => {
                 this.log.warn({ err }, "Failed to store episode");
             });
             // 2. Update caller profile
@@ -204,6 +232,17 @@ export class StemAgent {
                 content: `Perceived: intent="${perception.intent}", complexity="${perception.complexity}"`,
                 metadata: { taskId, phase: "perception" },
             });
+            // Phase 1b: Persona guardrails
+            const refusal = this.checkPersonaGuardrails(perception, message);
+            if (refusal) {
+                yield AgentResponseSchema.parse({
+                    id: randomUUID(),
+                    status: "failed",
+                    content: refusal.content,
+                    metadata: { taskId, phase: "refusal", refusal: refusal.reason, persona: this.persona?.name },
+                });
+                return;
+            }
             // Phase 2: Adapt
             const callerId = message.callerId ?? "anonymous";
             const callerProfile = await this.memoryManager.getCallerProfile(callerId);
@@ -213,6 +252,7 @@ export class StemAgent {
             let usedSkillId;
             let reasoningResult;
             let plan;
+            const scopedTools = this.filterToolsByPersona(this.tools);
             if (matchedSkills.length > 0 && matchedSkills[0].maturity !== "progenitor") {
                 const skill = matchedSkills[0];
                 usedSkillId = skill.id;
@@ -234,14 +274,14 @@ export class StemAgent {
                 });
             }
             else {
-                reasoningResult = await this.reasoning.reason(perception, adaptedBehavior);
+                reasoningResult = await this.reasoning.reason(perception, adaptedBehavior, this.persona?.preferredStrategy);
                 yield AgentResponseSchema.parse({
                     id: randomUUID(),
                     status: "in_progress",
                     content: `Reasoned: strategy="${reasoningResult.strategyUsed}", confidence=${reasoningResult.confidence.toFixed(2)}`,
                     metadata: { taskId, phase: "reasoning" },
                 });
-                plan = await this.planning.createPlan(reasoningResult, this.tools, adaptedBehavior);
+                plan = await this.planning.createPlan(reasoningResult, scopedTools, adaptedBehavior);
                 yield AgentResponseSchema.parse({
                     id: randomUUID(),
                     status: "in_progress",
@@ -324,14 +364,34 @@ export class StemAgent {
             })),
         });
     }
-    /** Adapt behavior parameters based on caller profile and perception. */
+    /**
+     * Adapt behavior parameters based on caller profile, perception, and persona.
+     *
+     * Layers (lowest → highest precedence):
+     *   1. Defaults from BehaviorParametersSchema.
+     *   2. Caller-profile signals (only when profile is trusted — see
+     *      MIN_INTERACTIONS_FOR_TRUST / CONFIDENCE_FOR_PROFILE). For untrusted
+     *      profiles, fall back to perception.callerStyleSignals so the agent
+     *      behaves as undifferentiated rather than pinned to 0.5 defaults.
+     *   3. Persona defaultBehavior overrides (strongest — differentiates the
+     *      agent regardless of caller).
+     */
     adapt(perception, profile) {
-        return BehaviorParametersSchema.parse({
-            verbosityLevel: profile.style.verbosity,
-            reasoningDepth: Math.max(1, Math.round(profile.style.technicalDepth * 6)),
-            toolUsePreference: profile.philosophy.pragmatismVsIdealism,
-            creativityLevel: profile.philosophy.innovationOrientation,
-            explorationVsExploitation: profile.philosophy.riskTolerance,
+        const trusted = profile.totalInteractions >= MIN_INTERACTIONS_FOR_TRUST &&
+            profile.confidence >= CONFIDENCE_FOR_PROFILE;
+        const signals = perception.callerStyleSignals ?? {};
+        const pick = (profileValue, signalKey, fallback) => {
+            if (trusted)
+                return profileValue;
+            const s = signals[signalKey];
+            return typeof s === "number" ? s : fallback;
+        };
+        const base = {
+            verbosityLevel: pick(profile.style.verbosity, "verbosity", 0.5),
+            reasoningDepth: Math.max(1, Math.round(pick(profile.style.technicalDepth, "technicalDepth", 0.5) * 6)),
+            toolUsePreference: trusted ? profile.philosophy.pragmatismVsIdealism : 0.5,
+            creativityLevel: trusted ? profile.philosophy.innovationOrientation : 0.5,
+            explorationVsExploitation: trusted ? profile.philosophy.riskTolerance : 0.3,
             confidenceThreshold: perception.complexity === "complex"
                 ? 0.5
                 : perception.urgency === "high"
@@ -341,7 +401,49 @@ export class StemAgent {
             selfReflectionFrequency: 5,
             maxPlanSteps: 10,
             memoryRetrievalBreadth: 10,
-        });
+        };
+        // Persona overrides take precedence over everything else.
+        const personaOverrides = this.persona?.defaultBehavior ?? {};
+        return BehaviorParametersSchema.parse({ ...base, ...personaOverrides });
+    }
+    /**
+     * Check persona-defined scope and safety boundaries. Returns a refusal
+     * object if the message must be rejected, otherwise null.
+     */
+    checkPersonaGuardrails(perception, message) {
+        const persona = this.persona;
+        if (!persona)
+            return null;
+        if (persona.allowedIntents.length > 0 && !persona.allowedIntents.includes(perception.intent)) {
+            this.log.info({ persona: persona.name, intent: perception.intent }, "Refusing: intent not in allowedIntents");
+            return {
+                content: `Sorry — I can't handle this request. The ${persona.name} agent is scoped to: ${persona.allowedIntents.join(", ")}.`,
+                reason: "intent_not_allowed",
+            };
+        }
+        if (persona.forbiddenTopics.length > 0) {
+            const content = String(message.content ?? "").toLowerCase();
+            const hit = persona.forbiddenTopics.find((t) => content.includes(t.toLowerCase()));
+            if (hit) {
+                this.log.info({ persona: persona.name, topic: hit }, "Refusing: forbidden topic");
+                return {
+                    content: `Sorry — I can't discuss "${hit}". This falls outside the compliance scope of the ${persona.name} agent.`,
+                    reason: "forbidden_topic",
+                };
+            }
+        }
+        return null;
+    }
+    /**
+     * Filter discovered tools to only those the persona allows. Empty allowlist
+     * means "all discovered tools are permitted" (the generic-agent default).
+     */
+    filterToolsByPersona(tools) {
+        const allowlist = this.persona?.toolAllowlist ?? [];
+        if (allowlist.length === 0)
+            return tools;
+        const allow = new Set(allowlist);
+        return tools.filter((t) => allow.has(t.name));
     }
     /** Update utility scores for all retrieved memories based on outcome reward. */
     async updateRetrievedUtilities(ids, reward) {
@@ -388,14 +490,36 @@ export class StemAgent {
         });
         this.log.debug({ taskId, intent: perception.intent, reward }, "experience distilled");
     }
-    /** Store an episode in episodic memory. */
-    async storeEpisode(taskId, message, response) {
+    /**
+     * Store an episode in episodic memory.
+     *
+     * `actions` is intentionally rich so the crystallization detector
+     * (SkillManager.detectPatterns) can group episodes by meaningful
+     * signatures. A single "process" token collapses everything into one
+     * bucket and prevents useful skill discovery.
+     */
+    async storeEpisode(taskId, message, response, perception, toolNames) {
+        const actions = [];
+        if (perception?.intent)
+            actions.push(`intent:${perception.intent}`);
+        if (toolNames && toolNames.length > 0) {
+            for (const name of toolNames)
+                actions.push(`tool:${name}`);
+        }
+        if (actions.length === 0)
+            actions.push("process");
         await this.memoryManager.remember({
             id: randomUUID(),
             timestamp: Date.now(),
             actors: [message.callerId ?? "unknown"],
-            actions: ["process"],
-            context: { taskId },
+            actions,
+            context: {
+                taskId,
+                intent: perception?.intent,
+                domain: perception?.domain,
+                complexity: perception?.complexity,
+                persona: this.persona?.name,
+            },
             outcome: response.status,
             importance: response.status === "completed" ? 0.5 : 0.7,
             summary: `Task ${taskId}: ${response.status}`,

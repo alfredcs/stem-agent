@@ -1,4 +1,4 @@
-import type { IMCPManager, IMemoryManager, PerceptionResult, ReasoningResult, BehaviorParameters } from "@stem-agent/shared";
+import type { IMCPManager, IMemoryManager, PerceptionResult, ReasoningResult, ReasoningStrategy, BehaviorParameters } from "@stem-agent/shared";
 import type { AgentCoreConfig } from "../config.js";
 import type { ILLMClient } from "../llm/index.js";
 import type { CostGuardrail } from "../llm/index.js";
@@ -17,17 +17,28 @@ export declare class ReasoningEngine {
     private readonly log;
     private readonly llmClient?;
     private readonly costGuardrail?;
-    constructor(mcp: IMCPManager, memory: IMemoryManager, config: AgentCoreConfig, llmClient?: ILLMClient, costGuardrail?: CostGuardrail);
+    private readonly systemPromptPrefix?;
+    constructor(mcp: IMCPManager, memory: IMemoryManager, config: AgentCoreConfig, llmClient?: ILLMClient, costGuardrail?: CostGuardrail, systemPromptPrefix?: string);
     /**
      * Reason about a perceived message and produce a structured result.
      *
      * @param perception - Output from the perception engine.
      * @param behavior - Current behavior parameters.
+     * @param strategyOverride - When provided, bypasses the strategy selector.
+     *   Used by DomainPersona.preferredStrategy to pin differentiated agents.
      * @returns Validated ReasoningResult.
      */
-    reason(perception: PerceptionResult, behavior: BehaviorParameters): Promise<ReasoningResult>;
-    /** Try an LLM chat call with cost guardrail. Returns null on failure. */
+    reason(perception: PerceptionResult, behavior: BehaviorParameters, strategyOverride?: ReasoningStrategy): Promise<ReasoningResult>;
+    /**
+     * Try an LLM chat call with cost guardrail. Returns null on failure.
+     *
+     * When a persona systemPromptPrefix is configured, it is prepended to
+     * the first system message (or inserted as a new system message at the
+     * front) so every reasoning step stays in character for the differentiated
+     * agent.
+     */
     private llmChat;
+    private injectPersonaPrefix;
     /** Chain-of-Thought: sequential reasoning steps without tool use. */
     private chainOfThought;
     /** ReAct: Reason-Act-Observe loop using MCP tools. */

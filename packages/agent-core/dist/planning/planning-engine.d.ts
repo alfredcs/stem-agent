@@ -13,7 +13,8 @@ export declare class PlanningEngine {
     private readonly maxPlanSteps;
     private readonly log;
     private readonly llmClient?;
-    constructor(memory: IMemoryManager, config: AgentCoreConfig, llmClient?: ILLMClient);
+    private readonly systemPromptPrefix?;
+    constructor(memory: IMemoryManager, config: AgentCoreConfig, llmClient?: ILLMClient, systemPromptPrefix?: string);
     /**
      * Create an execution plan from a reasoning result.
      *

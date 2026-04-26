@@ -23,8 +23,9 @@ import {
 } from "@stem-agent/memory-system";
 import { Gateway } from "@stem-agent/standard-interface";
 import { createLogger } from "@stem-agent/shared";
-import type { MCPServerConfig } from "@stem-agent/shared";
+import type { MCPServerConfig, DomainPersona } from "@stem-agent/shared";
 import type { BaseMCPServer } from "@stem-agent/mcp-integration";
+import { loadPersona, registerPersonaDomainSkills } from "./persona-loader.js";
 
 const log = createLogger("server");
 
@@ -32,6 +33,18 @@ async function main() {
   // Parse configuration from environment
   const config = AgentCoreConfigSchema.parse({});
   const embeddingCfg = config.agent.embedding;
+
+  // Load optional DomainPersona — the "transcription-factor" that
+  // differentiates the agent into a specialized role.
+  let persona: DomainPersona | undefined;
+  if (process.env.DOMAIN_PERSONA) {
+    try {
+      persona = loadPersona(process.env.DOMAIN_PERSONA);
+      log.info({ persona: persona.name }, "Loaded domain persona");
+    } catch (err) {
+      log.warn({ err, path: process.env.DOMAIN_PERSONA }, "Failed to load DOMAIN_PERSONA; running undifferentiated");
+    }
+  }
 
   // Embedding provider
   let embeddings: IEmbeddingProvider;
@@ -73,9 +86,13 @@ async function main() {
     },
   });
 
-  // Agent core
-  const agent = new StemAgent(config, mcpManager, memoryManager);
+  // Agent core (differentiated if persona was loaded)
+  const agent = new StemAgent(config, mcpManager, memoryManager, persona);
   await agent.initialize();
+  if (persona) {
+    const registered = await registerPersonaDomainSkills(persona, agent.getSkillManager());
+    log.info({ persona: persona.name, domains: registered }, "Domain skills registered");
+  }
   log.info("Agent initialized");
 
   // Gateway

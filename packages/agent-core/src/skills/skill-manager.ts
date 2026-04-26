@@ -9,6 +9,10 @@ import type {
   PlanStep,
 } from "@stem-agent/shared";
 import { SkillSchema, ExecutionPlanSchema } from "@stem-agent/shared";
+import type { z } from "zod";
+
+/** Input shape for plugin skills — respects Zod defaults (source, steps, entityTypes, etc.). */
+export type SkillPluginInput = Omit<z.input<typeof SkillSchema>, "id" | "createdAt" | "updatedAt">;
 import { createLogger, type Logger } from "@stem-agent/shared";
 import { randomUUID } from "node:crypto";
 
@@ -209,7 +213,7 @@ export class SkillManager {
   // ---- Plugin Management (Induced Differentiation) ----------------------
 
   /** Manually register a skill plugin. */
-  async registerPlugin(skill: Omit<Skill, "id" | "createdAt" | "updatedAt">): Promise<Skill> {
+  async registerPlugin(skill: SkillPluginInput): Promise<Skill> {
     const full = SkillSchema.parse({
       ...skill,
       id: randomUUID(),

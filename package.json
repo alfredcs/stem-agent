@@ -1,6 +1,6 @@
 {
   "name": "stem-agent",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "STEM Agent — Self-adapting, Tool-enabled, Extensible, Multi-agent System",
   "type": "module",

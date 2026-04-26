@@ -1,6 +1,6 @@
 {
   "name": "@stem-agent/standard-interface",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Layer 2 — Standard Interface Layer: A2A, REST, WebSocket, framework adapters",
   "type": "module",
