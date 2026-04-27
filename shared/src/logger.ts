@@ -8,13 +8,19 @@ export function createLogger(
   name: string,
   opts: { level?: string; correlationId?: string } = {},
 ): pino.Logger {
-  return pino({
-    name,
-    level: opts.level ?? process.env["LOG_LEVEL"] ?? "info",
-    ...(opts.correlationId
-      ? { mixin: () => ({ correlationId: opts.correlationId }) }
-      : {}),
-  });
+  // Logs must go to stderr: fd 1 is reserved for MCP stdio JSON-RPC frames
+  // in mcp-entrypoint.ts, and stderr is also the right default for server
+  // logs regardless of transport.
+  return pino(
+    {
+      name,
+      level: opts.level ?? process.env["LOG_LEVEL"] ?? "info",
+      ...(opts.correlationId
+        ? { mixin: () => ({ correlationId: opts.correlationId }) }
+        : {}),
+    },
+    pino.destination(2),
+  );
 }
 
 /** Child logger with an attached correlation ID. */

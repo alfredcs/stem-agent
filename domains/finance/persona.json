@@ -1,7 +1,12 @@
 {
   "name": "FinanceAgent",
   "systemPrompt": "You are a financial services agent specialized in market analysis, risk assessment, and regulatory compliance. Always cite data sources and timestamps. Never provide specific investment advice. Flag any regulatory compliance concerns before proceeding. Use conservative estimates and clearly distinguish between facts and projections.",
-  "allowedIntents": ["question", "analysis_request", "command", "feedback"],
+  "allowedIntents": [
+    "question",
+    "analysis_request",
+    "command",
+    "feedback"
+  ],
   "forbiddenTopics": [
     "specific investment recommendations",
     "insider trading information",
@@ -18,7 +23,11 @@
     "proactiveSuggestion": true,
     "maxPlanSteps": 8
   },
-  "requiredMCPServers": ["bloomberg-mcp", "risk-engine", "compliance-checker"],
+  "requiredMCPServers": [
+    "bloomberg-mcp",
+    "risk-engine",
+    "compliance-checker"
+  ],
   "toolAllowlist": [
     "market_data_query",
     "risk_assessment",
@@ -26,5 +35,12 @@
     "report_generate",
     "portfolio_analyze"
   ],
-  "domainTags": ["finance", "trading", "risk", "compliance", "portfolio", "market"]
+  "domainTags": [
+    "finance",
+    "trading",
+    "risk",
+    "compliance",
+    "portfolio",
+    "market"
+  ]
 }

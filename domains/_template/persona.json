@@ -1,0 +1,19 @@
+{
+  "name": "TEMPLATE_AGENT_NAME",
+  "systemPrompt": "TEMPLATE: Replace with a domain-specific system prompt. Describe the agent's role, required rigor, citation/confidence norms, and hard prohibitions.",
+  "allowedIntents": ["question", "analysis_request", "command"],
+  "forbiddenTopics": [],
+  "preferredStrategy": "react",
+  "defaultBehavior": {
+    "reasoningDepth": 3,
+    "confidenceThreshold": 0.7,
+    "creativityLevel": 0.3,
+    "toolUsePreference": 0.7,
+    "verbosityLevel": 0.5,
+    "proactiveSuggestion": false,
+    "maxPlanSteps": 6
+  },
+  "requiredMCPServers": [],
+  "toolAllowlist": [],
+  "domainTags": ["TEMPLATE_TAG"]
+}
